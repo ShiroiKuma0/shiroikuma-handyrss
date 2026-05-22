@@ -774,4 +774,8 @@
     <string name="feed_list_color_desc">Background color of left pane</string>
     <string name="error_no_connection">Сan not load the website. The timeout has been exceeded</string>
 
+    <string name="settings_list_layout_grid">Grid article layout</string>
+    <string name="settings_list_layout_grid_descr">Show articles as a grid of image cards instead of a row list</string>
+    <string name="settings_list_grid_columns">Grid: columns per row</string>
+    <string name="settings_list_grid_title_lines">Grid: title lines</string>
 </resources>
