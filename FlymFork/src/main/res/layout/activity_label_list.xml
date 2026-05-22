@@ -11,6 +11,8 @@
 
     <ru.yanus171.feedexfork.view.DragNDropListView
         android:id="@+id/list_view"
+        android:divider="@color/menu_pref_fg"
+        android:dividerHeight="1dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="@dimen/text_margin" />
