@@ -26,4 +26,19 @@
         <item name="android:scaleType">fitCenter</item>
     </style>
 
+    <!-- overflow/popup menu: black panel, yellow text (set as the toolbar popupTheme) -->
+    <style name="ThemeOverlay.HandyRss.Popup" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="android:colorBackground">@color/menu_pref_bg</item>
+        <item name="android:textColorPrimary">@color/menu_pref_fg</item>
+        <item name="android:textColorSecondary">@color/menu_pref_fg</item>
+        <item name="colorAccent">@color/menu_pref_fg</item>
+        <item name="popupMenuStyle">@style/Widget.HandyRss.PopupMenu</item>
+        <item name="actionOverflowMenuStyle">@style/Widget.HandyRss.PopupMenu.Overflow</item>
+    </style>
+    <style name="Widget.HandyRss.PopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">@color/menu_pref_bg</item>
+    </style>
+    <style name="Widget.HandyRss.PopupMenu.Overflow" parent="Widget.AppCompat.PopupMenu.Overflow">
+        <item name="android:popupBackground">@color/menu_pref_bg</item>
+    </style>
 </resources>
