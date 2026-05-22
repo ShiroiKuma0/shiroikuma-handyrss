@@ -155,7 +155,7 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
     public static final String LABEL_ID_EXTRA = "LABEL_ID";
     public static Uri mCurrentUri = null;
     public static final long ALL_LABELS = -2L;
-    public ListView mListView;
+    public AbsListView mListView;
     public boolean mIsSingleLabel = false;
 
     private static final String STATE_CURRENT_URI = "STATE_CURRENT_URI";
@@ -373,7 +373,7 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
         }
 
         if ( mListView instanceof ListView )
-            UiUtils.addEmptyFooterView(mListView, 90);
+            UiUtils.addEmptyFooterView((ListView)mListView, 90);
 
         TextView emptyView = CreateTextView( getContext() );
         emptyView.setText( getString( R.string.no_entries ) );
@@ -700,7 +700,7 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
 
         mEntriesCursorAdapter = new EntriesCursorAdapter(getActivity(), mCurrentUri, Constants.EMPTY_CURSOR, mShowFeedInfo, mShowTextInEntryList, mShowUnReadOnly, this);
         SetListViewAdapter();
-        mListView.setDividerHeight( mShowTextInEntryList ? 10 : 0 );
+        if (mListView instanceof ListView) ((ListView)mListView).setDividerHeight( mShowTextInEntryList ? 10 : 0 );
         if (mCurrentUri != null)
             restartLoaders();
 
@@ -752,7 +752,7 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
             } else
                 mEntriesCursorAdapter.notifyDataSetChanged();
         } else if ( o instanceof EntriesCursorAdapter.ListViewTopPos) {
-            mListView.setSelectionFromTop( ((EntriesCursorAdapter.ListViewTopPos)o).mPos, 0 );
+            mListView.setSelection( ((EntriesCursorAdapter.ListViewTopPos)o).mPos );
         }
     }
 
@@ -1010,7 +1010,7 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
         if ( mLastVisibleTopEntryID != -1 ) {
             int pos = mEntriesCursorAdapter.GetPosByID(mLastVisibleTopEntryID);
             if ( pos != -1 )
-                mListView.setSelectionFromTop(pos, mLastListViewTopOffset);
+                mListView.setSelection(pos);
         }
     }
 

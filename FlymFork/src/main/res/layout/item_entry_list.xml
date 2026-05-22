@@ -2,8 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/entry_list_layout_root_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:background="@drawable/grid_item_frame"
     android:paddingStart="5dp"
     android:paddingLeft="5dp"
     android:paddingEnd="5dp"
@@ -72,16 +73,19 @@
                     android:id="@+id/layout_with_background"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
-                    <ImageView
-                        android:id="@+id/main_icon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingTop="5dp"
-                        android:paddingEnd="5dp"
-                        android:paddingRight="5dp"
-                        android:scaleType="centerCrop" />
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="100dp"
+                        android:background="#000000">
+
+                        <ImageView
+                            android:id="@+id/main_icon"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop" />
+                    </FrameLayout>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -102,7 +106,7 @@
                                 android:layout_height="wrap_content"
                                 android:ellipsize="end"
                                 android:gravity="start"
-                                android:maxLines="5"
+                                android:maxLines="3"
                                 android:text="Title may be very longvery longvery longer longvery longvery longvery longvery longvery longvery longvery longvery longvery longvery longvery longvery longvery long"
                                 android:textColor="@color/dark_theme_color_unread"
                                 android:textIsSelectable="false" />
@@ -124,81 +128,95 @@
                             android:id="@+id/layout_controls"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:paddingEnd="35dp"
-                            android:paddingRight="35dp">
+                            android:orientation="vertical"
+                            android:paddingEnd="4dp"
+                            android:paddingRight="4dp">
 
                             <LinearLayout
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:paddingEnd="5dp"
-                                android:paddingRight="5dp">
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
 
-                                <ImageView
-                                    android:id="@+id/new_icon"
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:alpha="0.7"
-                                    android:src="@drawable/ic_indicator_new_article_dark" />
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:paddingEnd="5dp"
+                                    android:paddingRight="5dp">
 
-                                <ImageView
-                                    android:id="@+id/favorite_icon"
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:alpha="0.7"
-                                    android:src="@drawable/ic_indicator_star_dark" />
+                                    <ImageView
+                                        android:id="@+id/new_icon"
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:layout_gravity="center"
+                                        android:alpha="0.7"
+                                        android:src="@drawable/ic_indicator_new_article_dark" />
 
-                                <ImageView
-                                    android:id="@+id/mobilized_icon"
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center"
-                                    android:alpha="0.7"
-                                    android:src="@drawable/ic_indicator_full_text" />
+                                    <ImageView
+                                        android:id="@+id/favorite_icon"
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:layout_gravity="center"
+                                        android:alpha="0.7"
+                                        android:src="@drawable/ic_indicator_star_dark" />
 
-                                <ImageView
-                                    android:id="@+id/read_icon"
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center_vertical"
-                                    android:alpha="0.7"
-                                    android:src="@drawable/ic_indicator_unread" />
+                                    <ImageView
+                                        android:id="@+id/mobilized_icon"
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:layout_gravity="center"
+                                        android:alpha="0.7"
+                                        android:src="@drawable/ic_indicator_full_text" />
 
-                                <ImageView
-                                    android:id="@+id/video_icon"
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                    android:layout_gravity="center_vertical"
+                                    <ImageView
+                                        android:id="@+id/read_icon"
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:layout_gravity="center_vertical"
+                                        android:alpha="0.7"
+                                        android:src="@drawable/ic_indicator_unread" />
+
+                                    <ImageView
+                                        android:id="@+id/video_icon"
+                                        android:layout_width="20dp"
+                                        android:layout_height="20dp"
+                                        android:layout_gravity="center_vertical"
+                                        android:alpha="0.7"
+                                        android:src="@drawable/ic_video" />
+                                </LinearLayout>
+
+                                <TextView
+                                    android:id="@android:id/text2"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:singleLine="true"
+                                    android:ellipsize="end"
                                     android:alpha="0.7"
-                                    android:src="@drawable/ic_video" />
+                                    android:text="info"
+                                    android:textAppearance="?android:attr/textAppearanceSmall"
+                                    android:textColor="@color/dark_theme_color_unread"
+                                    android:textIsSelectable="false" />
                             </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/grid_date_line"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:singleLine="true"
+                                android:ellipsize="end"
+                                android:alpha="0.7"
+                                android:text="date"
+                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:textColor="@color/dark_theme_color_unread"
+                                android:textIsSelectable="false" />
 
                             <TextView
                                 android:id="@+id/textDate"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:alpha="0.7"
-                                android:drawablePadding="3dp"
-                                android:paddingStart="10dp"
-                                android:paddingLeft="10dp"
-                                android:paddingEnd="10dp"
-                                android:paddingRight="10dp"
                                 android:singleLine="true"
-                                android:text="date"
-                                android:textAppearance="?android:attr/textAppearanceMedium"
-                                android:textColor="@color/dark_theme_color_unread"
-                                android:textIsSelectable="false" />
-
-                            <TextView
-                                android:id="@android:id/text2"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:alpha="0.7"
-                                android:drawablePadding="3dp"
-                                android:text="info"
-                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:visibility="gone"
                                 android:textColor="@color/dark_theme_color_unread"
                                 android:textIsSelectable="false" />
 
@@ -206,21 +224,16 @@
                                 android:id="@+id/imageSize"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:alpha="0.7"
-                                android:drawablePadding="3dp"
-                                android:paddingStart="10dp"
-                                android:paddingLeft="10dp"
                                 android:singleLine="true"
-                                android:text="image_size"
-                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:visibility="gone"
                                 android:textColor="@color/dark_theme_color_unread"
                                 android:textIsSelectable="false" />
 
                             <ImageView
                                 android:id="@+id/collapsed_btn"
                                 android:layout_width="30dp"
-                                android:layout_height="match_parent"
-                                android:alpha="0.5"
+                                android:layout_height="wrap_content"
+                                android:visibility="gone"
                                 android:scaleType="fitCenter"
                                 android:src="@drawable/ic_keyboard_arrow_down_gray" />
 
@@ -228,13 +241,8 @@
                                 android:id="@+id/textAuthor"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:alpha="0.7"
-                                android:drawablePadding="3dp"
-                                android:paddingStart="10dp"
-                                android:paddingLeft="10dp"
                                 android:singleLine="true"
-                                android:text="author"
-                                android:textAppearance="?android:attr/textAppearanceSmall"
+                                android:visibility="gone"
                                 android:textColor="@color/dark_theme_color_unread"
                                 android:textIsSelectable="false" />
                         </LinearLayout>
