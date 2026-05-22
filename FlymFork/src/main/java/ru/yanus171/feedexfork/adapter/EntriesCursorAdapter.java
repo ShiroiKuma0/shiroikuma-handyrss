@@ -213,8 +213,11 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
     private static Cursor mCursor = null;
     HashMap<Long, Integer> mItemPositionVoc = new HashMap<>();
     HashMap<Integer, Long> mItemIDVoc = new HashMap<>();
+    private boolean mGridMode = PrefUtils.getBoolean("list_layout_grid", true);
+    private int mGridTitleLines = PrefUtils.getIntFromText("list_grid_title_lines", 3);
+
     public EntriesCursorAdapter(Context context, Uri uri, Cursor cursor, boolean showFeedInfo, boolean showEntryTextFromFeedSetup, boolean showUnread, EntriesListFragment entriesListFragment) {
-        super(context, R.layout.item_entry_list, cursor, 0);
+        super(context, PrefUtils.getBoolean("list_layout_grid", true) ? R.layout.item_entry_list : R.layout.item_entry_row, cursor, 0);
         //Dog.v( String.format( "new EntriesCursorAdapter( %s, showUnread = %b )", uri.toString() ,showUnread ) );
         mContext = context;
         mUri = uri;
@@ -592,7 +595,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
             holder.titleTextView.setText(titleText);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
             holder.titleTextView.setTextDirection( isTextRTL( titleText ) ? TEXT_DIRECTION_RTL : TEXT_DIRECTION_ANY_RTL );
-        holder.titleTextView.setMaxLines( isTextShown ? 20 : 3 );
+        holder.titleTextView.setMaxLines( isTextShown ? 20 : (mGridMode ? mGridTitleLines : 5) );
 
         holder.urlTextView.setText(cursor.getString(mUrlPos));
 
@@ -666,7 +669,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
 
         final long textSize = cursor.isNull( mTextLenPos ) ? FileUtils.INSTANCE.LinkToFile( cursor.getString( mUrlPos ) ).length() : cursor.getInt( mTextLenPos );
         String textSizeText = " " + GetTextSizeText( textSize );
-        if (!isTextShown) {
+        if (mGridMode && !isTextShown) {
             holder.dateTextView.setText( mShowFeedInfo && mFeedNamePos > -1 && feedName != null ? feedName : "" );
             holder.gridDateLine.setText(StringUtils.getDateTimeString(cursor.getLong(mDatePos)) + textSizeText);
             holder.gridDateLine.setVisibility(View.VISIBLE);
@@ -688,7 +691,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
             if ( max > 0 && ( mShowFeedInfo || !mIsAutoSetAsRead ) ) {
                 holder.textSizeProgressBar.setMax( max );
                 holder.textSizeProgressBar.setProgress( (int)textSize );
-                holder.textSizeProgressBar.setVisibility(View.GONE );
+                holder.textSizeProgressBar.setVisibility(mGridMode ? View.GONE : View.VISIBLE );
             } else
                 holder.textSizeProgressBar.setVisibility(View.GONE );
         }

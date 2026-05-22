@@ -765,4 +765,8 @@
     <string name="page_jump_PDF_confirm">Jump to page %d?</string>
     <string name="unknownLocalBookType">Unknown book type</string>
 
+    <string name="settings_list_layout_grid">Grid article layout</string>
+    <string name="settings_list_layout_grid_descr">Show articles as a grid of image cards instead of a row list</string>
+    <string name="settings_list_grid_columns">Grid: columns per row</string>
+    <string name="settings_list_grid_title_lines">Grid: title lines</string>
 </resources>
