@@ -783,6 +783,7 @@
     <string name="settings_font_cat_listtext">Article text (in list)</string>
     <string name="settings_font_cat_drawer">Feed / category list (left drawer)</string>
     <string name="settings_font_cat_body">Article text (reading view)</string>
+    <string name="settings_font_cat_heading">Article headings (reading view)</string>
     <string name="settings_font_family">Font family</string>
     <string name="settings_font_weight">Font weight</string>
     <string name="settings_font_pick_size">Size</string>
