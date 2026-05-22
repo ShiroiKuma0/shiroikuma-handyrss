@@ -220,6 +220,24 @@
             android:defaultValue="0"
             android:title="@string/settings_font_pick_size"/>
 
+        <PreferenceCategory
+            android:layout="@layout/preference_category"
+            android:title="@string/settings_font_cat_body"/>
+        <ru.yanus171.feedexfork.view.FontSelectPreference
+            android:defaultValue=""
+            android:key="font_family_body"
+            android:title="@string/settings_font_family"/>
+        <ListPreference
+            android:key="font_weight_body"
+            android:defaultValue="0"
+            android:title="@string/settings_font_weight"
+            android:entries="@array/font_weight_entries"
+            android:entryValues="@array/font_weight_values"/>
+        <ru.yanus171.feedexfork.view.FontSizePreference
+            android:key="font_size_body"
+            android:defaultValue="0"
+            android:title="@string/settings_font_pick_size"/>
+
         <Preference
             android:selectable="false"
             android:title=" " />
