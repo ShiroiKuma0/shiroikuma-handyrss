@@ -338,12 +338,12 @@ public class DrawerAdapter extends BaseAdapter {
         holder.titleTxt.setText("");
         holder.titleTxt.setTextColor(NORMAL_TEXT_COLOR);
         holder.titleTxt.setAllCaps(false);
-        SetFont(holder.titleTxt, 1);
+        ru.yanus171.feedexfork.utils.FontUtil.apply(holder.titleTxt, ru.yanus171.feedexfork.utils.FontUtil.DRAWER, 18 + PrefUtils.getFontSizeEntryList());
         holder.stateTxt.setVisibility(View.GONE);
         holder.unreadTxt.setText("");
-        SetFont(holder.unreadTxt, 1);
+        ru.yanus171.feedexfork.utils.FontUtil.apply(holder.unreadTxt, ru.yanus171.feedexfork.utils.FontUtil.DRAWER, 18 + PrefUtils.getFontSizeEntryList());
         holder.readTxt.setText("");
-        SetFont(holder.readTxt, 1);
+        ru.yanus171.feedexfork.utils.FontUtil.apply(holder.readTxt, ru.yanus171.feedexfork.utils.FontUtil.DRAWER, 18 + PrefUtils.getFontSizeEntryList());
         convertView.setPadding(0, 0, 0, 0);
         holder.separator.setVisibility(View.GONE);
         holder.autoRefreshIcon.setVisibility(View.GONE);
