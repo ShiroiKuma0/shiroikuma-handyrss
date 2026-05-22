@@ -31,6 +31,10 @@
         <item name="android:navigationBarColor">@color/menu_pref_bg</item>
         <item name="android:windowBackground">@color/menu_pref_bg</item>
         <item name="android:colorBackground">@color/menu_pref_bg</item>
+        <item name="android:textColorPrimary">@color/menu_pref_fg</item>
+        <item name="android:textColorSecondary">@color/menu_pref_fg</item>
+        <item name="colorControlNormal">@color/menu_pref_fg</item>
+        <item name="colorControlActivated">@color/menu_pref_fg</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
     <style name="Theme.Dark.Pref" parent="Theme.Dark">
@@ -56,6 +60,10 @@
         <item name="android:navigationBarColor">@color/menu_pref_bg</item>
         <item name="android:windowBackground">@color/menu_pref_bg</item>
         <item name="android:colorBackground">@color/menu_pref_bg</item>
+        <item name="android:textColorPrimary">@color/menu_pref_fg</item>
+        <item name="android:textColorSecondary">@color/menu_pref_fg</item>
+        <item name="colorControlNormal">@color/menu_pref_fg</item>
+        <item name="colorControlActivated">@color/menu_pref_fg</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
