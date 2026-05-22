@@ -208,6 +208,24 @@
             android:defaultValue="0"
             android:title="@string/settings_font_pick_size"/>
 
+        <PreferenceCategory
+            android:layout="@layout/preference_category"
+            android:title="@string/settings_font_cat_heading"/>
+        <ru.yanus171.feedexfork.view.FontSelectPreference
+            android:defaultValue=""
+            android:key="font_family_heading"
+            android:title="@string/settings_font_family"/>
+        <ListPreference
+            android:key="font_weight_heading"
+            android:defaultValue="0"
+            android:title="@string/settings_font_weight"
+            android:entries="@array/font_weight_entries"
+            android:entryValues="@array/font_weight_values"/>
+        <ru.yanus171.feedexfork.view.FontSizePreference
+            android:key="font_size_heading"
+            android:defaultValue="0"
+            android:title="@string/settings_font_pick_size"/>
+
         <Preference
             android:selectable="false"
             android:title=" " />
@@ -340,13 +358,6 @@
             android:layout="@layout/preference_category"
             android:title="@string/settings_category_article_text"/>
 
-        <ru.yanus171.feedexfork.view.AutoSummaryListPreference
-            android:defaultValue="0"
-            android:entries="@array/settings_font_sizes"
-            android:entryValues="@array/settings_font_size_values"
-            android:inputType="number"
-            android:key="fontsize"
-            android:title="@string/settings_font_size"/>
 
         <!--<ru.yanus171.feedexfork.view.AutoSummaryEditPreference-->
             <!--android:key="text_color_brightness"-->
