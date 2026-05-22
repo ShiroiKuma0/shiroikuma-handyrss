@@ -336,8 +336,14 @@ public class DrawerAdapter extends BaseAdapter {
         holder.childExpandBtn.setVisibility( View.GONE );
         holder.childExpandBtn.setImageDrawable(null);
         holder.titleTxt.setText("");
-        holder.titleTxt.setTextColor(NORMAL_TEXT_COLOR);
+        final int drawerFg = Theme.GetTextColorInt();
+        holder.titleTxt.setTextColor(drawerFg);
         holder.titleTxt.setAllCaps(false);
+        holder.unreadTxt.setTextColor(drawerFg);
+        holder.separator.setBackgroundColor(drawerFg);
+        holder.iconView.setColorFilter(drawerFg);
+        holder.iconViewSmall.setColorFilter(drawerFg);
+        holder.childExpandBtn.setColorFilter(drawerFg);
         ru.yanus171.feedexfork.utils.FontUtil.apply(holder.titleTxt, ru.yanus171.feedexfork.utils.FontUtil.DRAWER, 18 + PrefUtils.getFontSizeEntryList());
         holder.stateTxt.setVisibility(View.GONE);
         holder.unreadTxt.setText("");
@@ -410,7 +416,7 @@ public class DrawerAdapter extends BaseAdapter {
                 notifyDataSetChanged();
             });
             holder.titleTxt.setText(R.string.labels_group_title);
-            holder.titleTxt.setTextColor(GROUP_TEXT_COLOR);
+            holder.titleTxt.setTextColor(drawerFg);
             holder.titleTxt.setAllCaps(true);
             holder.separator.setVisibility(View.VISIBLE);
         } else if (isLabelPos(position)) {
@@ -462,7 +468,7 @@ public class DrawerAdapter extends BaseAdapter {
                     values.put(FeedData.FeedColumns.IS_GROUP_EXPANDED, isGroupExpanded(position) ? null : 1);
                     cr.update(FeedData.FeedColumns.CONTENT_URI(getItemId(position)), values, null, null);
                 });
-                holder.titleTxt.setTextColor(GROUP_TEXT_COLOR);
+                holder.titleTxt.setTextColor(drawerFg);
                 holder.separator.setVisibility(View.VISIBLE);
             } else {
                 holder.stateTxt.setVisibility(View.VISIBLE);
