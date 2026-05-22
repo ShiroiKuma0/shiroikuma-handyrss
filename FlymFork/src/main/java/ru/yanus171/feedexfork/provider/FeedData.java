@@ -75,7 +75,7 @@ import static ru.yanus171.feedexfork.provider.FeedData.EntryColumns.WHERE_UNREAD
 import static ru.yanus171.feedexfork.service.FetcherService.GetExtrenalLinkFeedID;
 
 public class FeedData {
-    public static final String PACKAGE_NAME = "ru.yanus171.feedexfork";
+    public static final String PACKAGE_NAME = "shiroikuma.handyrss";
     private static final String CONTENT = "content://";
     public static final String AUTHORITY = PACKAGE_NAME + ".provider.FeedData";
     public static final String CONTENT_AUTHORITY = CONTENT + AUTHORITY;

@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <permission
-        android:name="ru.yanus171.feedexfork.provider.WRITE_PERMISSION"
+        android:name="shiroikuma.handyrss.provider.WRITE_PERMISSION"
         android:protectionLevel="signature" />
     <queries>
         <intent>
@@ -62,12 +62,12 @@
 
         <provider
             android:name=".provider.FeedDataContentProvider"
-            android:authorities="ru.yanus171.feedexfork.provider.FeedData"
+            android:authorities="shiroikuma.handyrss.provider.FeedData"
             android:exported="false"
-            android:writePermission="ru.yanus171.feedexfork.provider.WRITE_PERMISSION" />
+            android:writePermission="shiroikuma.handyrss.provider.WRITE_PERMISSION" />
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="ru.yanus171.feedexfork.fileprovider"
+            android:authorities="shiroikuma.handyrss.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
