@@ -10,7 +10,7 @@ android {
 
     compileSdkVersion 31
     defaultConfig {
-        applicationId 'ru.yanus171.feedexfork'
+        applicationId 'shiroikuma.handyrss'
         minSdkVersion 14
         targetSdkVersion 31
         versionCode 340
