@@ -603,7 +603,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
 
         holder.collapsedBtn.setVisibility( IsShowEntryText() || !isExpandArticleText ? View.GONE : View.VISIBLE );
         holder.collapsedBtn.setImageResource( holder.isTextExpanded() ? R.drawable.ic_keyboard_arrow_down_gray : R.drawable.ic_keyboard_arrow_right_gray );
-        SetFont(holder.titleTextView, 1 );
+        ru.yanus171.feedexfork.utils.FontUtil.apply(holder.titleTextView, ru.yanus171.feedexfork.utils.FontUtil.TITLE, 18 + PrefUtils.getFontSizeEntryList() );
         final boolean showBigImage = getBoolean(SHOW_ARTICLE_BIG_IMAGE, false) && IsShowArticleBigImagesEnabled( mUri );;
         holder.mainImgView.setVisibility( View.GONE );
         holder.mainBigImgView.setVisibility( View.GONE );
@@ -728,6 +728,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
             s = s.trim();
             if ( !s.isEmpty() ) {
                 holder.textPreviewTextView.setText(getBoldText(s));
+                ru.yanus171.feedexfork.utils.FontUtil.apply(holder.textPreviewTextView, ru.yanus171.feedexfork.utils.FontUtil.LIST_TEXT, 14 + PrefUtils.getFontSizeEntryList());
                 holder.textPreviewTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -1125,6 +1126,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
     private void SetupEntryText(ViewHolder holder, Spanned text, boolean isReadMore) {
         //SetTextViewHTMLWithLinks(holder.textTextView, text );
         holder.textTextView.setText( text );
+        ru.yanus171.feedexfork.utils.FontUtil.apply(holder.textTextView, ru.yanus171.feedexfork.utils.FontUtil.LIST_TEXT, 18 + PrefUtils.getFontSizeEntryList());
         //holder.openArticle.setText( R.string.open_article );
         //holder.openArticle.setVisibility(isReadMore ? View.VISIBLE : View.GONE );
     }
