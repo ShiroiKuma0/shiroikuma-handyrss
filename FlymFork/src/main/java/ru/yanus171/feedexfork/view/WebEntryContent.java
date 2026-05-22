@@ -178,16 +178,22 @@ public class WebEntryContent {
 
 
     private static String GetCSS(final String text, final String url, boolean isEditingMode) {
-        String mainFontLocalUrl = GetTypeFaceLocalUrl(PrefUtils.getString("fontFamily", DefaultFontFamily), isEditingMode);
+        String bodyFamilyName = PrefUtils.getString("font_family_body", "");
+        if (bodyFamilyName.isEmpty()) bodyFamilyName = PrefUtils.getString("fontFamily", DefaultFontFamily);
+        String mainFontLocalUrl = GetTypeFaceLocalUrl(bodyFamilyName, isEditingMode);
         final CustomClassFontInfo customFontInfo = GetCustomClassAndFontName("font_rules", url);
         if ( !customFontInfo.mKeyword.isEmpty() && customFontInfo.mClassName.isEmpty() )
             mainFontLocalUrl = GetTypeFaceLocalUrl( customFontInfo.mFontName, isEditingMode );
         String mainFontSize = PrefUtils.getFontSizeText(0 );
+        int bodySizeSp = PrefUtils.getIntFromText("font_size_body", 0);
+        if (bodySizeSp > 0) mainFontSize = bodySizeSp + "pt";
+        int bodyWeightVal = PrefUtils.getIntFromText("font_weight_body", 0);
+        String bodyWeightCss = bodyWeightVal > 0 ? (bodyWeightVal + ";") : getFontBold();
         String textAlign = getAlign(text);
         return "<head><style type='text/css'> "
                 + "@font-face { font-family:\"MainFont\"; src: url(\"" + mainFontLocalUrl + "\");" + "} \n"
                 + "@font-face { font-family:\"CustomFont\"; src: url(\"" + GetTypeFaceLocalUrl(customFontInfo.mFontName, isEditingMode) + "\");}\n"
-                + "body { font-family: \"MainFont\"; font-size: " + mainFontSize + "; text-align:" + textAlign + "; font-weight: " + getFontBold() + "; "
+                + "body { font-family: \"MainFont\"; font-size: " + mainFontSize + "; text-align:" + textAlign + "; font-weight: " + bodyWeightCss + "; "
                 + "font-size: " + mainFontSize + "; color: " + Theme.GetTextColor() + "; background-color:" + Theme.GetBackgroundColor() + "; "
                 + "max-width: 100%; margin: " + getMargins() + "; " +  PrefUtils.getString( "main_font_css_text", "" ) + "}\n "
                 + "* {word-break: break-word}\n"
