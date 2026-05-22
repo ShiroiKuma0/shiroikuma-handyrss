@@ -82,14 +82,18 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <ListView
+                        <GridView
                             android:id="@android:id/list"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_gravity="fill"
-                            android:divider="#66888888"
-                            android:dividerHeight="5dp"
-                            android:footerDividersEnabled="false" />
+                            android:background="#000000"
+                            android:cacheColorHint="#000000"
+                            android:numColumns="4"
+                            android:stretchMode="columnWidth"
+                            android:horizontalSpacing="4dp"
+                            android:verticalSpacing="4dp"
+                            android:gravity="center" />
 
                         <include layout="@layout/brightness_slider_layout_left" />
                         <include layout="@layout/brightness_slider_layout_right" />
