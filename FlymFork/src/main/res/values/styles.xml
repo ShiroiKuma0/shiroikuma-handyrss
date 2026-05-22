@@ -32,8 +32,16 @@
         <item name="android:textColorPrimary">@color/menu_pref_fg</item>
         <item name="android:textColorSecondary">@color/menu_pref_fg</item>
         <item name="colorAccent">@color/menu_pref_fg</item>
+        <item name="colorControlNormal">@color/menu_pref_fg</item>
         <item name="popupMenuStyle">@style/Widget.HandyRss.PopupMenu</item>
         <item name="actionOverflowMenuStyle">@style/Widget.HandyRss.PopupMenu.Overflow</item>
+    </style>
+
+    <!-- HandyRss: yellow toolbar title + navigation/action icons on black -->
+    <style name="ThemeOverlay.HandyRss.Toolbar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:textColorPrimary">@color/menu_pref_fg</item>
+        <item name="android:textColorSecondary">@color/menu_pref_fg</item>
+        <item name="colorControlNormal">@color/menu_pref_fg</item>
     </style>
     <style name="Widget.HandyRss.PopupMenu" parent="Widget.AppCompat.PopupMenu">
         <item name="android:popupBackground">@color/menu_pref_bg</item>

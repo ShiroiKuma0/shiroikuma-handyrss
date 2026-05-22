@@ -96,18 +96,21 @@
                                             android:orientation="vertical">
 
                                             <RadioButton
+                                                android:textColor="@color/menu_pref_fg"
                                                 android:id="@+id/rbRss"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
                                                 android:text="@string/loadTypeRSS" />
 
                                             <RadioButton
+                                                android:textColor="@color/menu_pref_fg"
                                                 android:id="@+id/rbWebLinks"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
                                                 android:text="@string/loadTypeWeb" />
 
                                             <RadioButton
+                                                android:textColor="@color/menu_pref_fg"
                                                 android:id="@+id/rbOneWebPage"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
@@ -140,6 +143,7 @@
                                             android:orientation="horizontal">
 
                                             <CheckBox
+                                                android:textColor="@color/menu_pref_fg"
                                                 android:id="@+id/has_group"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
@@ -154,12 +158,14 @@
                                         </LinearLayout>
 
                                         <CheckBox
+                                            android:textColor="@color/menu_pref_fg"
                                             android:id="@+id/retrieve_fulltext"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:text="@string/get_full_text" />
 
                                         <CheckBox
+                                            android:textColor="@color/menu_pref_fg"
                                             android:id="@+id/show_text_in_entry_list"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
@@ -167,17 +173,20 @@
                                             android:text="@string/show_text_in_entry_list" />
 
                                         <CheckBox
+                                            android:textColor="@color/menu_pref_fg"
                                             android:id="@+id/auto_refresh"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:text="@string/auto_refresh_feed" />
 
                                         <CheckBox
+                                            android:textColor="@color/menu_pref_fg"
                                             android:id="@+id/auto_image_load"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:text="@string/auto_image_load" />
                                         <CheckBox
+                                            android:textColor="@color/menu_pref_fg"
                                             android:id="@+id/auto_set_as_read"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
@@ -190,6 +199,7 @@
                                             android:orientation="vertical">
 
                                             <CheckBox
+                                                android:textColor="@color/menu_pref_fg"
                                                 android:id="@+id/cbCustomRefreshInterval"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
@@ -210,6 +220,7 @@
                                             android:orientation="vertical">
 
                                             <CheckBox
+                                                android:textColor="@color/menu_pref_fg"
                                                 android:id="@+id/cbCustomKeepTime"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
