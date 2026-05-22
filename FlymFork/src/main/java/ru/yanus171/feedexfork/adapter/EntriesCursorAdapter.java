@@ -286,6 +286,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
             holder.dayTextView = SetupTextView(view, R.id.textDay);
             holder.dayTextView.setTextColor(Theme.GetTextColorReadInt());
             holder.authorTextView = SetupSmallTextView(view, R.id.textAuthor);
+            holder.gridDateLine = SetupSmallTextView(view, R.id.grid_date_line);
             holder.imageSizeTextView = SetupSmallTextView(view, R.id.imageSize);
             holder.mainImgView = view.findViewById(R.id.main_icon);
             holder.mainBigImgView = view.findViewById(R.id.main_big_icon);
@@ -591,7 +592,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
             holder.titleTextView.setText(titleText);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
             holder.titleTextView.setTextDirection( isTextRTL( titleText ) ? TEXT_DIRECTION_RTL : TEXT_DIRECTION_ANY_RTL );
-        holder.titleTextView.setMaxLines( isTextShown ? 20 : 5 );
+        holder.titleTextView.setMaxLines( isTextShown ? 20 : 3 );
 
         holder.urlTextView.setText(cursor.getString(mUrlPos));
 
@@ -665,14 +666,21 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
 
         final long textSize = cursor.isNull( mTextLenPos ) ? FileUtils.INSTANCE.LinkToFile( cursor.getString( mUrlPos ) ).length() : cursor.getInt( mTextLenPos );
         String textSizeText = " " + GetTextSizeText( textSize );
-        if (mShowFeedInfo && mFeedNamePos > -1) {
-            if (feedName != null) {
-                holder.dateTextView.setText(Html.fromHtml("<font color='#247ab0'>" + feedName + "</font>" + Constants.COMMA_SPACE + StringUtils.getDateTimeString(cursor.getLong(mDatePos))) + textSizeText);
+        if (!isTextShown) {
+            holder.dateTextView.setText( mShowFeedInfo && mFeedNamePos > -1 && feedName != null ? feedName : "" );
+            holder.gridDateLine.setText(StringUtils.getDateTimeString(cursor.getLong(mDatePos)) + textSizeText);
+            holder.gridDateLine.setVisibility(View.VISIBLE);
+        } else {
+            holder.gridDateLine.setVisibility(View.GONE);
+            if (mShowFeedInfo && mFeedNamePos > -1) {
+                if (feedName != null) {
+                    holder.dateTextView.setText(Html.fromHtml("<font color='#247ab0'>" + feedName + "</font>" + Constants.COMMA_SPACE + StringUtils.getDateTimeString(cursor.getLong(mDatePos))) + textSizeText);
+                } else {
+                    holder.dateTextView.setText(StringUtils.getDateTimeString(cursor.getLong(mDatePos)) + textSizeText);
+                }
             } else {
                 holder.dateTextView.setText(StringUtils.getDateTimeString(cursor.getLong(mDatePos)) + textSizeText);
             }
-        } else {
-            holder.dateTextView.setText(StringUtils.getDateTimeString(cursor.getLong(mDatePos)) + textSizeText);
         }
 
         {
@@ -680,7 +688,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
             if ( max > 0 && ( mShowFeedInfo || !mIsAutoSetAsRead ) ) {
                 holder.textSizeProgressBar.setMax( max );
                 holder.textSizeProgressBar.setProgress( (int)textSize );
-                holder.textSizeProgressBar.setVisibility(View.VISIBLE );
+                holder.textSizeProgressBar.setVisibility(View.GONE );
             } else
                 holder.textSizeProgressBar.setVisibility(View.GONE );
         }
@@ -1427,6 +1435,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
         TextView labelTextView;
         TextView dateTextView;
         TextView authorTextView;
+        TextView gridDateLine;
         TextView imageSizeTextView;
         ImageView mainImgView;
         ImageView mainBigImgView;
