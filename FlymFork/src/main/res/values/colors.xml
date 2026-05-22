@@ -34,4 +34,7 @@
     <color name="black_theme_prefCategoryBackground">#404040</color>
     <color name="black_theme_prefItemBackground">#000000</color>
 
+    <!-- black/yellow recolor for system-drawn menus + settings -->
+    <color name="menu_pref_fg">#FFFF00</color>
+    <color name="menu_pref_bg">#000000</color>
 </resources>
