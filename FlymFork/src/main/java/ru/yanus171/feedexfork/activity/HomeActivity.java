@@ -252,6 +252,7 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         //mLeftDrawer.setBackgroundColor(ContextCompat.getColor( this, PrefUtils.IsLightTheme() ?  R.color.light_background : R.color.dark_background));
 
         mDrawerList = findViewById(R.id.drawer_list);
+        mDrawerList.setBackgroundColor(ru.yanus171.feedexfork.utils.Theme.GetBackgroundColorInt());
         mDrawerList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         mDrawerList.setOnItemClickListener((parent, view, position, id) -> {
             selectDrawerItem(position);
