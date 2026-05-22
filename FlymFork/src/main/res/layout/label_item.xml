@@ -11,6 +11,7 @@
         android:text="Name" />
     <ImageView
         android:id="@+id/dragButton"
+        android:tint="@color/menu_pref_fg"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:src="@drawable/sort"
