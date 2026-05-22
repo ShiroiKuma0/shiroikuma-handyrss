@@ -14,7 +14,7 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetClass="ru.yanus171.feedexfork.activity.AboutActivity"
-            android:targetPackage="ru.yanus171.feedexfork"/>
+            android:targetPackage="shiroikuma.handyrss"/>
     </PreferenceScreen>
 
     <ListPreference
@@ -837,7 +837,7 @@
             android:title="@string/tag_list" >
             <intent
                 android:targetClass="ru.yanus171.feedexfork.activity.LabelListActivity"
-                android:targetPackage="ru.yanus171.feedexfork"/>
+                android:targetPackage="shiroikuma.handyrss"/>
         </PreferenceScreen>
         <CheckBoxPreference
             android:key="labels_sort_alphabetical"

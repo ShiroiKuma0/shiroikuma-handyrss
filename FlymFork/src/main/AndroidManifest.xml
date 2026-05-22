@@ -272,7 +272,7 @@
         <activity
             android:name=".activity.LabelListActivity"
             android:label="@string/tag_list"
-            android:theme="@style/Theme.AppCompat"
+            android:theme="@style/Theme.HandyRss.LabelList"
             android:launchMode="singleTask" />
         <activity
             android:name=".activity.GeneralPrefsActivity"
