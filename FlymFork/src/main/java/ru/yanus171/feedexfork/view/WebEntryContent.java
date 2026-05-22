@@ -201,6 +201,14 @@ public class WebEntryContent {
         if (bodySizeSp > 0) mainFontSize = bodySizeSp + "pt";
         int bodyWeightVal = PrefUtils.getIntFromText("font_weight_body", 0);
         String bodyWeightCss = bodyWeightVal > 0 ? (bodyWeightVal + ";") : getFontBold();
+        int headingSizeSp = PrefUtils.getIntFromText("font_size_heading", 0);
+        String h1Size = headingSizeSp > 0 ? (headingSizeSp + "pt") : PrefUtils.getFontSizeText(3 );
+        String h2Size = headingSizeSp > 0 ? ((headingSizeSp - 2) + "pt") : PrefUtils.getFontSizeText(3 );
+        int headingWeightVal = PrefUtils.getIntFromText("font_weight_heading", 0);
+        String headingWeightCss = headingWeightVal > 0 ? (headingWeightVal + ";") : "normal;";
+        String headingFamily = PrefUtils.getString("font_family_heading", "");
+        String headingFontFace = headingFamily.isEmpty() ? "" : ("@font-face { font-family:\"HeadingFont\"; src: url(\"" + GetTypeFaceLocalUrl(headingFamily, mIsEditingMode) + "\");}\n");
+        String headingFamilyRule = headingFamily.isEmpty() ? "" : "title, h1, h2 {font-family: \"HeadingFont\"}\n ";
         String textAlign = getAlign(mTitle);
         return "<head><style type='text/css'> "
                 + "@font-face { font-family:\"MainFont\"; src: url(\"" + mainFontLocalUrl + "\");" + "} \n"
@@ -209,13 +217,13 @@ public class WebEntryContent {
                 + "font-size: " + mainFontSize + "; color: " + Theme.GetTextColor() + "; background-color:" + Theme.GetBackgroundColor() + "; "
                 + "max-width: 100%; margin: " + getMargins() + "; " + PrefUtils.getString("main_font_css_text", "") + "}\n "
                 + "* {word-break: break-word}\n"
-                + "title, h1, h2 {font-weight: normal; text-align:center; line-height: 120%}\n "
+                + headingFontFace + headingFamilyRule + "title, h1, h2 {font-weight: " + headingWeightCss + " text-align:center; line-height: 120%}\n "
                 + "title, h1, h2, h3, h4, h5 {margin-top: 1.0cm; margin-bottom: 0.1em}\n"
-                + "title, h1 {font-size: " + PrefUtils.getFontSizeText(3) + "; }\n "
-                + "h2 {font-size: " + PrefUtils.getFontSizeText(3) + "}\n "
-                + "h3 {font-size: " + PrefUtils.getFontSizeText(2) + "}\n "
-                + "h4 {font-size: " + PrefUtils.getFontSizeText(2) + "}\n "
-                + "h5 {font-size: " + PrefUtils.getFontSizeText(1) + "}\n "
+                + "title, h1 {font-size: " + h1Size + "}\n "
+                + "h2 {font-size: " + h2Size + "}\n "
+                + "h3 {font-size: " + PrefUtils.getFontSizeText( 2 ) + "}\n "
+                + "h4 {font-size: " + PrefUtils.getFontSizeText( 2 ) + "}\n "
+                + "h5 {font-size: " + PrefUtils.getFontSizeText( 1 ) + "}\n "
                 + "} body {color: #000; text-align: justify; background-color: #fff;}\n"
                 + "a.loaded_link {color: " + Theme.GetColor(LOADED_LINK_COLOR, R.string.default_loaded_link_color) + "; background: " + Theme.GetColor(LOADED_LINK_COLOR_BACKGROUND, R.string.default_text_color_background) + "}\n"
                 + "a.no_draw_link {color: " + Theme.GetTextColor() + "; background: " + Theme.GetBackgroundColor() + "; text-decoration: none" + "}\n"
