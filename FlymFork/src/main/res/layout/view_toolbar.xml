@@ -10,7 +10,7 @@
     android:elevation="4dp"
     android:background="?attr/colorPrimary"
     support:popupTheme="@style/ThemeOverlay.HandyRss.Popup"
-    support:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+    support:theme="@style/ThemeOverlay.HandyRss.Toolbar"
     tools:showIn="@layout/view_home"
     support:layout_scrollFlags="scroll|enterAlways"
     tools:targetApi="lollipop" />

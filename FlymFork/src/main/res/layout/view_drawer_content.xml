@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize"
         android:padding="3dp"
-        android:background="@color/dark_theme_color_primary">
+        android:background="@color/menu_pref_bg">
 
         <ImageButton
             style="?android:attr/buttonBarButtonStyle"
@@ -21,6 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="onClickAdd"
+            android:tint="@color/menu_pref_fg"
             android:src="@drawable/ic_add_circle_outline" />
 
         <ImageButton
@@ -29,6 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="onClickArticleWebSearch"
+            android:tint="@color/menu_pref_fg"
             android:src="@drawable/web_search_white" />
 
         <ImageButton
@@ -37,6 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="onClickEditFeeds"
+            android:tint="@color/menu_pref_fg"
             android:src="@drawable/ic_edit" />
 
         <ImageButton
@@ -45,6 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:onClick="onClickSettings"
+            android:tint="@color/menu_pref_fg"
             android:src="@drawable/ic_settings"/>
     </LinearLayout>
 
