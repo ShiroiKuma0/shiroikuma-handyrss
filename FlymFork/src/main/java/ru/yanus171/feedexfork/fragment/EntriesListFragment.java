@@ -1073,6 +1073,11 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
     }
 
     private void SetListViewAdapter() {
+        if (mListView instanceof android.widget.GridView) {
+            boolean gridMode = PrefUtils.getBoolean("list_layout_grid", true);
+            int gridCols = PrefUtils.getIntFromText("list_grid_columns", 4);
+            ((android.widget.GridView) mListView).setNumColumns( gridMode ? Math.max(1, gridCols) : 1 );
+        }
         mListView.setAdapter(mEntriesCursorAdapter);
         mNeedSetSelection = true;
     }

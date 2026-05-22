@@ -170,6 +170,24 @@
             android:layout="@layout/preference_category"
             android:title="@string/settings_category_article_list"/>
 
+        <CheckBoxPreference
+            android:key="list_layout_grid"
+            android:defaultValue="true"
+            android:title="@string/settings_list_layout_grid"
+            android:summary="@string/settings_list_layout_grid_descr"/>
+
+        <EditTextPreference
+            android:key="list_grid_columns"
+            android:inputType="number"
+            android:defaultValue="4"
+            android:title="@string/settings_list_grid_columns"/>
+
+        <EditTextPreference
+            android:key="list_grid_title_lines"
+            android:inputType="number"
+            android:defaultValue="3"
+            android:title="@string/settings_list_grid_title_lines"/>
+
         <ru.yanus171.feedexfork.view.AutoSummaryListPreference
             android:defaultValue="0"
             android:entries="@array/settings_font_sizes"
