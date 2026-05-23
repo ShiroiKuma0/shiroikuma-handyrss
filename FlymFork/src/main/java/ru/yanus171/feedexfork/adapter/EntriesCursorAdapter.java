@@ -215,6 +215,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
     HashMap<Integer, Long> mItemIDVoc = new HashMap<>();
     private boolean mGridMode = PrefUtils.getBoolean("list_layout_grid", true);
     private int mGridTitleLines = PrefUtils.getIntFromText("list_grid_title_lines", 3);
+    private int mGridImageHeight = PrefUtils.getIntFromText("list_grid_image_height", 100);
 
     public EntriesCursorAdapter(Context context, Uri uri, Cursor cursor, boolean showFeedInfo, boolean showEntryTextFromFeedSetup, boolean showUnread, EntriesListFragment entriesListFragment) {
         super(context, PrefUtils.getBoolean("list_layout_grid", true) ? R.layout.item_entry_list : R.layout.item_entry_row, cursor, 0);
@@ -292,6 +293,14 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
             holder.gridDateLine = SetupSmallTextView(view, R.id.grid_date_line);
             holder.imageSizeTextView = SetupSmallTextView(view, R.id.imageSize);
             holder.mainImgView = view.findViewById(R.id.main_icon);
+            if (mGridMode && holder.mainImgView != null && holder.mainImgView.getParent() instanceof ViewGroup) {
+                ViewGroup imgFrame = (ViewGroup) holder.mainImgView.getParent();
+                ViewGroup.LayoutParams lp = imgFrame.getLayoutParams();
+                if (lp != null) {
+                    lp.height = (int) (mGridImageHeight * context.getResources().getDisplayMetrics().density);
+                    imgFrame.setLayoutParams(lp);
+                }
+            }
             holder.mainBigImgView = view.findViewById(R.id.main_big_icon);
             //holder.mainImgLayout = view.findViewById(R.id.main_icon_layout);
             holder.layoutControls = view.findViewById(R.id.layout_controls);

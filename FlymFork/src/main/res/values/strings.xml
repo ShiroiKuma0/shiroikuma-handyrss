@@ -769,6 +769,7 @@
     <string name="settings_list_layout_grid_descr">Show articles as a grid of image cards instead of a row list</string>
     <string name="settings_list_grid_columns">Grid: columns per row</string>
     <string name="settings_list_grid_title_lines">Grid: title lines</string>
+    <string name="settings_list_grid_image_height">Grid: image height (dp)</string>
     <string name="settings_category_fonts">Fonts</string>
     <string name="settings_font_cat_title">Article title (list)</string>
     <string name="settings_font_cat_listtext">Article text (in list)</string>
