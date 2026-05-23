@@ -150,10 +150,11 @@ public class FontSelectPreference extends Preference {
 	protected View onCreateView(ViewGroup parent) {
 		LinearLayout vLayout = new LinearLayout(getContext());
 		vLayout.setOrientation(LinearLayout.VERTICAL);
-		vLayout.setPadding(15, 10, 15, 10);
+		vLayout.setPadding(UiUtils.dpToPixel(32), UiUtils.dpToPixel(2), UiUtils.dpToPixel(8), UiUtils.dpToPixel(2));
 
 		TextView title = new TextView(getContext());
 		title.setText(getTitle());
+		title.setTextColor(0xFF989898);
 		title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 22);
 		vLayout.addView(title);
 
@@ -285,7 +286,8 @@ public class FontSelectPreference extends Preference {
 				TextView textView = new TextView(getContext());
 				textView.setText( getItem(position).mFontName );
 				textView.setTypeface( getItem(position).mTypeface );
-				textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+				textView.setTextColor( getContext().getResources().getColor(R.color.menu_pref_fg) );
+				textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 22);
 				//textView.setPadding(EventListView.cPad, 0, 0, 0);
 				textView.setGravity(Gravity.CENTER_VERTICAL);
 				hLayout.addView(textView);
