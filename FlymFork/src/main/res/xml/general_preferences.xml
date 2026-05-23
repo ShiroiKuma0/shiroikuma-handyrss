@@ -288,6 +288,12 @@
             android:defaultValue="3"
             android:title="@string/settings_list_grid_title_lines"/>
 
+        <EditTextPreference
+            android:key="list_grid_image_height"
+            android:inputType="number"
+            android:defaultValue="100"
+            android:title="@string/settings_list_grid_image_height"/>
+
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="setting_show_article_icon"

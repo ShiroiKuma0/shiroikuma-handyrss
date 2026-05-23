@@ -28,6 +28,9 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             android:visibility="gone"
+            app:backgroundTint="@color/menu_pref_bg"
+            app:tint="@color/menu_pref_fg"
+            android:foreground="@drawable/fab_yellow_ring"
             android:src="@drawable/ic_done_all_white_24dp" />
 
         <include layout="@layout/dim_frame" />
