@@ -167,94 +167,121 @@
         android:title="@string/settings_category_fonts">
 
         <PreferenceCategory
-            android:layout="@layout/preference_category"
-            android:title="@string/settings_font_cat_title"/>
-        <ru.yanus171.feedexfork.view.FontSelectPreference
-            android:defaultValue=""
-            android:key="font_family_title"
-            android:title="@string/settings_font_family"/>
-        <ListPreference
-            android:key="font_weight_title"
-            android:defaultValue="0"
-            android:title="@string/settings_font_weight"
-            android:entries="@array/font_weight_entries"
-            android:entryValues="@array/font_weight_values"/>
-        <ru.yanus171.feedexfork.view.FontSizePreference
-            android:key="font_size_title"
-            android:defaultValue="0"
-            android:title="@string/settings_font_pick_size"/>
+            android:layout="@layout/preference_font_topcat"
+            android:title="@string/settings_font_top_reading"/>
 
         <PreferenceCategory
-            android:layout="@layout/preference_category"
-            android:title="@string/settings_font_cat_listtext"/>
-        <ru.yanus171.feedexfork.view.FontSelectPreference
-            android:defaultValue=""
-            android:key="font_family_listtext"
-            android:title="@string/settings_font_family"/>
-        <ListPreference
-            android:key="font_weight_listtext"
-            android:defaultValue="0"
-            android:title="@string/settings_font_weight"
-            android:entries="@array/font_weight_entries"
-            android:entryValues="@array/font_weight_values"/>
-        <ru.yanus171.feedexfork.view.FontSizePreference
-            android:key="font_size_listtext"
-            android:defaultValue="0"
-            android:title="@string/settings_font_pick_size"/>
+            android:layout="@layout/preference_font_subhead"
+            android:title="@string/settings_font_sub_body"/>
 
-        <PreferenceCategory
-            android:layout="@layout/preference_category"
-            android:title="@string/settings_font_cat_drawer"/>
-        <ru.yanus171.feedexfork.view.FontSelectPreference
-            android:defaultValue=""
-            android:key="font_family_drawer"
-            android:title="@string/settings_font_family"/>
-        <ListPreference
-            android:key="font_weight_drawer"
-            android:defaultValue="0"
-            android:title="@string/settings_font_weight"
-            android:entries="@array/font_weight_entries"
-            android:entryValues="@array/font_weight_values"/>
-        <ru.yanus171.feedexfork.view.FontSizePreference
-            android:key="font_size_drawer"
-            android:defaultValue="0"
-            android:title="@string/settings_font_pick_size"/>
-
-        <PreferenceCategory
-            android:layout="@layout/preference_category"
-            android:title="@string/settings_font_cat_body"/>
         <ru.yanus171.feedexfork.view.FontSelectPreference
             android:defaultValue=""
             android:key="font_family_body"
-            android:title="@string/settings_font_family"/>
+            android:title="@string/settings_font_row_font"/>
         <ListPreference
+            android:layout="@layout/preference_font_row"
             android:key="font_weight_body"
             android:defaultValue="0"
-            android:title="@string/settings_font_weight"
+            android:summary="%s"
+            android:title="@string/settings_font_row_weight"
             android:entries="@array/font_weight_entries"
             android:entryValues="@array/font_weight_values"/>
         <ru.yanus171.feedexfork.view.FontSizePreference
             android:key="font_size_body"
             android:defaultValue="0"
-            android:title="@string/settings_font_pick_size"/>
+            android:title="@string/settings_font_row_size"/>
 
         <PreferenceCategory
-            android:layout="@layout/preference_category"
-            android:title="@string/settings_font_cat_heading"/>
+            android:layout="@layout/preference_font_subhead"
+            android:title="@string/settings_font_sub_heading"/>
+
         <ru.yanus171.feedexfork.view.FontSelectPreference
             android:defaultValue=""
             android:key="font_family_heading"
-            android:title="@string/settings_font_family"/>
+            android:title="@string/settings_font_row_font"/>
         <ListPreference
+            android:layout="@layout/preference_font_row"
             android:key="font_weight_heading"
             android:defaultValue="0"
-            android:title="@string/settings_font_weight"
+            android:summary="%s"
+            android:title="@string/settings_font_row_weight"
             android:entries="@array/font_weight_entries"
             android:entryValues="@array/font_weight_values"/>
         <ru.yanus171.feedexfork.view.FontSizePreference
             android:key="font_size_heading"
             android:defaultValue="0"
-            android:title="@string/settings_font_pick_size"/>
+            android:title="@string/settings_font_row_size"/>
+
+        <PreferenceCategory
+            android:layout="@layout/preference_font_topcat"
+            android:title="@string/settings_font_top_list"/>
+
+        <PreferenceCategory
+            android:layout="@layout/preference_font_subhead"
+            android:title="@string/settings_font_sub_title"/>
+
+        <ru.yanus171.feedexfork.view.FontSelectPreference
+            android:defaultValue=""
+            android:key="font_family_title"
+            android:title="@string/settings_font_row_font"/>
+        <ListPreference
+            android:layout="@layout/preference_font_row"
+            android:key="font_weight_title"
+            android:defaultValue="0"
+            android:summary="%s"
+            android:title="@string/settings_font_row_weight"
+            android:entries="@array/font_weight_entries"
+            android:entryValues="@array/font_weight_values"/>
+        <ru.yanus171.feedexfork.view.FontSizePreference
+            android:key="font_size_title"
+            android:defaultValue="0"
+            android:title="@string/settings_font_row_size"/>
+
+        <PreferenceCategory
+            android:layout="@layout/preference_font_subhead"
+            android:title="@string/settings_font_sub_listtext"/>
+
+        <ru.yanus171.feedexfork.view.FontSelectPreference
+            android:defaultValue=""
+            android:key="font_family_listtext"
+            android:title="@string/settings_font_row_font"/>
+        <ListPreference
+            android:layout="@layout/preference_font_row"
+            android:key="font_weight_listtext"
+            android:defaultValue="0"
+            android:summary="%s"
+            android:title="@string/settings_font_row_weight"
+            android:entries="@array/font_weight_entries"
+            android:entryValues="@array/font_weight_values"/>
+        <ru.yanus171.feedexfork.view.FontSizePreference
+            android:key="font_size_listtext"
+            android:defaultValue="0"
+            android:title="@string/settings_font_row_size"/>
+
+        <PreferenceCategory
+            android:layout="@layout/preference_font_topcat"
+            android:title="@string/settings_font_top_toolbar"/>
+
+        <PreferenceCategory
+            android:layout="@layout/preference_font_subhead"
+            android:title="@string/settings_font_sub_drawer"/>
+
+        <ru.yanus171.feedexfork.view.FontSelectPreference
+            android:defaultValue=""
+            android:key="font_family_drawer"
+            android:title="@string/settings_font_row_font"/>
+        <ListPreference
+            android:layout="@layout/preference_font_row"
+            android:key="font_weight_drawer"
+            android:defaultValue="0"
+            android:summary="%s"
+            android:title="@string/settings_font_row_weight"
+            android:entries="@array/font_weight_entries"
+            android:entryValues="@array/font_weight_values"/>
+        <ru.yanus171.feedexfork.view.FontSizePreference
+            android:key="font_size_drawer"
+            android:defaultValue="0"
+            android:title="@string/settings_font_row_size"/>
 
         <Preference
             android:selectable="false"
