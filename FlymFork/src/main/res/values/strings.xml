@@ -779,4 +779,15 @@
     <string name="settings_font_family">Font family</string>
     <string name="settings_font_weight">Font weight</string>
     <string name="settings_font_pick_size">Size</string>
+    <string name="settings_font_top_reading">Reading view</string>
+    <string name="settings_font_top_list">List view</string>
+    <string name="settings_font_top_toolbar">Left toolbar</string>
+    <string name="settings_font_sub_body">Article text</string>
+    <string name="settings_font_sub_heading">Article headings</string>
+    <string name="settings_font_sub_title">Article title</string>
+    <string name="settings_font_sub_listtext">Article text</string>
+    <string name="settings_font_sub_drawer">Feed / category list</string>
+    <string name="settings_font_row_font">Font</string>
+    <string name="settings_font_row_weight">weight</string>
+    <string name="settings_font_row_size">size</string>
 </resources>
