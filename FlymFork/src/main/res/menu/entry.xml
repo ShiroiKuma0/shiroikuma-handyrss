@@ -8,6 +8,21 @@
         android:title="@string/menu_star"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/menu_read_text_size"
+        android:icon="@drawable/ic_format_size"
+        android:title="@string/settings_read_text_size"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_read_title_size"
+        android:icon="@drawable/ic_format_bold"
+        android:title="@string/settings_read_title_size"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_read_text_font"
+        android:icon="@drawable/ic_receipt"
+        android:title="@string/settings_read_text_font"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/menu_reload_full_text_toolbar"
         android:icon="@drawable/ic_sync"
         android:title="@string/menu_reload_full_text"
