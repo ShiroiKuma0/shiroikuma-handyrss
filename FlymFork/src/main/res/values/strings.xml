@@ -780,6 +780,7 @@
     <string name="settings_color_quote_bar">Quote bar</string>
     <string name="settings_color_subtitle">Subtitle text</string>
     <string name="settings_color_subtitle_border">Subtitle border</string>
+    <string name="settings_color_chrome_bg">Chrome background (app)</string>
     <string name="settings_font_cat_title">Article title (list)</string>
     <string name="settings_font_cat_listtext">Article text (in list)</string>
     <string name="settings_font_cat_drawer">Feed / category list (left drawer)</string>
