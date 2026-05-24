@@ -408,8 +408,8 @@ public class EntryFragment extends /*SwipeRefresh*/Fragment implements LoaderMan
         final android.content.Context ctx = getActivity();
         int stored = PrefUtils.getIntFromText( prefKey, 0 );
         int cur = Math.max( min, Math.min( max, stored > 0 ? stored : defVal ) );
-        final int fg = ctx.getResources().getColor( R.color.menu_pref_fg );
-        final int bg = ctx.getResources().getColor( R.color.menu_pref_bg );
+        final int fg = Theme.GetChromeFgInt();
+        final int bg = Theme.GetChromeBgInt();
         android.widget.LinearLayout root = new android.widget.LinearLayout( ctx );
         root.setOrientation( android.widget.LinearLayout.VERTICAL );
         int pad = UiUtils.dpToPixel( 20 );
@@ -453,8 +453,8 @@ public class EntryFragment extends /*SwipeRefresh*/Fragment implements LoaderMan
         String cur = PrefUtils.getString( "font_family_body", "" );
         if ( cur.isEmpty() ) cur = PrefUtils.getString( "fontFamily", "Default" );
         final int checked = names.indexOf( cur );
-        final int fg = ctx.getResources().getColor( R.color.menu_pref_fg );
-        final int bg = ctx.getResources().getColor( R.color.menu_pref_bg );
+        final int fg = Theme.GetChromeFgInt();
+        final int bg = Theme.GetChromeBgInt();
         android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>( ctx, android.R.layout.simple_list_item_single_choice, names ) {
             @Override public android.view.View getView(int position, android.view.View convertView, android.view.ViewGroup parent) {
                 android.widget.CheckedTextView tv = (android.widget.CheckedTextView) super.getView( position, convertView, parent );
