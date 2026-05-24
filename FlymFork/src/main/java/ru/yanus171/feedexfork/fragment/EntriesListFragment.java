@@ -238,6 +238,7 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
         mFab = getActivity().findViewById(R.id.fab);
         mFab.setOnClickListener(v -> markVisibleArticlesAsReadUnRead( true ));
         mFab.setBackgroundTintList( android.content.res.ColorStateList.valueOf( Theme.GetChromeBgInt() ) );
+        androidx.core.widget.ImageViewCompat.setImageTintList( mFab, android.content.res.ColorStateList.valueOf( Theme.GetChromeFgInt() ) );
 
         mLastVisibleTopEntryID = PrefUtils.getLong( STATE_LAST_VISIBLE_ENTRY_ID, -1 );
         mLastListViewTopOffset = PrefUtils.getInt( STATE_LAST_VISIBLE_OFFSET, 0 );
@@ -1134,7 +1135,7 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
         int pad = UiUtils.dpToPixel( 20 );
         root.setPadding( pad, pad, pad, pad );
         final TextView valueView = new TextView( ctx );
-        valueView.setTextColor( ctx.getResources().getColor( R.color.menu_pref_fg ) );
+        valueView.setTextColor( Theme.GetChromeFgInt() );
         valueView.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 22 );
         valueView.setText( String.valueOf( cur ) );
         root.addView( valueView );
@@ -1165,8 +1166,8 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
         String cur = PrefUtils.getString( "font_family_title", "" );
         if ( cur.isEmpty() ) cur = PrefUtils.getString( "fontFamily", "Default" );
         final int checked = names.indexOf( cur );
-        final int fg = ctx.getResources().getColor( R.color.menu_pref_fg );
-        final int bg = ctx.getResources().getColor( R.color.menu_pref_bg );
+        final int fg = Theme.GetChromeFgInt();
+        final int bg = Theme.GetChromeBgInt();
         android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>( ctx, android.R.layout.simple_list_item_single_choice, names ) {
             @Override public View getView(int position, View convertView, android.view.ViewGroup parent) {
                 android.widget.CheckedTextView tv = (android.widget.CheckedTextView) super.getView( position, convertView, parent );

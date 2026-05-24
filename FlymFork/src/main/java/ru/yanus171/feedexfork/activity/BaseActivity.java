@@ -16,6 +16,10 @@ import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.PorterDuff;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -138,6 +142,22 @@ public abstract class BaseActivity extends AppCompatActivity {
             if ( tb.getOverflowIcon() != null )
                 tb.getOverflowIcon().setColorFilter( fg, android.graphics.PorterDuff.Mode.SRC_IN );
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean res = super.onPrepareOptionsMenu(menu);
+        final int fg = Theme.GetChromeFgInt();
+        for ( int i = 0; i < menu.size(); i++ ) {
+            MenuItem item = menu.getItem( i );
+            Drawable icon = item.getIcon();
+            if ( icon != null ) {
+                icon = icon.mutate();
+                icon.setColorFilter( fg, PorterDuff.Mode.SRC_IN );
+                item.setIcon( icon );
+            }
+        }
+        return res;
     }
 
     @Override
