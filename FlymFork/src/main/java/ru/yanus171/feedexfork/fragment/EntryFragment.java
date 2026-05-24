@@ -404,10 +404,102 @@ public class EntryFragment extends /*SwipeRefresh*/Fragment implements LoaderMan
         mOrientation.onPrepareOptionsMenu( menu );
     }
 
+    private void ShowReadingSliderDialog(final String prefKey, int titleResId, int defVal, final int min, final int max) {
+        final android.content.Context ctx = getActivity();
+        int stored = PrefUtils.getIntFromText( prefKey, 0 );
+        int cur = Math.max( min, Math.min( max, stored > 0 ? stored : defVal ) );
+        final int fg = ctx.getResources().getColor( R.color.menu_pref_fg );
+        final int bg = ctx.getResources().getColor( R.color.menu_pref_bg );
+        android.widget.LinearLayout root = new android.widget.LinearLayout( ctx );
+        root.setOrientation( android.widget.LinearLayout.VERTICAL );
+        int pad = UiUtils.dpToPixel( 20 );
+        root.setPadding( pad, pad, pad, pad );
+        final TextView valueView = new TextView( ctx );
+        valueView.setTextColor( fg );
+        valueView.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 22 );
+        valueView.setText( String.valueOf( cur ) );
+        root.addView( valueView );
+        final android.widget.SeekBar bar = new android.widget.SeekBar( ctx );
+        bar.setMax( max - min );
+        bar.setProgress( cur - min );
+        root.addView( bar );
+        bar.setOnSeekBarChangeListener( new android.widget.SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(android.widget.SeekBar s, int progress, boolean fromUser) {
+                int v = min + progress;
+                valueView.setText( String.valueOf( v ) );
+                PrefUtils.putString( prefKey, String.valueOf( v ) );
+            }
+            @Override public void onStartTrackingTouch(android.widget.SeekBar s) {}
+            @Override public void onStopTrackingTouch(android.widget.SeekBar s) {
+                WebEntryView wv = GetSelectedEntryWebView();
+                if ( wv != null ) wv.ForceContentReload();
+            }
+        } );
+        android.app.AlertDialog dlg = new android.app.AlertDialog.Builder( ctx )
+                .setTitle( titleResId )
+                .setView( root )
+                .setPositiveButton( android.R.string.ok, null )
+                .create();
+        dlg.show();
+        if ( dlg.getWindow() != null )
+            dlg.getWindow().setBackgroundDrawable( new android.graphics.drawable.ColorDrawable( bg ) );
+        android.widget.Button okBtn = dlg.getButton( android.app.AlertDialog.BUTTON_POSITIVE );
+        if ( okBtn != null ) okBtn.setTextColor( fg );
+    }
+
+    private void ShowBodyFontPickerDialog() {
+        final android.content.Context ctx = getActivity();
+        final java.util.ArrayList<String> names = ru.yanus171.feedexfork.view.FontSelectPreference.GetFontNames();
+        String cur = PrefUtils.getString( "font_family_body", "" );
+        if ( cur.isEmpty() ) cur = PrefUtils.getString( "fontFamily", "Default" );
+        final int checked = names.indexOf( cur );
+        final int fg = ctx.getResources().getColor( R.color.menu_pref_fg );
+        final int bg = ctx.getResources().getColor( R.color.menu_pref_bg );
+        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>( ctx, android.R.layout.simple_list_item_single_choice, names ) {
+            @Override public android.view.View getView(int position, android.view.View convertView, android.view.ViewGroup parent) {
+                android.widget.CheckedTextView tv = (android.widget.CheckedTextView) super.getView( position, convertView, parent );
+                tv.setTextColor( fg );
+                tv.setTypeface( ru.yanus171.feedexfork.view.FontSelectPreference.GetTypeFaceByName( getItem( position ) ) );
+                return tv;
+            }
+        };
+        android.app.AlertDialog dlg = new android.app.AlertDialog.Builder( ctx )
+                .setTitle( R.string.settings_read_text_font )
+                .setSingleChoiceItems( adapter, checked, new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface dialog, int which) {
+                        PrefUtils.putString( "font_family_body", names.get( which ) );
+                        WebEntryView wv = GetSelectedEntryWebView();
+                        if ( wv != null ) wv.ForceContentReload();
+                        dialog.dismiss();
+                    }
+                } )
+                .setNegativeButton( android.R.string.cancel, null )
+                .create();
+        dlg.show();
+        if ( dlg.getWindow() != null )
+            dlg.getWindow().setBackgroundDrawable( new android.graphics.drawable.ColorDrawable( bg ) );
+        if ( dlg.getListView() != null )
+            dlg.getListView().setBackgroundColor( bg );
+        android.widget.Button cancelBtn = dlg.getButton( android.app.AlertDialog.BUTTON_NEGATIVE );
+        if ( cancelBtn != null ) cancelBtn.setTextColor( fg );
+    }
+
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_read_text_size: {
+                ShowReadingSliderDialog( "font_size_body", R.string.settings_read_text_size, 16, 8, 40 );
+                return true;
+            }
+            case R.id.menu_read_title_size: {
+                ShowReadingSliderDialog( "font_size_heading", R.string.settings_read_title_size, 22, 10, 48 );
+                return true;
+            }
+            case R.id.menu_read_text_font: {
+                ShowBodyFontPickerDialog();
+                return true;
+            }
             case R.id.menu_close: {
                 close();
                 return true;
