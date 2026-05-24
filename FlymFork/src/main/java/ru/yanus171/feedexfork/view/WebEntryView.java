@@ -549,6 +549,11 @@ public class WebEntryView extends EntryView implements WebViewExtended.EntryView
         Dog.v(String.format("generateArticleContent view.mScrollY  (entry %s) view.mScrollPartY = %f", mEntryId, mScrollPartY));
     }
 
+    public void ForceContentReload() {
+        mLastContentHash = 0;
+        update( true );
+    }
+
     @Override
     public void onClickOriginalText() {
         mEntryFragment.getActivity().runOnUiThread(() -> {
@@ -1106,6 +1111,9 @@ public class WebEntryView extends EntryView implements WebViewExtended.EntryView
     @Override
     public void onPrepareOptionsMenu (Menu menu) {
         super.onPrepareOptionsMenu( menu );
+        setVisible( menu, R.id.menu_read_text_size );
+        setVisible( menu, R.id.menu_read_title_size );
+        setVisible( menu, R.id.menu_read_text_font );
 
         setVisible( menu, R.id.menu_search );
         setVisible( menu, R.id.menu_reload_full_text_toolbar );
