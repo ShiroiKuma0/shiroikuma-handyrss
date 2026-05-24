@@ -91,6 +91,55 @@
                 colorPreference:sampletextShort="@string/settings_color_text_read_sample_short"
                 colorPreference:sampletextLong="@string/settings_color_text_read_sample_long" />
 
+            <ru.yanus171.feedexfork.view.ColorPreference
+                android:defaultValue="@string/default_text_color_background"
+                android:dependency="customColors"
+                android:key="textColor_background"
+                android:title="@string/settings_color_background"
+                colorPreference:backgroundColor1="@string/default_text_color_background"
+                colorPreference:istransparency="true"
+                colorPreference:sampletextShort="@string/settings_color_text_sample_short"
+                colorPreference:sampletextLong="@string/settings_color_text_sample_long" />
+
+            <ru.yanus171.feedexfork.view.ColorPreference
+                android:defaultValue="@string/default_quote_background_color"
+                android:dependency="customColors"
+                android:key="quote_background_color"
+                android:title="@string/settings_color_quote_bg"
+                colorPreference:backgroundColor1="@string/default_text_color_background"
+                colorPreference:istransparency="false"
+                colorPreference:sampletextShort="@string/settings_color_text_sample_short"
+                colorPreference:sampletextLong="@string/settings_color_text_sample_long" />
+
+            <ru.yanus171.feedexfork.view.ColorPreference
+                android:defaultValue="@string/default_quote_left_color"
+                android:dependency="customColors"
+                android:key="quote_left_color"
+                android:title="@string/settings_color_quote_bar"
+                colorPreference:backgroundColor1="@string/default_text_color_background"
+                colorPreference:istransparency="false"
+                colorPreference:sampletextShort="@string/settings_color_text_sample_short"
+                colorPreference:sampletextLong="@string/settings_color_text_sample_long" />
+
+            <ru.yanus171.feedexfork.view.ColorPreference
+                android:defaultValue="@string/default_subtitle_color"
+                android:dependency="customColors"
+                android:key="subtitle_color"
+                android:title="@string/settings_color_subtitle"
+                colorPreference:backgroundColor1="@string/default_text_color_background"
+                colorPreference:istransparency="false"
+                colorPreference:sampletextShort="@string/settings_color_text_sample_short"
+                colorPreference:sampletextLong="@string/settings_color_text_sample_long" />
+
+            <ru.yanus171.feedexfork.view.ColorPreference
+                android:defaultValue="@string/default_subtitle_border_color"
+                android:dependency="customColors"
+                android:key="subtitle_border_color"
+                android:title="@string/settings_color_subtitle_border"
+                colorPreference:backgroundColor1="@string/default_text_color_background"
+                colorPreference:istransparency="false"
+                colorPreference:sampletextShort="@string/settings_color_text_sample_short"
+                colorPreference:sampletextLong="@string/settings_color_text_sample_long" />
 
         </PreferenceCategory>
     </PreferenceScreen>
