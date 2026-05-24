@@ -97,42 +97,6 @@
 
     <PreferenceScreen
         android:layout="@layout/preference_items"
-        android:summary="@string/settings_category_feed_list_summary"
-        android:icon="@drawable/prefs_article_list"
-        android:title="@string/settings_category_feed_list">
-        <CheckBoxPreference
-            android:key="show_read_article_count"
-            android:defaultValue="false"
-            android:title="@string/show_read_article_count"
-            android:summary="@string/show_read_article_count_descr"/>
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="show_group_entries_count"
-            android:title="@string/show_group_entrries_count"
-            android:summary="@string/show_group_entries_count_descr" />
-        <CheckBoxPreference
-            android:key="feeds_sort_alphabetical"
-            android:defaultValue="false"
-            android:title="@string/settings_feeds_sort_alphabetical"
-            android:summary="@string/settings_feeds_sort_alphabetical_descr"/>
-        <PreferenceCategory
-            android:layout="@layout/preference_category"
-            android:title="@string/settings_category_last_read"/>
-        <ru.yanus171.feedexfork.view.LabelSelectPreference
-            android:key="lastReadHideLabelList"
-            android:title="@string/setting_last_read_hide_label_list"
-            android:summary="@string/setting_last_read_hide_label_list_summary"/>
-        <ru.yanus171.feedexfork.view.AutoSummaryEditPreference
-            android:key="last_read_count"
-            android:inputType="number"
-            android:defaultValue="20"
-            android:title="@string/setting_last_read_article_count"
-            android:summary="@string/setting_last_read_article_count_descr"/>
-
-    </PreferenceScreen>
-
-    <PreferenceScreen
-        android:layout="@layout/preference_items"
         android:icon="@drawable/prefs_article_list"
         android:title="@string/settings_category_fonts">
 
@@ -464,6 +428,42 @@
             android:key="remember_last_entry"
             android:summary="@string/settings_remeber_last_entry_description"
             android:title="@string/settings_remember_last_entry"/>
+    </PreferenceScreen>
+
+    <PreferenceScreen
+        android:layout="@layout/preference_items"
+        android:summary="@string/settings_category_feed_list_summary"
+        android:icon="@drawable/prefs_article_list"
+        android:title="@string/settings_category_feed_list">
+        <CheckBoxPreference
+            android:key="show_read_article_count"
+            android:defaultValue="false"
+            android:title="@string/show_read_article_count"
+            android:summary="@string/show_read_article_count_descr"/>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_group_entries_count"
+            android:title="@string/show_group_entrries_count"
+            android:summary="@string/show_group_entries_count_descr" />
+        <CheckBoxPreference
+            android:key="feeds_sort_alphabetical"
+            android:defaultValue="false"
+            android:title="@string/settings_feeds_sort_alphabetical"
+            android:summary="@string/settings_feeds_sort_alphabetical_descr"/>
+        <PreferenceCategory
+            android:layout="@layout/preference_category"
+            android:title="@string/settings_category_last_read"/>
+        <ru.yanus171.feedexfork.view.LabelSelectPreference
+            android:key="lastReadHideLabelList"
+            android:title="@string/setting_last_read_hide_label_list"
+            android:summary="@string/setting_last_read_hide_label_list_summary"/>
+        <ru.yanus171.feedexfork.view.AutoSummaryEditPreference
+            android:key="last_read_count"
+            android:inputType="number"
+            android:defaultValue="20"
+            android:title="@string/setting_last_read_article_count"
+            android:summary="@string/setting_last_read_article_count_descr"/>
+
     </PreferenceScreen>
 
     <PreferenceScreen
