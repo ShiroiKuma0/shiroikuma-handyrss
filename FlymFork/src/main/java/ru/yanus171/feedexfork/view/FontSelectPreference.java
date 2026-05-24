@@ -355,6 +355,16 @@ public class FontSelectPreference extends Preference {
 	}
 
 	// -------------------------------------------------------------------------------------
+	static public java.util.ArrayList<String> GetFontNames() {
+		if ( mFontList == null )
+			CreateFontList();
+		java.util.ArrayList<String> result = new java.util.ArrayList<>();
+		for ( FontInfo item : mFontList )
+			if ( !item.mFontName.equals( ADD_CUSTOM ) )
+				result.add( item.mFontName );
+		return result;
+	}
+
 	static void CreateFontList() {
 		Context context = MainApplication.getContext();
 		//if (mFontList == null) {
