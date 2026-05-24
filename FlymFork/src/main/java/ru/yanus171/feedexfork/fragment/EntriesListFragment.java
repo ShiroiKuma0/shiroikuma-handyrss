@@ -88,6 +88,9 @@ import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.SeekBar;
+import android.widget.LinearLayout;
+import android.util.TypedValue;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -515,12 +518,28 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
         menu.findItem( R.id.menu_show_article_text_toggle ).setEnabled( !mShowTextInEntryList );
         menu.findItem( R.id.menu_show_article_text_preview_toggle ).setEnabled( !mShowTextInEntryList );
         menu.findItem( R.id.menu_show_article_big_image_toggle ).setEnabled( !mShowTextInEntryList && PrefUtils.IsShowArticleBigImagesEnabled( mCurrentUri ) );
+        boolean gridModeMenu = PrefUtils.getBoolean( "list_layout_grid", true );
+        if ( menu.findItem( R.id.menu_grid_columns ) != null ) menu.findItem( R.id.menu_grid_columns ).setVisible( gridModeMenu );
+        if ( menu.findItem( R.id.menu_grid_title_lines ) != null ) menu.findItem( R.id.menu_grid_title_lines ).setVisible( gridModeMenu );
+        if ( menu.findItem( R.id.menu_grid_image_height ) != null ) menu.findItem( R.id.menu_grid_image_height ).setVisible( gridModeMenu );
 
     }
     @SuppressLint("Range")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_grid_columns: {
+                ShowGridSliderDialog( "list_grid_columns", R.string.settings_list_grid_columns, 4, 1, 8 );
+                return true;
+            }
+            case R.id.menu_grid_title_lines: {
+                ShowGridSliderDialog( "list_grid_title_lines", R.string.settings_list_grid_title_lines, 3, 1, 12 );
+                return true;
+            }
+            case R.id.menu_grid_image_height: {
+                ShowGridSliderDialog( "list_grid_image_height", R.string.settings_list_grid_image_height, 100, 40, 400 );
+                return true;
+            }
             case R.id.menu_article_web_search: {
                 startActivity(new Intent( Intent.ACTION_WEB_SEARCH )
                         .setPackage( getContext().getPackageName() )
@@ -1080,6 +1099,50 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
         }
         mListView.setAdapter(mEntriesCursorAdapter);
         mNeedSetSelection = true;
+    }
+
+    private void ApplyGridSettingsLive() {
+        if (mListView instanceof android.widget.GridView) {
+            int gridCols = PrefUtils.getIntFromText("list_grid_columns", 4);
+            ((android.widget.GridView) mListView).setNumColumns( Math.max(1, gridCols) );
+        }
+        if (mEntriesCursorAdapter != null) {
+            mEntriesCursorAdapter.RefreshGridSettings();
+            mEntriesCursorAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void ShowGridSliderDialog(final String prefKey, int titleResId, int defVal, final int min, final int max) {
+        final Context ctx = getActivity();
+        int cur = Math.max( min, Math.min( max, PrefUtils.getIntFromText( prefKey, defVal ) ) );
+        LinearLayout root = new LinearLayout( ctx );
+        root.setOrientation( LinearLayout.VERTICAL );
+        int pad = UiUtils.dpToPixel( 20 );
+        root.setPadding( pad, pad, pad, pad );
+        final TextView valueView = new TextView( ctx );
+        valueView.setTextColor( ctx.getResources().getColor( R.color.menu_pref_fg ) );
+        valueView.setTextSize( TypedValue.COMPLEX_UNIT_DIP, 22 );
+        valueView.setText( String.valueOf( cur ) );
+        root.addView( valueView );
+        final SeekBar bar = new SeekBar( ctx );
+        bar.setMax( max - min );
+        bar.setProgress( cur - min );
+        root.addView( bar );
+        bar.setOnSeekBarChangeListener( new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar s, int progress, boolean fromUser) {
+                int v = min + progress;
+                valueView.setText( String.valueOf( v ) );
+                PrefUtils.putString( prefKey, String.valueOf( v ) );
+                ApplyGridSettingsLive();
+            }
+            @Override public void onStartTrackingTouch(SeekBar s) {}
+            @Override public void onStopTrackingTouch(SeekBar s) {}
+        } );
+        new AlertDialog.Builder( ctx )
+                .setTitle( titleResId )
+                .setView( root )
+                .setPositiveButton( android.R.string.ok, null )
+                .show();
     }
 
     private void ApplyOldAndReadArticleList() {
