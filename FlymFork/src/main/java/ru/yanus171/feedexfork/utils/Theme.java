@@ -4,6 +4,10 @@ import java.util.HashMap;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.graphics.drawable.ColorDrawable;
+import android.widget.Button;
+import android.widget.TextView;
 import android.content.Context;
 import android.graphics.Color;
 import android.text.SpannableString;
@@ -214,6 +218,24 @@ public class Theme {
 		SpannableString s = new SpannableString( text );
 		s.setSpan( new ForegroundColorSpan( GetChromeFgInt() ), 0, s.length(), 0 );
 		return s;
+	}
+	public static void TintDialog( AlertDialog dialog ) {
+		if ( dialog == null ) return;
+		final int fg = GetChromeFgInt();
+		if ( dialog.getWindow() != null )
+			dialog.getWindow().setBackgroundDrawable( new ColorDrawable( GetChromeBgInt() ) );
+		int[] buttons = { DialogInterface.BUTTON_POSITIVE, DialogInterface.BUTTON_NEGATIVE, DialogInterface.BUTTON_NEUTRAL };
+		for ( int which : buttons ) {
+			Button b = dialog.getButton( which );
+			if ( b != null ) b.setTextColor( fg );
+		}
+		TextView msg = dialog.findViewById( android.R.id.message );
+		if ( msg != null ) msg.setTextColor( fg );
+		int titleId = MainApplication.getContext().getResources().getIdentifier( "alertTitle", "id", "android" );
+		if ( titleId != 0 ) {
+			TextView t = dialog.findViewById( titleId );
+			if ( t != null ) t.setTextColor( fg );
+		}
 	}
 	public static int GetColorInt(String key, int defID) {
 		int result = Color.BLACK;
