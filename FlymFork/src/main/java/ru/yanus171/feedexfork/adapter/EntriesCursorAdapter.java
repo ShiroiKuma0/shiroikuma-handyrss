@@ -217,6 +217,12 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
     private int mGridTitleLines = PrefUtils.getIntFromText("list_grid_title_lines", 3);
     private int mGridImageHeight = PrefUtils.getIntFromText("list_grid_image_height", 100);
 
+    public void RefreshGridSettings() {
+        mGridMode = PrefUtils.getBoolean("list_layout_grid", true);
+        mGridTitleLines = PrefUtils.getIntFromText("list_grid_title_lines", 3);
+        mGridImageHeight = PrefUtils.getIntFromText("list_grid_image_height", 100);
+    }
+
     public EntriesCursorAdapter(Context context, Uri uri, Cursor cursor, boolean showFeedInfo, boolean showEntryTextFromFeedSetup, boolean showUnread, EntriesListFragment entriesListFragment) {
         super(context, PrefUtils.getBoolean("list_layout_grid", true) ? R.layout.item_entry_list : R.layout.item_entry_row, cursor, 0);
         //Dog.v( String.format( "new EntriesCursorAdapter( %s, showUnread = %b )", uri.toString() ,showUnread ) );
@@ -605,6 +611,14 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
             holder.titleTextView.setTextDirection( isTextRTL( titleText ) ? TEXT_DIRECTION_RTL : TEXT_DIRECTION_ANY_RTL );
         holder.titleTextView.setMaxLines( isTextShown ? 20 : (mGridMode ? mGridTitleLines : 5) );
+        if (mGridMode && holder.mainImgView != null && holder.mainImgView.getParent() instanceof ViewGroup) {
+            ViewGroup imgFrame = (ViewGroup) holder.mainImgView.getParent();
+            ViewGroup.LayoutParams lp = imgFrame.getLayoutParams();
+            if (lp != null) {
+                lp.height = (int) (mGridImageHeight * context.getResources().getDisplayMetrics().density);
+                imgFrame.setLayoutParams(lp);
+            }
+        }
 
         holder.urlTextView.setText(cursor.getString(mUrlPos));
 

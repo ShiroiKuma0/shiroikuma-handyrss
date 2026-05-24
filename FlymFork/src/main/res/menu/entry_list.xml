@@ -3,6 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_grid_columns"
+        android:icon="@drawable/ic_view_module"
+        android:title="@string/settings_list_grid_columns"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_grid_title_lines"
+        android:icon="@drawable/ic_receipt"
+        android:title="@string/settings_list_grid_title_lines"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_grid_image_height"
+        android:icon="@drawable/ic_photo_size_select_actual"
+        android:title="@string/settings_list_grid_image_height"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/menu_refresh"
         android:icon="@drawable/ic_sync"
         android:title="@string/menu_refresh"
