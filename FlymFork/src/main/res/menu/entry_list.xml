@@ -17,6 +17,11 @@
         android:icon="@drawable/ic_photo_size_select_actual"
         android:title="@string/settings_list_grid_image_height"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_grid_title_font"
+        android:icon="@drawable/ic_format_bold"
+        android:title="@string/settings_grid_title_font"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/menu_refresh"
