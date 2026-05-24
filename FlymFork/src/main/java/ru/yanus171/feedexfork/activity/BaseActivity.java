@@ -117,6 +117,9 @@ public abstract class BaseActivity extends AppCompatActivity {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS );
             getWindow().setStatusBarColor(GetToolBarColorInt());
         }
+        getWindow().setBackgroundDrawable( new ColorDrawable( Theme.GetChromeBgInt() ) );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+            getWindow().setNavigationBarColor( Theme.GetChromeBgInt() );
         applyOrientation();
         Status().UpdateText();
     }

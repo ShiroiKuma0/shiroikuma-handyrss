@@ -43,6 +43,7 @@ public class Theme {
 	public static final String STARRED_ARTICLE_INDICATOR_RES_ID = "STARRED_ARTICLE_INDICATOR";
 	private static final String TOOL_BAR_COLOR = "toolBarColor";
 	private static final String FEED_LIST_COLOR = "feedListColor";
+	public static final String CHROME_BG = "chrome_bg";
 	private static HashMap<String, HashMap<String, String>> ThemeList = null;
 	static final String THEME_CUSTOM = "Custom";
 	private static String mTheme = DARK;
@@ -203,6 +204,7 @@ public class Theme {
 		return Theme.GetResID(STYLE_THEME );
 	}
 	//-------------------------------------------------------------------
+	public static int GetChromeBgInt() { return Color.parseColor( PrefUtils.getString( CHROME_BG, "#000000" ) ); }
 	public static int GetColorInt(String key, int defID) {
 		int result = Color.BLACK;
 		try {
