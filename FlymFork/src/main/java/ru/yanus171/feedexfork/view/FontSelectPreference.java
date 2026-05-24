@@ -286,7 +286,7 @@ public class FontSelectPreference extends Preference {
 				TextView textView = new TextView(getContext());
 				textView.setText( getItem(position).mFontName );
 				textView.setTypeface( getItem(position).mTypeface );
-				textView.setTextColor( getContext().getResources().getColor(R.color.menu_pref_fg) );
+				textView.setTextColor( Theme.GetChromeFgInt() );
 				textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 22);
 				//textView.setPadding(EventListView.cPad, 0, 0, 0);
 				textView.setGravity(Gravity.CENTER_VERTICAL);
