@@ -225,6 +225,8 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         setFullScreen( GetIsStatusBarEntryListHidden(), GetIsActionBarEntryListHidden() );
         if ( mDrawerLayout != null )
             mDrawerLayout.findViewById( R.id.drawer_header ).setBackgroundColor( Theme.GetToolBarColorInt() );
+        if ( mDrawerLayout != null )
+            mDrawerLayout.findViewById( R.id.left_drawer ).setBackgroundColor( Theme.GetChromeBgInt() );
         SetTaskTitle( mTitle );
         timer.End();
     }
