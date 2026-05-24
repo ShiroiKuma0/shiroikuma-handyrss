@@ -521,6 +521,7 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
         if ( menu.findItem( R.id.menu_grid_columns ) != null ) menu.findItem( R.id.menu_grid_columns ).setVisible( gridModeMenu );
         if ( menu.findItem( R.id.menu_grid_title_lines ) != null ) menu.findItem( R.id.menu_grid_title_lines ).setVisible( gridModeMenu );
         if ( menu.findItem( R.id.menu_grid_image_height ) != null ) menu.findItem( R.id.menu_grid_image_height ).setVisible( gridModeMenu );
+        if ( menu.findItem( R.id.menu_grid_title_font ) != null ) menu.findItem( R.id.menu_grid_title_font ).setVisible( gridModeMenu );
 
     }
     @SuppressLint("Range")
@@ -537,6 +538,10 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
             }
             case R.id.menu_grid_image_height: {
                 ShowGridSliderDialog( "list_grid_image_height", R.string.settings_list_grid_image_height, 100, 40, 400 );
+                return true;
+            }
+            case R.id.menu_grid_title_font: {
+                ShowTitleFontPickerDialog();
                 return true;
             }
             case R.id.menu_article_web_search: {
@@ -1142,6 +1147,43 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
                 .setView( root )
                 .setPositiveButton( android.R.string.ok, null )
                 .show();
+    }
+
+    private void ShowTitleFontPickerDialog() {
+        final Context ctx = getActivity();
+        final java.util.ArrayList<String> names = ru.yanus171.feedexfork.view.FontSelectPreference.GetFontNames();
+        String cur = PrefUtils.getString( "font_family_title", "" );
+        if ( cur.isEmpty() ) cur = PrefUtils.getString( "fontFamily", "Default" );
+        final int checked = names.indexOf( cur );
+        final int fg = ctx.getResources().getColor( R.color.menu_pref_fg );
+        final int bg = ctx.getResources().getColor( R.color.menu_pref_bg );
+        android.widget.ArrayAdapter<String> adapter = new android.widget.ArrayAdapter<String>( ctx, android.R.layout.simple_list_item_single_choice, names ) {
+            @Override public View getView(int position, View convertView, android.view.ViewGroup parent) {
+                android.widget.CheckedTextView tv = (android.widget.CheckedTextView) super.getView( position, convertView, parent );
+                tv.setTextColor( fg );
+                tv.setTypeface( ru.yanus171.feedexfork.view.FontSelectPreference.GetTypeFaceByName( getItem( position ) ) );
+                return tv;
+            }
+        };
+        AlertDialog dlg = new AlertDialog.Builder( ctx )
+                .setTitle( R.string.settings_grid_title_font )
+                .setSingleChoiceItems( adapter, checked, new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface dialog, int which) {
+                        PrefUtils.putString( "font_family_title", names.get( which ) );
+                        if ( mEntriesCursorAdapter != null )
+                            mEntriesCursorAdapter.notifyDataSetChanged();
+                        dialog.dismiss();
+                    }
+                } )
+                .setNegativeButton( android.R.string.cancel, null )
+                .create();
+        dlg.show();
+        if ( dlg.getWindow() != null )
+            dlg.getWindow().setBackgroundDrawable( new android.graphics.drawable.ColorDrawable( bg ) );
+        if ( dlg.getListView() != null )
+            dlg.getListView().setBackgroundColor( bg );
+        android.widget.Button cancelBtn = dlg.getButton( AlertDialog.BUTTON_NEGATIVE );
+        if ( cancelBtn != null ) cancelBtn.setTextColor( fg );
     }
 
     private void ApplyOldAndReadArticleList() {
