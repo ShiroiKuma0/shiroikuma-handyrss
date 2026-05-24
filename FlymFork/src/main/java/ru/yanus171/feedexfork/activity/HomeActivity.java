@@ -747,7 +747,7 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         if ( !mIsNewTask )
             PrefUtils.putInt(STATE_CURRENT_DRAWER_POS, mCurrentDrawerPos);
 
-        getSupportActionBar().setTitle( mTitle );
+        getSupportActionBar().setTitle( Theme.SpanChromeFg( mTitle ) );
         // Put the good menu
         invalidateOptionsMenu();
         timer.End();
