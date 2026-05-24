@@ -441,8 +441,7 @@ public class EntryFragment extends /*SwipeRefresh*/Fragment implements LoaderMan
                 .setPositiveButton( android.R.string.ok, null )
                 .create();
         dlg.show();
-        if ( dlg.getWindow() != null )
-            dlg.getWindow().setBackgroundDrawable( new android.graphics.drawable.ColorDrawable( bg ) );
+        Theme.TintDialog( dlg );
         android.widget.Button okBtn = dlg.getButton( android.app.AlertDialog.BUTTON_POSITIVE );
         if ( okBtn != null ) okBtn.setTextColor( fg );
     }
@@ -476,8 +475,7 @@ public class EntryFragment extends /*SwipeRefresh*/Fragment implements LoaderMan
                 .setNegativeButton( android.R.string.cancel, null )
                 .create();
         dlg.show();
-        if ( dlg.getWindow() != null )
-            dlg.getWindow().setBackgroundDrawable( new android.graphics.drawable.ColorDrawable( bg ) );
+        Theme.TintDialog( dlg );
         if ( dlg.getListView() != null )
             dlg.getListView().setBackgroundColor( bg );
         android.widget.Button cancelBtn = dlg.getButton( android.app.AlertDialog.BUTTON_NEGATIVE );

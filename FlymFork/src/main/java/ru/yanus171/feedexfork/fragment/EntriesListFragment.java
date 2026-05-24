@@ -1153,11 +1153,13 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
             @Override public void onStartTrackingTouch(SeekBar s) {}
             @Override public void onStopTrackingTouch(SeekBar s) {}
         } );
-        new AlertDialog.Builder( ctx )
+        AlertDialog dlg = new AlertDialog.Builder( ctx )
                 .setTitle( titleResId )
                 .setView( root )
                 .setPositiveButton( android.R.string.ok, null )
-                .show();
+                .create();
+        dlg.show();
+        Theme.TintDialog( dlg );
     }
 
     private void ShowTitleFontPickerDialog() {
