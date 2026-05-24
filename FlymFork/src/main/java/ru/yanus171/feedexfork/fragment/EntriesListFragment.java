@@ -238,6 +238,7 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
 
         mFab = getActivity().findViewById(R.id.fab);
         mFab.setOnClickListener(v -> markVisibleArticlesAsReadUnRead( true ));
+        mFab.setBackgroundTintList( android.content.res.ColorStateList.valueOf( Theme.GetChromeBgInt() ) );
 
         mLastVisibleTopEntryID = PrefUtils.getLong( STATE_LAST_VISIBLE_ENTRY_ID, -1 );
         mLastListViewTopOffset = PrefUtils.getInt( STATE_LAST_VISIBLE_OFFSET, 0 );
