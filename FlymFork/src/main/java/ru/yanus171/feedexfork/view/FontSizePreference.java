@@ -12,6 +12,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import ru.yanus171.feedexfork.R;
+import ru.yanus171.feedexfork.utils.Theme;
 import ru.yanus171.feedexfork.utils.FontUtil;
 import ru.yanus171.feedexfork.utils.UiUtils;
 
@@ -41,10 +42,10 @@ public class FontSizePreference extends Preference {
         root.addView(label);
         final TextView valueView = new TextView(ctx);
         valueView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 22);
-        valueView.setTextColor(getContext().getResources().getColor(R.color.menu_pref_fg));
+        valueView.setTextColor(Theme.GetChromeFgInt());
         root.addView(valueView);
         final TextView preview = new TextView(ctx);
-        preview.setTextColor(getContext().getResources().getColor(R.color.menu_pref_fg));
+        preview.setTextColor(Theme.GetChromeFgInt());
         preview.setText("AaIiMmOoQqWw 012 \u767d\u3044\u718a\u76f8\u64b2\u9053 \u00e1\u00c1\u010d\u010c\u010f\u010e\u00e9\u00c9\u011b\u011a\u00ed\u00cd\u0148\u0147\u00f3\u00d3r\u0158\u0160\u0160\u0165\u0164\u00fa\u00da\u016f\u016e\u00dd\u00dd\u017e\u017d");
         root.addView(preview);
         final SeekBar bar = new SeekBar(ctx);
