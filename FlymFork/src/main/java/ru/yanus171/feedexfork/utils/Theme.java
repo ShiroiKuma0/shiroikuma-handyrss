@@ -6,6 +6,8 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 
 import androidx.core.content.ContextCompat;
 
@@ -43,6 +45,7 @@ public class Theme {
 	public static final String STARRED_ARTICLE_INDICATOR_RES_ID = "STARRED_ARTICLE_INDICATOR";
 	private static final String TOOL_BAR_COLOR = "toolBarColor";
 	public static final String CHROME_BG = "chrome_bg";
+	public static final String CHROME_FG = "chrome_fg";
 	private static HashMap<String, HashMap<String, String>> ThemeList = null;
 	static final String THEME_CUSTOM = "Custom";
 	private static String mTheme = DARK;
@@ -197,6 +200,13 @@ public class Theme {
 	}
 	//-------------------------------------------------------------------
 	public static int GetChromeBgInt() { return Color.parseColor( PrefUtils.getString( CHROME_BG, "#000000" ) ); }
+	public static int GetChromeFgInt() { return Color.parseColor( PrefUtils.getString( CHROME_FG, "#FFFF00" ) ); }
+	public static CharSequence SpanChromeFg( CharSequence text ) {
+		if ( text == null ) return null;
+		SpannableString s = new SpannableString( text );
+		s.setSpan( new ForegroundColorSpan( GetChromeFgInt() ), 0, s.length(), 0 );
+		return s;
+	}
 	public static int GetColorInt(String key, int defID) {
 		int result = Color.BLACK;
 		try {

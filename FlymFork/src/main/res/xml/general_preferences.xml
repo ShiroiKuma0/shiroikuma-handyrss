@@ -150,6 +150,15 @@
                 colorPreference:sampletextShort="@string/settings_color_text_sample_short"
                 colorPreference:sampletextLong="@string/settings_color_text_sample_long" />
 
+            <ru.yanus171.feedexfork.view.ColorPreference
+                android:defaultValue="@color/menu_pref_fg"
+                android:key="chrome_fg"
+                android:title="@string/settings_color_chrome_fg"
+                colorPreference:backgroundColor1="@color/menu_pref_bg"
+                colorPreference:istransparency="false"
+                colorPreference:sampletextShort="@string/settings_color_text_sample_short"
+                colorPreference:sampletextLong="@string/settings_color_text_sample_long" />
+
         </PreferenceCategory>
     </PreferenceScreen>
 

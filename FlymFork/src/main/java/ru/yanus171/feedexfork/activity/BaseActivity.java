@@ -28,6 +28,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
@@ -120,8 +121,23 @@ public abstract class BaseActivity extends AppCompatActivity {
         getWindow().setBackgroundDrawable( new ColorDrawable( Theme.GetChromeBgInt() ) );
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             getWindow().setNavigationBarColor( Theme.GetChromeBgInt() );
+        TintChromeForeground();
         applyOrientation();
         Status().UpdateText();
+    }
+
+    private void TintChromeForeground() {
+        final int fg = Theme.GetChromeFgInt();
+        View tbView = findViewById( R.id.toolbar );
+        if ( tbView instanceof Toolbar ) {
+            Toolbar tb = (Toolbar) tbView;
+            tb.setTitleTextColor( fg );
+            tb.setSubtitleTextColor( fg );
+            if ( tb.getNavigationIcon() != null )
+                tb.getNavigationIcon().setColorFilter( fg, android.graphics.PorterDuff.Mode.SRC_IN );
+            if ( tb.getOverflowIcon() != null )
+                tb.getOverflowIcon().setColorFilter( fg, android.graphics.PorterDuff.Mode.SRC_IN );
+        }
     }
 
     @Override
