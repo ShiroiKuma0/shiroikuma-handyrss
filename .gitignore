@@ -39,3 +39,13 @@ build
 BackUp*.bat
 Default.sfx
 /FlymFork/src/main/nbproject/private/
+
+# Claude Code — per-user settings (Claude Code creates these)
+.claude/settings.local.json
+.claude/*.local.json
+.claude/*.*~
+kxkb/*.*~
+
+# Claude Code — transient session files (if Claude Code ever drops them in-tree)
+.claude/sessions/
+.claude/.cache/
