@@ -11,7 +11,7 @@ Before any change on this repo, read **`.claude/skills/handy-rss-build/SKILL.md`
 - **Branch model:** all changes on the **`custom`** branch. `master` mirrors `upstream/master` (yanus171) fast-forward only and never carries our changes. `origin` is `git@github.com:ShiroiKuma0/shiroikuma-handyrss.git` (SSH push).
 - **Versioning:** `versionName = 1.1.4+N`, `versionCode = 3390000+N`. **Every build bumps N**, no exceptions. The counter lives at `$HOME/.handyrss_build_no` — outside the repo, never tracked.
 - **Reset before applying patches:** `git reset --hard HEAD`, **not** `git checkout -- .`. The latter restores from the index, so a dirty index from an aborted prior push restores an already-patched tree and the next `git apply` fails. `git status --short` should be empty after the reset.
-- **Build-test-confirm-push:** changes are tested on the Mate XT before being committed. The build step bumps the counter, builds the APK, copies it to `~/tmp/`, and `adb push`es it. Commit + push is a SEPARATE step, only run after the user explicitly confirms on-device with "Push" / "good" / "confirmed".
+- **Build-test-confirm-push:** changes are tested on the Mate XT before being committed. The build step bumps the counter, builds the APK, and copies it to `~/tmp/`. **Never deploy to the phone on your own** — after a successful build, stop and ask; only `adb push` after the user explicitly instructs you to. Commit + push is a SEPARATE step again, only run after the user explicitly confirms on-device with "Push" / "good" / "confirmed".
 
 ## External state — outside this repo, must be preserved across sessions
 
