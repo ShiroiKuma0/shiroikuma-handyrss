@@ -226,7 +226,7 @@ public class WebEntryContent {
                 + "h5 {font-size: " + PrefUtils.getFontSizeText( 1 ) + "}\n "
                 + "} body {color: #000; text-align: justify; background-color: #fff;}\n"
                 + "a.loaded_link {color: " + Theme.GetColor(LOADED_LINK_COLOR, R.string.default_loaded_link_color) + "; background: " + Theme.GetColor(LOADED_LINK_COLOR_BACKGROUND, R.string.default_text_color_background) + "}\n"
-                + "a.no_draw_link {color: " + Theme.GetTextColor() + "; background: " + Theme.GetBackgroundColor() + "; text-decoration: none" + "}\n"
+                + "a.no_draw_link {color: " + Theme.GetTextColor() + "; background: " + Theme.GetBackgroundColor() + "; text-decoration: none; display: block" + "}\n"
                 + "a {color: " + Theme.GetColor(LINK_COLOR, R.string.default_link_color) + "; background: " + Theme.GetColor(LINK_COLOR_BACKGROUND, R.string.default_text_color_background) +
                 (getBoolean("underline_links", true) ? "" : "; text-decoration: none") + "}\n"
                 + "h1 {color: inherit; text-decoration: none}\n"
