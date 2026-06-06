@@ -20,10 +20,11 @@ Before any change on this repo, read **`.claude/skills/handy-rss-build/SKILL.md`
 - **`~/tmp/`** — APK archive directory. Never committed; persists across sessions.
 - **`~/git/shiroikuma-handyrss`** — the local working clone (this repo).
 
-## State checkpoint (2026-05-24)
+## State checkpoint (2026-06-06)
 
-- HEAD = commit 23 (`Dialogs: runtime chrome tinting…`), last built `1.1.4+21`, counter at `21`.
-- All 23 commits pushed to `origin/custom`. Tree clean.
+- HEAD = `d105d9d7` (`Skill: post-build deploy gate is an explicit y/n AskUserQuestion prompt`), with the launcher-icon rebrand (`d867fa41`) just below it. Last built + on-device-confirmed `1.1.4+26`, counter at `26`.
+- All commits pushed to `origin/custom`. Tree clean.
+- **Since the 2026-05-24 checkpoint:** black/yellow line-art launcher icon (yellow-traced coffee cup on a full-bleed black tile, fills black with front-to-back occlusion, ~94% fill so the steam wisp stays visible, all six mipmap densities; rendered from `data/ic_launcher.svg` via a pycairo script — the stale `ic_launcher/web_hi_res_512.png` blue-cross asset is unrelated, ignore it); and the skill's post-build deploy gate is now an explicit y/n `AskUserQuestion` prompt (`adb push` only on Yes / a standing same-turn deploy instruction).
 - **Open work** (see the skill's D2 tracker for full context):
   1. Sweep `Theme.TintDialog(dlg)` over the remaining ~10 confirmation dialogs (delete / OPML / label / color / storage / filter / etc.) so they follow chrome too — trivial one-line addition per site.
   2. **D2f shelved** by the user 2026-05-24: app-wide chrome body text (`textColorPrimary`/`Secondary`), settings row backgrounds, control accents. Documented in the skill under D2; revisit only if living with custom chrome colors makes the mismatch nag.
