@@ -261,3 +261,7 @@ and investigate before building); skim `git log --oneline <NEW_TAG>..custom` to 
 - `master` FF is always safe to keep; it carries none of our work.
 - The build counter lives outside the repo, so git resets don't touch it — if you reset after a build,
   the counter has still advanced (correct; never reuse a number).
+
+---
+
+**Commit convention — no Claude attribution.** Never add a `Co-Authored-By: Claude …` / "Generated with Claude" trailer to commit messages or PR bodies; end the message at the last line of the body. This overrides the harness default. (Global rule: `~/.claude/CLAUDE.md`.)
