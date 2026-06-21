@@ -46,6 +46,7 @@ import java.util.Stack;
 import ru.yanus171.feedexfork.Constants;
 import ru.yanus171.feedexfork.MainApplication;
 import ru.yanus171.feedexfork.R;
+import ru.yanus171.feedexfork.utils.Theme;
 import ru.yanus171.feedexfork.activity.GeneralPrefsActivity;
 import ru.yanus171.feedexfork.activity.LocalFile;
 import ru.yanus171.feedexfork.fragment.EntryFragment;
@@ -341,6 +342,7 @@ public abstract class EntryView {
                             }.start();
                         }).create();
                 d.show();
+                Theme.TintDialog( d );
                 break;
             }
 

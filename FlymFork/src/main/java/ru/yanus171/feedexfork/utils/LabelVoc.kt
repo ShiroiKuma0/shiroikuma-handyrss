@@ -361,7 +361,7 @@ object LabelVoc {
         }
         .setNegativeButton(android.R.string.cancel, null)
 
-        builder.show()
+        Theme.TintDialog( builder.show() )
     }
     fun getStringList(entryID: Long): String {
         initInThread()

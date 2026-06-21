@@ -23,6 +23,7 @@ import ru.yanus171.feedexfork.activity.EditFeedActivity;
 import ru.yanus171.feedexfork.provider.FeedData;
 import ru.yanus171.feedexfork.utils.EntryUrlVoc;
 import ru.yanus171.feedexfork.utils.UiUtils;
+import ru.yanus171.feedexfork.utils.Theme;
 
 public class FeedActionCallBack implements ActionMode.Callback {
     private final EditFeedListFragment mFragment;
@@ -74,7 +75,7 @@ public class FeedActionCallBack implements ActionMode.Callback {
         mFragment.mAdapter.clearSelectedIDs();
     }
     public static void DeleteFeed(final Activity activity, final Uri feedUri, ActionMode mode) {
-        new AlertDialog.Builder(activity)
+        Theme.TintDialog( new AlertDialog.Builder(activity)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle(getFeedTitle( feedUri ))
                 .setMessage(R.string.question_delete_feed)
@@ -91,11 +92,11 @@ public class FeedActionCallBack implements ActionMode.Callback {
                         mode.finish();
                     if ( activity instanceof EditFeedActivity)
                         activity.finish();
-                }).setNegativeButton(android.R.string.no, null).show();
+                }).setNegativeButton(android.R.string.no, null).show() );
     }
 
     public static void DeleteFeedList( final Activity activity, final HashSet<Long> feedIDs, ActionMode mode) {
-        new AlertDialog.Builder(activity)
+        Theme.TintDialog( new AlertDialog.Builder(activity)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle( R.string.delete_several_feeds_title)
                 .setMessage(activity.getString( R.string.question_delete_feeds, feedIDs.size() ) )
@@ -114,7 +115,7 @@ public class FeedActionCallBack implements ActionMode.Callback {
                     mode.finish();
                     if ( activity instanceof EditFeedActivity)
                         activity.finish();
-                }).setNegativeButton(android.R.string.no, null).show();
+                }).setNegativeButton(android.R.string.no, null).show() );
     }
 
 
