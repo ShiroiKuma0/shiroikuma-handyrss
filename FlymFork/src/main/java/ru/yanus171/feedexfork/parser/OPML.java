@@ -82,6 +82,7 @@ import java.util.Map;
 
 import ru.yanus171.feedexfork.Constants;
 import ru.yanus171.feedexfork.R;
+import ru.yanus171.feedexfork.utils.Theme;
 import ru.yanus171.feedexfork.provider.FeedData;
 import ru.yanus171.feedexfork.provider.FeedData.EntryColumns;
 import ru.yanus171.feedexfork.provider.FeedData.EntryLabelColumns;
@@ -792,7 +793,7 @@ public class OPML {
                         // User cancelled the dialog
                     }
                 });
-                builder.show();
+                Theme.TintDialog( builder.show() );
             } else {
                 // No explanation needed, we can request the permission.
                 RequestPermissions( activity, operType );
@@ -840,7 +841,7 @@ public class OPML {
     public static void AskQuestionForImport(final Activity activity, final String fileName, final boolean isFileNameUri ) {
         Cursor cursor = getContext().getContentResolver().query( FeedData.FeedColumns.CONTENT_URI, null, _ID + "<>" + GetExtrenalLinkFeedID(), null, null );
         if ( cursor.moveToFirst() ) {
-            new AlertDialog.Builder( activity )
+            Theme.TintDialog( new AlertDialog.Builder( activity )
                 .setTitle( activity.getString( R.string.remove_existing_feeds_question ) )
                 .setItems(new CharSequence[]{
                     activity.getString(R.string.yes),
@@ -849,7 +850,7 @@ public class OPML {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         if ( i == 0 ) //yes
-                            new AlertDialog.Builder( activity )
+                            Theme.TintDialog( new AlertDialog.Builder( activity )
                                 .setTitle( activity.getString( R.string.remove_existing_feeds_confirmation ) )
                                 .setPositiveButton(R.string.yes_I_realize_btn_caption, new DialogInterface.OnClickListener() {
                                     @Override
@@ -857,7 +858,7 @@ public class OPML {
                                         StartServiceForImport( fileName, true, isFileNameUri );
                                     }
                                 })
-                                .setNegativeButton( R.string.sorry_I_was_wrong_btn_caption, null ).show();
+                                .setNegativeButton( R.string.sorry_I_was_wrong_btn_caption, null ).show() );
 
                         else if ( i == 1  ) //no
                             StartServiceForImport( fileName, false, isFileNameUri);
@@ -865,7 +866,7 @@ public class OPML {
                     }
 
 
-                }).show();
+                }).show() );
         } else
             StartServiceForImport( fileName, false, isFileNameUri);
         cursor.close();

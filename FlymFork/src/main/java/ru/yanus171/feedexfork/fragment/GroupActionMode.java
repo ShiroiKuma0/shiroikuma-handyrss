@@ -14,6 +14,7 @@ import androidx.appcompat.view.ActionMode;
 
 import ru.yanus171.feedexfork.R;
 import ru.yanus171.feedexfork.provider.FeedData;
+import ru.yanus171.feedexfork.utils.Theme;
 
 class GroupActionModeCallBack implements ActionMode.Callback {
     private final EditFeedListFragment mFragment;
@@ -64,7 +65,7 @@ class GroupActionModeCallBack implements ActionMode.Callback {
         mFragment.mAdapter.clearSelectedIDs();
     }
     private void deleteGroup(long groupId) {
-        new AlertDialog.Builder(mFragment.getActivity()) //
+        Theme.TintDialog( new AlertDialog.Builder(mFragment.getActivity()) //
                 .setIcon(android.R.drawable.ic_dialog_alert) //
                 .setTitle(getFeedTitle( groupId )) //
                 .setMessage(R.string.question_delete_group) //
@@ -74,14 +75,14 @@ class GroupActionModeCallBack implements ActionMode.Callback {
                         ContentResolver cr = mFragment.getActivity().getContentResolver();
                         cr.delete(FeedData.FeedColumns.GROUPS_CONTENT_URI(groupId), null, null);
                     }
-                }.start()).setNegativeButton(android.R.string.no, null).show();
+                }.start()).setNegativeButton(android.R.string.no, null).show() );
     }
 
     private void editGroup(long groupId) {
         final EditText input = new EditText(mFragment.getActivity());
         input.setSingleLine(true);
         input.setText(getFeedTitle( groupId ));
-        new AlertDialog.Builder(mFragment.getActivity())
+        Theme.TintDialog( new AlertDialog.Builder(mFragment.getActivity())
                 .setTitle(R.string.edit_group_title)
                 .setView(input)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> new Thread() {
@@ -95,7 +96,7 @@ class GroupActionModeCallBack implements ActionMode.Callback {
                             cr.update(FeedData.FeedColumns.CONTENT_URI(groupId), values, null, null);
                         }
                     }
-                }.start()).setNegativeButton(android.R.string.cancel, null).show();
+                }.start()).setNegativeButton(android.R.string.cancel, null).show() );
     }
 }
 

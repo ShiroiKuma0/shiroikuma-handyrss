@@ -72,6 +72,7 @@ import ru.yanus171.feedexfork.R;
 import ru.yanus171.feedexfork.adapter.FeedsCursorAdapter;
 import ru.yanus171.feedexfork.parser.OPML;
 import ru.yanus171.feedexfork.provider.FeedData.FeedColumns;
+import ru.yanus171.feedexfork.utils.Theme;
 import ru.yanus171.feedexfork.service.FetcherService;
 import ru.yanus171.feedexfork.view.DragNDropExpandableListView;
 
@@ -156,7 +157,7 @@ public class EditFeedListFragment extends ListFragment {
             case R.id.menu_add_group: {
                 final EditText input = new EditText(getActivity());
                 input.setSingleLine(true);
-                new AlertDialog.Builder(getActivity()) //
+                Theme.TintDialog( new AlertDialog.Builder(getActivity()) //
                         .setTitle(R.string.add_group_title) //
                         .setView(input)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -176,7 +177,7 @@ public class EditFeedListFragment extends ListFragment {
                                     }
                                 }.start();
                             }
-                        }).setNegativeButton(android.R.string.cancel, null).show();
+                        }).setNegativeButton(android.R.string.cancel, null).show() );
                 return true;
             }
             case R.id.menu_export_to_opml: {

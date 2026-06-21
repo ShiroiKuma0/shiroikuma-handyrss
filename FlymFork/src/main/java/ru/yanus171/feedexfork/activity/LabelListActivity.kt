@@ -10,6 +10,7 @@ import android.view.*
 import android.widget.*
 import android.widget.AdapterView.AdapterContextMenuInfo
 import androidx.annotation.RequiresApi
+import ru.yanus171.feedexfork.utils.Theme
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import ru.yanus171.feedexfork.R
@@ -53,7 +54,7 @@ class LabelListActivity : AppCompatActivity(), Observer {
             }
         }
 
-        mListView.onItemClickListener  = AdapterView.OnItemClickListener { _, _, pos, _ -> createLabelAddEditDialog(mListView.adapter.getItem(pos) as Label).create().show()
+        mListView.onItemClickListener  = AdapterView.OnItemClickListener { _, _, pos, _ -> createLabelAddEditDialog(mListView.adapter.getItem(pos) as Label).create().apply { show(); Theme.TintDialog(this) }
         }
 
         if ( IsLabelABCSort() )
@@ -104,8 +105,8 @@ class LabelListActivity : AppCompatActivity(), Observer {
         val info = item.menuInfo as AdapterContextMenuInfo
         val label = mListView.adapter.getItem(info.position) as Label
         when (item.itemId) {
-            MENU_EDIT -> createLabelAddEditDialog(label).create().show()
-            MENU_REMOVE -> createLabelRemoveDialog(label).create().show()
+            MENU_EDIT -> createLabelAddEditDialog(label).create().apply { show(); Theme.TintDialog(this) }
+            MENU_REMOVE -> createLabelRemoveDialog(label).create().apply { show(); Theme.TintDialog(this) }
         }
         return super.onContextItemSelected(item)
     }
@@ -130,11 +131,11 @@ class LabelListActivity : AppCompatActivity(), Observer {
             val colorDialog = ColorDialog(this,
                     ColorTB.Create(label.colorInt(), Color.TRANSPARENT), false, true, false,
                     getString(R.string.label_color_dialog_title), "text", "")
-            colorDialog.CreateBuilder().setPositiveButton(android.R.string.ok) { dialog, _ ->
+            Theme.TintDialog(colorDialog.CreateBuilder().setPositiveButton(android.R.string.ok) { dialog, _ ->
                 label.mColor = ColorPreference.ToHex(colorDialog.mColor.Text, false)
                 updateColorView(colorView, label)
                 dialog.dismiss()
-            }.show()
+            }.show())
         }
 
         builder.setView(root)
@@ -199,7 +200,7 @@ class LabelListActivity : AppCompatActivity(), Observer {
     @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_add -> createLabelAddEditDialog(null).create().show()
+            R.id.menu_add -> createLabelAddEditDialog(null).create().apply { show(); Theme.TintDialog(this) }
         }
         return true
     }
