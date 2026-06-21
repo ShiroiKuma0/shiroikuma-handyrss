@@ -122,7 +122,7 @@ public class ColorPreference extends Preference implements SeekBar.OnSeekBarChan
 			}
 		});
 
-		builder.show();
+		ru.yanus171.feedexfork.utils.Theme.TintDialog( builder.show() );
 	}
 
 	// ------------------------------------------------------------------------------------

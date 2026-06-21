@@ -127,7 +127,7 @@ open class EditFeedActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Curs
                 }
                 R.id.menu_delete -> {
                     val filterId = mFiltersCursorAdapter.getItemId(mFiltersCursorAdapter.selectedFilter)
-                    AlertDialog.Builder(this@EditFeedActivity) //
+                    Theme.TintDialog(AlertDialog.Builder(this@EditFeedActivity) //
                             .setIcon(android.R.drawable.ic_dialog_alert) //
                             .setTitle(R.string.filter_delete_title) //
                             .setMessage(R.string.question_delete_filter) //
@@ -141,7 +141,7 @@ open class EditFeedActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Curs
                                         }
                                     }
                                 }.start()
-                            }.setNegativeButton(android.R.string.no, null).show()
+                            }.setNegativeButton(android.R.string.no, null).show())
                     mode.finish() // Action picked, so close the CAB
                     true
                 }
@@ -419,7 +419,7 @@ open class EditFeedActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Curs
 
                         Toast.makeText(this@EditFeedActivity, R.string.feedWasAutoConfigured, Toast.LENGTH_LONG).show()
                         dialog.dismiss()
-            }.create().show()
+            }.create().apply { show(); Theme.TintDialog(this) }
         }
     }
     override fun onResume() {
@@ -694,6 +694,7 @@ open class EditFeedActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Curs
                     if (Build.VERSION.SDK_INT >= 17) builder.setOnDismissListener { mUserSelectionDialog = null }
                     PrefUtils.putBoolean(DIALOG_IS_SHOWN, true)
                     mUserSelectionDialog = builder.show()
+                    Theme.TintDialog( mUserSelectionDialog )
                     lv.setSelectionFromTop(PrefUtils.getInt(SEARCH_RESULTS_FIRST_VISISBLE_ITEM, 0),
                             PrefUtils.getInt(SEARCH_RESULTS_Y_OFFSET, 0))
                 }

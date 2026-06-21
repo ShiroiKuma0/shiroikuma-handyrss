@@ -476,10 +476,6 @@ public class EntryFragment extends /*SwipeRefresh*/Fragment implements LoaderMan
                 .create();
         dlg.show();
         Theme.TintDialog( dlg );
-        if ( dlg.getListView() != null )
-            dlg.getListView().setBackgroundColor( bg );
-        android.widget.Button cancelBtn = dlg.getButton( android.app.AlertDialog.BUTTON_NEGATIVE );
-        if ( cancelBtn != null ) cancelBtn.setTextColor( fg );
     }
 
     @SuppressLint("NonConstantResourceId")

@@ -339,7 +339,7 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
                         ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_IMPORT_FROM_OPML);
                     }
                 });
-                builder.show();
+                Theme.TintDialog( builder.show() );
             } else {
                 // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_IMPORT_FROM_OPML);
@@ -537,11 +537,11 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         // If request is cancelled, the result arrays are empty.
         if ( grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED &&
                 new File(FileSelectDialog.Companion.getPublicDir().getAbsolutePath() + "/" + SUB_FOLDER, AUTO_BACKUP_OPML_FILENAME).exists() )
-            Theme.CreateDialog( this )
+            Theme.TintDialog( Theme.CreateDialog( this )
                     .setMessage( R.string.import_from_backup_after_permission_granted )
                     .setPositiveButton(android.R.string.yes, (dialogInterface, i) -> importFromOpml( HomeActivity.this ) )
                     .setNegativeButton(android.R.string.no, null )
-                    .create().show();
+                    .show() );
         //}
     }
 

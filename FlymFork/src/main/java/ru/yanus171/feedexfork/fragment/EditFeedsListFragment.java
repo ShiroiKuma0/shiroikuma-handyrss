@@ -76,6 +76,7 @@ import java.util.regex.Pattern;
 import ru.yanus171.feedexfork.MainApplication;
 import ru.yanus171.feedexfork.R;
 import ru.yanus171.feedexfork.activity.ArticleWebSearchActivity;
+import ru.yanus171.feedexfork.utils.Theme;
 import ru.yanus171.feedexfork.activity.EditFeedActivity;
 import ru.yanus171.feedexfork.adapter.FeedsCursorAdapter;
 import ru.yanus171.feedexfork.parser.OPML;
@@ -141,7 +142,7 @@ public class EditFeedsListFragment extends ListFragment {
     };
 
     public static void DeleteFeed(final Activity activity,  final Uri feedUri, String title) {
-        new AlertDialog.Builder(activity) //
+        Theme.TintDialog( new AlertDialog.Builder(activity) //
                 .setIcon(android.R.drawable.ic_dialog_alert) //
                 .setTitle(title) //
                 .setMessage(R.string.question_delete_feed) //
@@ -159,7 +160,7 @@ public class EditFeedsListFragment extends ListFragment {
                         if ( activity instanceof EditFeedActivity )
                             activity.finish();
                     }
-                }).setNegativeButton(android.R.string.no, null).show();
+                }).setNegativeButton(android.R.string.no, null).show() );
     }
 
     private final ActionMode.Callback mGroupActionModeCallback = new ActionMode.Callback() {
@@ -193,7 +194,7 @@ public class EditFeedsListFragment extends ListFragment {
                     final EditText input = new EditText(getActivity());
                     input.setSingleLine(true);
                     input.setText(title);
-                    new AlertDialog.Builder(getActivity()) //
+                    Theme.TintDialog( new AlertDialog.Builder(getActivity()) //
                             .setTitle(R.string.edit_group_title) //
                             .setView(input) //
                             .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -212,12 +213,12 @@ public class EditFeedsListFragment extends ListFragment {
                                         }
                                     }.start();
                                 }
-                            }).setNegativeButton(android.R.string.cancel, null).show();
+                            }).setNegativeButton(android.R.string.cancel, null).show() );
 
                     mode.finish(); // Action picked, so close the CAB
                     return true;
                 case R.id.menu_delete:
-                    new AlertDialog.Builder(getActivity()) //
+                    Theme.TintDialog( new AlertDialog.Builder(getActivity()) //
                             .setIcon(android.R.drawable.ic_dialog_alert) //
                             .setTitle(title) //
                             .setMessage(R.string.question_delete_group) //
@@ -232,7 +233,7 @@ public class EditFeedsListFragment extends ListFragment {
                                         }
                                     }.start();
                                 }
-                            }).setNegativeButton(android.R.string.no, null).show();
+                            }).setNegativeButton(android.R.string.no, null).show() );
 
                     mode.finish(); // Action picked, so close the CAB
                     return true;
@@ -335,7 +336,7 @@ public class EditFeedsListFragment extends ListFragment {
                 final int packedGroupPosTo = ExpandableListView.getPackedPositionGroup(packedPosTo);
 
                 if ((fromIsFeedWithoutGroup || !fromIsGroup) && toIsGroup && !toIsFeedWithoutGroup) {
-                    new AlertDialog.Builder(getActivity()) //
+                    Theme.TintDialog( new AlertDialog.Builder(getActivity()) //
                             .setTitle(R.string.to_group_title) //
                             .setMessage(R.string.to_group_message) //
                             .setPositiveButton(R.string.to_group_into, new DialogInterface.OnClickListener() {
@@ -354,7 +355,7 @@ public class EditFeedsListFragment extends ListFragment {
                         public void onClick(DialogInterface dialog, int which) {
                             moveItem(fromIsGroup, toIsGroup, fromIsFeedWithoutGroup, packedPosTo, packedGroupPosTo, flatPosFrom);
                         }
-                    }).show();
+                    }).show() );
                 } else {
                     moveItem(fromIsGroup, toIsGroup, fromIsFeedWithoutGroup, packedPosTo, packedGroupPosTo, flatPosFrom);
                 }
@@ -412,7 +413,7 @@ public class EditFeedsListFragment extends ListFragment {
             case R.id.menu_add_group: {
                 final EditText input = new EditText(getActivity());
                 input.setSingleLine(true);
-                new AlertDialog.Builder(getActivity()) //
+                Theme.TintDialog( new AlertDialog.Builder(getActivity()) //
                         .setTitle(R.string.add_group_title) //
                         .setView(input) //
                                 // .setMessage(R.string.add_group_sentence) //
@@ -433,7 +434,7 @@ public class EditFeedsListFragment extends ListFragment {
                                     }
                                 }.start();
                             }
-                        }).setNegativeButton(android.R.string.cancel, null).show();
+                        }).setNegativeButton(android.R.string.cancel, null).show() );
                 return true;
             }
             case R.id.menu_export: {

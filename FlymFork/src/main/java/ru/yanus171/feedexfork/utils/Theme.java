@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.widget.Button;
 import android.widget.TextView;
 import android.content.Context;
@@ -211,11 +212,14 @@ public class Theme {
 		s.setSpan( new ForegroundColorSpan( GetChromeFgInt() ), 0, s.length(), 0 );
 		return s;
 	}
+	// Black background + yellow border + yellow title/message/button text, all from the
+	// runtime chrome_bg / chrome_fg prefs. Call AFTER dialog.show() (buttons/title don't
+	// exist before). The window-bg border shows through transparent list rows, so list
+	// dialogs must NOT paint their own opaque ListView background or it covers the stroke.
 	public static void TintDialog( AlertDialog dialog ) {
 		if ( dialog == null ) return;
 		final int fg = GetChromeFgInt();
-		if ( dialog.getWindow() != null )
-			dialog.getWindow().setBackgroundDrawable( new ColorDrawable( GetChromeBgInt() ) );
+		TintDialogWindow( dialog.getWindow() );
 		int[] buttons = { DialogInterface.BUTTON_POSITIVE, DialogInterface.BUTTON_NEGATIVE, DialogInterface.BUTTON_NEUTRAL };
 		for ( int which : buttons ) {
 			Button b = dialog.getButton( which );
@@ -223,11 +227,37 @@ public class Theme {
 		}
 		TextView msg = dialog.findViewById( android.R.id.message );
 		if ( msg != null ) msg.setTextColor( fg );
-		int titleId = MainApplication.getContext().getResources().getIdentifier( "alertTitle", "id", "android" );
-		if ( titleId != 0 ) {
-			TextView t = dialog.findViewById( titleId );
-			if ( t != null ) t.setTextColor( fg );
+		TintDialogTitle( dialog.findViewById( GetAlertTitleId() ) );
+	}
+	public static void TintDialog( androidx.appcompat.app.AlertDialog dialog ) {
+		if ( dialog == null ) return;
+		final int fg = GetChromeFgInt();
+		TintDialogWindow( dialog.getWindow() );
+		int[] buttons = { DialogInterface.BUTTON_POSITIVE, DialogInterface.BUTTON_NEGATIVE, DialogInterface.BUTTON_NEUTRAL };
+		for ( int which : buttons ) {
+			Button b = dialog.getButton( which );
+			if ( b != null ) b.setTextColor( fg );
 		}
+		TextView msg = dialog.findViewById( android.R.id.message );
+		if ( msg != null ) msg.setTextColor( fg );
+		TintDialogTitle( dialog.findViewById( GetAlertTitleId() ) );
+	}
+	private static int GetAlertTitleId() {
+		return MainApplication.getContext().getResources().getIdentifier( "alertTitle", "id", "android" );
+	}
+	private static void TintDialogTitle( android.view.View titleView ) {
+		if ( titleView instanceof TextView )
+			( (TextView) titleView ).setTextColor( GetChromeFgInt() );
+	}
+	private static void TintDialogWindow( android.view.Window window ) {
+		if ( window == null ) return;
+		float density = MainApplication.getContext().getResources().getDisplayMetrics().density;
+		GradientDrawable d = new GradientDrawable();
+		d.setShape( GradientDrawable.RECTANGLE );
+		d.setColor( GetChromeBgInt() );
+		d.setStroke( Math.round( 2 * density ), GetChromeFgInt() );
+		d.setCornerRadius( 8 * density );
+		window.setBackgroundDrawable( d );
 	}
 	public static int GetColorInt(String key, int defID) {
 		int result = Color.BLACK;
