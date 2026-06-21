@@ -11,6 +11,7 @@ import ru.yanus171.feedexfork.MainApplication
 import ru.yanus171.feedexfork.utils.FileUtils
 import ru.yanus171.feedexfork.utils.FileUtils.APP_SUBDIR
 import ru.yanus171.feedexfork.utils.FileUtils.GetDefaultStoragePath
+import ru.yanus171.feedexfork.utils.Theme
 import ru.yanus171.feedexfork.utils.PrefUtils
 import java.io.File
 
@@ -80,7 +81,7 @@ class StorageSelectPreference(context: Context?, attrs: AttributeSet?) : AutoSum
                     break
                 }
             dialog.dismiss()
-        }.setNegativeButton(android.R.string.cancel, null).create().show()
+        }.setNegativeButton(android.R.string.cancel, null).create().apply { show(); Theme.TintDialog(this) }
     }
 }
 

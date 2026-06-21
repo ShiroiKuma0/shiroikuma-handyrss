@@ -10,6 +10,7 @@ import android.widget.ListView;
 
 import ru.yanus171.feedexfork.R;
 import ru.yanus171.feedexfork.provider.FeedData;
+import ru.yanus171.feedexfork.utils.Theme;
 import ru.yanus171.feedexfork.view.DragNDropExpandableListView;
 import ru.yanus171.feedexfork.view.DragNDropListener;
 
@@ -42,7 +43,7 @@ public class EditFeedListDragNDropListener implements DragNDropListener {
         final int packedGroupPosTo = ExpandableListView.getPackedPositionGroup(packedPosTo);
 
         if ((fromIsFeedWithoutGroup || !fromIsGroup) && toIsGroup && !toIsFeedWithoutGroup) {
-            new AlertDialog.Builder(mListView.getContext()) //
+            Theme.TintDialog( new AlertDialog.Builder(mListView.getContext()) //
                     .setTitle(R.string.to_group_title) //
                     .setMessage(R.string.to_group_message) //
                     .setPositiveButton(R.string.to_group_into, new DialogInterface.OnClickListener() {
@@ -61,7 +62,7 @@ public class EditFeedListDragNDropListener implements DragNDropListener {
                         public void onClick(DialogInterface dialog, int which) {
                             moveItem(fromIsGroup, toIsGroup, fromIsFeedWithoutGroup, packedPosTo, packedGroupPosTo, flatPosFrom);
                         }
-                    }).show();
+                    }).show() );
         } else {
             moveItem(fromIsGroup, toIsGroup, fromIsFeedWithoutGroup, packedPosTo, packedGroupPosTo, flatPosFrom);
         }

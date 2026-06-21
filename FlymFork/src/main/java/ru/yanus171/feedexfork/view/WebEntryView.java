@@ -639,7 +639,7 @@ public class WebEntryView extends EntryView implements WebViewExtended.EntryView
                 final Uri uri = Uri.parse(enclosure.substring(0, position1));
                 final String filename = uri.getLastPathSegment();
 
-                new AlertDialog.Builder(getContext())
+                Theme.TintDialog( new AlertDialog.Builder(getContext())
                         .setTitle(R.string.open_enclosure)
                         .setMessage(getContext().getString(R.string.file) + ": " + filename)
                         .setPositiveButton(R.string.open_link, new DialogInterface.OnClickListener() {
@@ -661,7 +661,7 @@ public class WebEntryView extends EntryView implements WebViewExtended.EntryView
                                     UiUtils.showMessage(mEntryFragment.getActivity(), R.string.error);
                                 }
                             }
-                        }).show();
+                        }).show() );
             }
         });
     }
@@ -730,6 +730,7 @@ public class WebEntryView extends EntryView implements WebViewExtended.EntryView
         builder.setTitle(getContext().getString(R.string.open_tag_menu_dialog_title) + className);
 
         final AlertDialog dialog = builder.show();
+        Theme.TintDialog( dialog );
         AddActionButton(parent, R.string.setFullTextRoot, view -> {
             setFullTextRoot(GetSelectedUrlPart(groupUrl), className);
             dialog.dismiss();
@@ -1012,6 +1013,7 @@ public class WebEntryView extends EntryView implements WebViewExtended.EntryView
                             }.start();
                         }).create();
                 d.show();
+                Theme.TintDialog( d );
                 final TextView tv = d.findViewById(android.R.id.message);
                 tv.setAutoLinkMask(Linkify.ALL);
                 tv.setTextIsSelectable(true);

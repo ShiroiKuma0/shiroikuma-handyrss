@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import ru.yanus171.feedexfork.R
+import ru.yanus171.feedexfork.utils.Theme
 import ru.yanus171.feedexfork.adapter.FiltersCursorAdapter
 import ru.yanus171.feedexfork.provider.FeedData
 import ru.yanus171.feedexfork.utils.LabelVoc
@@ -80,7 +81,7 @@ class FilterEdit(val mContext: Context, private val mFeedID: String) {
                 rejectRadio.isChecked = true
             }
             val filterId = adapter.getItemId(adapter.selectedFilter)
-            AlertDialog.Builder(mContext)
+            Theme.TintDialog(AlertDialog.Builder(mContext)
                     .setTitle(R.string.filter_edit_title)
                     .setView(dialogView)
                     .setPositiveButton(android.R.string.ok) { dialog, which ->
@@ -94,13 +95,13 @@ class FilterEdit(val mContext: Context, private val mFeedID: String) {
                                         null)
                             }
                         }
-                    }.setNegativeButton(android.R.string.cancel, null).show()
+                    }.setNegativeButton(android.R.string.cancel, null).show())
         }
         UpdateUI()
     }
     fun add() {
         UpdateUI()
-        AlertDialog.Builder(mContext )
+        Theme.TintDialog(AlertDialog.Builder(mContext )
                 .setTitle(R.string.filter_add_title)
                 .setView(dialogView)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -109,7 +110,7 @@ class FilterEdit(val mContext: Context, private val mFeedID: String) {
                         val values = getContentValues(filterText)
                         mContext.contentResolver.insert(FeedData.FilterColumns.FILTERS_FOR_FEED_CONTENT_URI(mFeedID), values)
                     }
-                }.setNegativeButton(android.R.string.cancel) { _, _ -> }.show()
+                }.setNegativeButton(android.R.string.cancel) { _, _ -> }.show())
     }
 
     private fun getContentValues(filterText: String): ContentValues {

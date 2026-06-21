@@ -1051,6 +1051,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
         dialog.show();
+        Theme.TintDialog( dialog );
     }
 
     public void ShowMarkPosListAsReadDialog(Context context, int confirmID, ArrayList<Integer> posList) {
