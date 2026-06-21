@@ -64,7 +64,7 @@ public abstract class ListSelectPreference extends Preference {
 		} else
 			cbAll.setVisibility(View.GONE );
 
-		Theme.CreateDialog(getContext()).setView(vLayout).setPositiveButton(android.R.string.ok, (dialog, which) -> {
+		Theme.TintDialog( Theme.CreateDialog(getContext()).setView(vLayout).setPositiveButton(android.R.string.ok, (dialog, which) -> {
 			StringBuilder listSave = new StringBuilder();
 			for (int i = 0; i < group.getChildCount(); i++) {
 				CheckBox btn = (CheckBox) group.getChildAt(i);
@@ -78,7 +78,7 @@ public abstract class ListSelectPreference extends Preference {
 			callChangeListener(null);
 			dialog.dismiss();
 			OnDialogClosed();
-		}).setNegativeButton(android.R.string.cancel, null).create().show();
+		}).setNegativeButton(android.R.string.cancel, null).show() );
 	}
 
 	public void OnDialogClosed() {

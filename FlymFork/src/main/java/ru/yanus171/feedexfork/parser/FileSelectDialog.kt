@@ -45,7 +45,7 @@ public class FileSelectDialog(private val mAction: ActionWithFileName,
         try {
             val fileNames = path.list { dir: File?, filename: String? -> File(dir, filename).isFile && File(dir, filename).extension.equals(mFileExt, ignoreCase = true) }
             builder.setItems(fileNames) { _: DialogInterface?, which: Int -> mAction.run(activity, path.toString() + File.separator + fileNames[which], false) }
-            builder.show()
+            Theme.TintDialog( builder.show() )
         } catch (unused: Exception) {
             Toast.makeText(activity, mErrorTextID, Toast.LENGTH_LONG ).show()
         }
