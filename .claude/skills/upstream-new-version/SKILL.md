@@ -1,6 +1,6 @@
 ---
 name: upstream-new-version
-description: Check yanus171/Handy-News-Reader for a new upstream release and, if there is one, fast-forward the `master` mirror and rebase the whole `custom` feature stack onto the new tag, reconciling conflicts — automatically when they are small, but stopping to discuss and plan with the user when they are significant — then reset the version base + counter and build the new APK by invoking the handy-rss-build skill (never auto-deploying). Use this skill when the user runs /upstream-new-version, or asks to pull/update to a new Handy News Reader (Handy-News-Reader / handyrss / FlymFork / feedexfork) upstream version, rebase onto a new release tag, or "check upstream for a new version". This is the upstream-update front-end for the handy-rss-build fork; it delegates the actual build to handy-rss-build.
+description: Check yanus171/Handy-News-Reader for a new upstream release and, if there is one, fast-forward the `master` mirror and rebase the whole `custom` feature stack onto the new tag, reconciling conflicts — automatically when they are small, but stopping to discuss and plan with the user when they are significant — then reset the version base + counter and build the new APK by invoking the handy-rss-build skill, then deliver it automatically via the global /after-build skill (no transfer prompt). Use this skill when the user runs /upstream-new-version, or asks to pull/update to a new Handy News Reader (Handy-News-Reader / handyrss / FlymFork / feedexfork) upstream version, rebase onto a new release tag, or "check upstream for a new version". This is the upstream-update front-end for the handy-rss-build fork; it delegates the actual build to handy-rss-build.
 ---
 
 Base directory for this skill: /home/shiroikuma/git/shiroikuma-handyrss/.claude/skills/upstream-new-version
@@ -26,10 +26,11 @@ reconcile conflicts (auto if small, **discuss-and-plan with the user if signific
 version base + build counter, propagate the new base version into the project + skill docs, verify the
 rebrand + features survived, then build via `handy-rss-build`.
 
-Does NOT: deploy to the phone, force-push `custom`, or commit the doc-literal updates without telling
-you. Deployment and the force-push happen only **after the user has tested the new build on-device and
-confirmed** — same build-test-confirm-push discipline as `handy-rss-build` (see its Hard rules; the
-"never deploy on your own / `adb push` only on explicit instruction" rule applies here too).
+Does NOT: force-push `custom` or commit the doc-literal updates without telling you. The build IS
+delivered to the phone automatically (via the global `/after-build` skill — no transfer prompt), but
+the force-push happens only **after the user has tested the new build on-device and confirmed** — same
+build-test-confirm-push discipline as `handy-rss-build` (see its Hard rules; the git-push hold applies
+here too).
 
 ## Key facts (from handy-rss-build — re-verify, don't trust blindly)
 
@@ -221,8 +222,9 @@ and investigate before building); skim `git log --oneline <NEW_TAG>..custom` to 
 1. **Invoke the `handy-rss-build` skill** to build `:FlymFork:assembleFdroidRelease`. It bumps the
    counter (0 → 1), stamps `<NEW_VN>+1` / `<NEW_VC_BASE>+1`, filters output via the NOISE regex, and
    copies the APK to `~/tmp/`. Use its canonical command + flags verbatim — do not re-derive them here.
-2. **Do NOT deploy on your own.** After a successful build, STOP and ask whether to `adb push` to the
-   phone; push only when the user explicitly says so (handy-rss-build Hard rule).
+2. **Deliver automatically.** After a successful build, invoke the global `/after-build` skill — it
+   `/adb-check`s UNSANDBOXED, then `/adb-push`es to the phone if connected, else `/scp`s to `skhw`,
+   announcing what landed. No transfer prompt (handy-rss-build "Deliver" rule).
 3. **User tests on-device.** A new-upstream build deserves a real smoke test: launch, open an article
    (reading view), check the list/grid, fonts, and chrome colors all survived the rebase.
 4. **Only after the user confirms on-device** ("Push" / "good" / "confirmed"):
@@ -236,9 +238,9 @@ and investigate before building); skim `git log --oneline <NEW_TAG>..custom` to 
 
 ## Hard rules
 
-- **Never deploy or force-push on your own.** Build + local `~/tmp/` copy is fine after the build gate;
-  `adb push` waits for explicit instruction, and `git push -f origin custom` waits for on-device
-  confirmation. (Inherits handy-rss-build's gates.)
+- **Deliver automatically; never force-push on your own.** Build + local `~/tmp/` copy is fine after
+  the build gate, and delivery to the phone is automatic via `/after-build` (no prompt); only
+  `git push -f origin custom` waits for on-device confirmation. (Inherits handy-rss-build's gates.)
 - **Never recreate `custom` from scratch.** It's a feature stack — rebase it; if it won't rebase
   cleanly, that's a "significant conflict" to discuss, not a reason to rebuild from the rebrand seds.
 - **Back up before rebasing** (`custom-pre-<NEW_TAG>`), and don't delete the backup until the new
