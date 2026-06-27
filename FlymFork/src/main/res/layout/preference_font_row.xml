@@ -3,7 +3,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:orientation="vertical" android:gravity="center_vertical"
-    android:paddingStart="32dip" android:paddingEnd="8dip"
+    android:paddingStart="100dip" android:paddingEnd="8dip"
     android:paddingTop="2dip" android:paddingBottom="2dip">
     <TextView android:id="@android:id/title"
         android:layout_width="match_parent" android:layout_height="wrap_content"

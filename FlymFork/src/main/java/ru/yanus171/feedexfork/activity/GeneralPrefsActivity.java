@@ -67,6 +67,8 @@ import static ru.yanus171.feedexfork.view.FontSelectPreference.cAddFontFileResul
 
 public class GeneralPrefsActivity extends BaseActivity {
 
+    public static final String EXTRA_OPEN_SCREEN = "open_screen";
+
     @SuppressLint("StaticFieldLeak")
     public static Activity mActivity = null;
     @Override
