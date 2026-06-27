@@ -75,6 +75,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
@@ -252,7 +253,7 @@ public class OPML {
         UiUtils.RunOnGuiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText( getContext(), R.string.import_completed, Toast.LENGTH_LONG ).show();
+                UiUtils.styledToast( getContext(), R.string.import_completed, Toast.LENGTH_LONG );
             }
         });
     }
@@ -839,7 +840,7 @@ public class OPML {
                 final String dirKey = kind == KIND_SETTINGS ? EXPORT_DIR_SETTINGS
                                     : kind == KIND_FEEDS ? EXPORT_DIR_FEEDS : EXPORT_DIR_BACKUP;
                 activity.runOnUiThread(() -> {
-                    Toast.makeText( getContext(), R.string.export_completed, Toast.LENGTH_LONG ).show();
+                    UiUtils.styledToast( getContext(), R.string.export_completed, Toast.LENGTH_LONG );
                     GeneralPrefsActivity.RefreshExportPref( dirKey );
                 });
             } catch (Exception e) {
@@ -853,6 +854,33 @@ public class OPML {
     // A settings-only OPML has no <outline> elements, so only <pref> values are restored.
     public static void importSettingsFromUri(Activity activity, Uri uri) {
         StartServiceForImport( uri.toString(), false, true );
+    }
+
+    // Copy an existing backup file into a user-chosen SAF tree directory (scheduled auto-backup path,
+    // which runs in the background service, so no WaitDialog). No-op if no backup directory is set.
+    public static void copyBackupFileToTree(String srcPath, String treeUri) {
+        try {
+            final DocumentFile dir = DocumentFile.fromTreeUri( getContext(), Uri.parse( treeUri ) );
+            if ( dir == null || !dir.canWrite() )
+                return;
+            final String ts = new SimpleDateFormat( FILENAME_DATETIME_FORMAT ).format( new Date( System.currentTimeMillis() ) );
+            final DocumentFile file = dir.createFile( "application/octet-stream", "shiroikuma-handyrss_" + ts + ".backup" );
+            if ( file == null )
+                return;
+            InputStream in = new FileInputStream( srcPath );
+            OutputStream out = getContext().getContentResolver().openOutputStream( file.getUri() );
+            try {
+                byte[] buf = new byte[8192];
+                int n;
+                while ( ( n = in.read( buf ) ) > 0 )
+                    out.write( buf, 0, n );
+            } finally {
+                in.close();
+                out.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     static public void importFromOpml( final Activity activity ) {

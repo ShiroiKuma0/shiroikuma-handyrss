@@ -194,7 +194,7 @@ public class ColorDialog implements SeekBar.OnSeekBarChangeListener {
 					public boolean onLongClick(View v) {
 						SetViewColor(v, GetCurrentColor() );
 						PrefUtils.putString( GetSlotKey(finalRow, finalCol), ColorPreference.ToHex( GetCurrentColor(), IsTransparency ));
-						Toast.makeText(MainApplication.getContext(), R.string.colorSlotSaved, Toast.LENGTH_LONG).show();
+						UiUtils.styledToast(MainApplication.getContext(), R.string.colorSlotSaved, Toast.LENGTH_LONG);
 						return true;
 					}
 				});

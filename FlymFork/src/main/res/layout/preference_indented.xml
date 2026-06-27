@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- HandyRss: a standard preference row indented to the row/sub-item level (100dp), so plain
+     CheckBox/List preferences sit under an Export/Import sub-head with the boxed contents.
+     Keeps @android:id/title, @android:id/summary and @android:id/widget_frame so CheckBoxPreference
+     still inflates its checkbox into the widget frame. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:minHeight="48dp"
+    android:gravity="center_vertical"
+    android:paddingStart="100dip" android:paddingEnd="12dip"
+    android:paddingTop="6dip" android:paddingBottom="6dip">
+
+    <LinearLayout
+        android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <TextView android:id="@android:id/title"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textColor="@color/menu_pref_fg" android:textSize="18sp"/>
+        <TextView android:id="@android:id/summary"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="2dip"
+            android:textColor="@color/menu_pref_fg" android:textSize="14sp"
+            android:maxLines="6"/>
+    </LinearLayout>
+
+    <LinearLayout android:id="@android:id/widget_frame"
+        android:layout_width="wrap_content" android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical"/>
+</LinearLayout>

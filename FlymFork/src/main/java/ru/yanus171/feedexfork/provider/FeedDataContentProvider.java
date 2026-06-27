@@ -44,6 +44,8 @@
 
 package ru.yanus171.feedexfork.provider;
 
+import ru.yanus171.feedexfork.utils.UiUtils;
+
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -195,7 +197,7 @@ public class FeedDataContentProvider extends ContentProvider {
 
         Uri result = Uri.EMPTY;
         if (cursor.moveToFirst()) {
-            Toast.makeText(context, R.string.error_feed_url_exists, Toast.LENGTH_SHORT).show();
+            UiUtils.styledToast(context, R.string.error_feed_url_exists, Toast.LENGTH_SHORT);
             final long feedId = cursor.getLong(0);
             result = EntryColumns.ENTRIES_FOR_FEED_CONTENT_URI( feedId );
             context.startActivity( new Intent( context, HomeActivity.class )

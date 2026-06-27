@@ -1,5 +1,7 @@
 package ru.yanus171.feedexfork.service
 
+import ru.yanus171.feedexfork.utils.UiUtils
+
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -21,7 +23,7 @@ class BroadcastActionReciever : BroadcastReceiver() {
                 val notificationID = intent.getIntExtra(EXTRA_ID, 0)
                 if (Constants.NOTIF_MGR != null)
                     Constants.NOTIF_MGR.cancel( notificationID )
-                Toast.makeText(context, if (count > 0) R.string.articleWasUnstarred else R.string.articleNotFound, Toast.LENGTH_LONG).show()
+                UiUtils.styledToast(context, if (count > 0) R.string.articleWasUnstarred else R.string.articleNotFound, Toast.LENGTH_LONG)
             }
         }
 
