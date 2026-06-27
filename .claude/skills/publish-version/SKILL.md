@@ -1,6 +1,6 @@
 ---
 name: publish-version
-description: Publish the latest built + on-device-confirmed 白い熊 Handy RSS build as a GitHub release for the ShiroiKuma0/shiroikuma-handyrss fork — create a git tag (ALWAYS without a leading 'v'), refresh the fork README (a "fork of yanus171/Handy-News-Reader, with these major features on top" page + a curated major-features list with short descriptions), write a very specific changelog listing everything built, create the GitHub release, and set the GitHub default branch to `custom` so the repo landing page shows our work + README. Use when the user runs /publish-version, or asks to publish / release / tag / "put out" the current version to GitHub, update the GitHub README, or make the GitHub page land on our custom branch. Delegates nothing build-related — it publishes whatever `handy-rss-build` last produced and the user confirmed on-device.
+description: Publish the latest built + on-device-confirmed 白い熊 Handy RSS build as a GitHub release for the ShiroiKuma0/shiroikuma-handyrss fork — create a git tag (ALWAYS without a leading 'v'), refresh the fork README (a "fork of yanus171/Handy-News-Reader, with these major features on top" page + a curated major-features list with short descriptions), write a very specific changelog listing everything built, create the GitHub release (always attaching the signed APK — a hard must), and set the GitHub default branch to `custom` so the repo landing page shows our work + README. Use when the user runs /publish-version, or asks to publish / release / tag / "put out" the current version to GitHub, update the GitHub README, or make the GitHub page land on our custom branch. Delegates nothing build-related — it publishes whatever `handy-rss-build` last produced and the user confirmed on-device.
 ---
 
 # 白い熊 Handy RSS — publish a version to GitHub
@@ -40,6 +40,7 @@ confirmed on-device, and pushed). If the latest work isn't pushed/confirmed yet,
 3. `gh auth status` OK.
 4. **VERSION** = `grep -oE "versionName '[^']+'" FlymFork/build.gradle | head -1` → strip quotes → e.g. `1.1.4+38`. **TAG = VERSION verbatim, with any leading `v` removed.**
 5. Tag not already taken: `git rev-parse -q --verify "refs/tags/$TAG"` should fail (else this version is already published — confirm with the user whether to re-tag/replace, or bump). Also `gh release view "$TAG"` should 404.
+6. **APK present (HARD MUST):** `~/tmp/shiroikuma-handyrss_<VERSION>_arm64-v8a.apk` MUST exist (the matching built + on-device-confirmed APK). If it's missing, **STOP** — the build must be in `~/tmp/` first. A release is **never** published without the APK.
 
 ### Phase 1 — Refresh the README (on `custom`)
 
@@ -66,7 +67,7 @@ before Phase 4. (A `/publish-version` invocation is intent to publish, but confi
 
 1. Commit the README on `custom`: `git add README.md && git commit -m "README: <VERSION> fork overview + major features"` then `git push origin custom`.
 2. **Tag (no `v`) + push:** `git tag "$TAG"` then `git push origin "$TAG"`.
-3. **GitHub release:** `gh release create "$TAG" --repo ShiroiKuma0/shiroikuma-handyrss --target custom --title "$TAG" --notes-file <changelog-file>`. Optionally attach the APK: if `~/tmp/shiroikuma-handyrss_<VERSION>_arm64-v8a.apk` exists, add it as a release asset (`gh release create … <apk>` or `gh release upload`). Ask before attaching (it's a signed binary going public).
+3. **GitHub release — ALWAYS with the APK attached (HARD MUST):** `gh release create "$TAG" "$APK" --repo ShiroiKuma0/shiroikuma-handyrss --target custom --title "$TAG" --notes-file <changelog-file>`, where `$APK = ~/tmp/shiroikuma-handyrss_<VERSION>_arm64-v8a.apk`. The signed APK is **always** attached — never notes-only, never ask. (Phase 0 already STOPs if it's missing; if a release somehow exists without it, `gh release upload "$TAG" "$APK"`.)
 4. **Default branch → `custom`:** `gh repo edit ShiroiKuma0/shiroikuma-handyrss --default-branch custom` (idempotent; so github.com/ShiroiKuma0/shiroikuma-handyrss lands on `custom` + its README).
 5. Report the release URL (`gh release view "$TAG" --web --json url -q .url`) and confirm the default branch is now `custom`.
 
@@ -160,6 +161,9 @@ current each publish — add new feature commits, never drop shipped ones):
 - **Tags ALWAYS without a leading `v`** (the version string verbatim, e.g. `1.1.4+38`). This is the user's
   explicit convention for this fork's release tags. (Note: the old `shiroikuma-v…` snapshot tags used a
   prefix — release tags from this skill do NOT.)
+- **ALWAYS attach the signed APK** (`~/tmp/shiroikuma-handyrss_<VERSION>_arm64-v8a.apk`) to the release —
+  a **hard must**, never notes-only and never an ask. If the APK isn't in `~/tmp/`, **STOP** and get the
+  matching build there first rather than publish a release without it.
 - **Publish only built + on-device-confirmed + pushed `custom`.** Never publish unconfirmed or unpushed
   work. If `custom != origin/custom`, STOP.
 - **Confirm the content once before the public release** (release notes + README + default-branch flip are
