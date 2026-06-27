@@ -193,6 +193,7 @@
     </PreferenceScreen>
 
     <PreferenceScreen
+        android:key="prefs_ui_screen"
         android:layout="@layout/preference_items"
         android:icon="@drawable/prefs_article_list"
         android:title="@string/settings_category_fonts">

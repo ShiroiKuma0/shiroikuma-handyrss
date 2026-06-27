@@ -29,64 +29,24 @@
 -->
 <resources>
 
-    <string name="about_us_content" translatable="true"><![CDATA[
-    <h2>License and Information</h2>
-    <p>This program is Free/Libre Open-Source Software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">full text</a></p>
-    <p>This app is based on \'Flym RSS Reader\', copyright 2013–2016 Frédéric Julian. Among features added to this fork are:</p>
-    
-	• feed group expanding<br/>
-    • tap actions<br/>
-    • max image per feed download count<br/>
-    • ability to cancel refresh process<br/>
-    • arbitrary web page loading<br/>
-    • local PDF (unsupported in F-Droid app version), FB2 EPUB & book support<br/>
-    • and much more<br/>
-
-    The app was extended from RSS reader to read any web and local content in a single view & interaction style
-
-    <h2>Download ap app:</h2>
-    • <a href="https://www.rustore.ru/catalog/app/ru.yanus171.feedexfork/">RuStore</a><br/>
-    • <a href="https://f-droid.org/en/packages/ru.yanus171.feedexfork/">F-Droid</a> (app version without PDF support)<br/>
-    • The most recent release you can find on <a href="https://github.com/yanus171/Handy-News-Reader/releases/\">GitHib</a>.
-    You can also try <a href=\"https://github.com/yanus171/Handy-News-Reader/issues/683\">beta</a><br/>
-
-    <h2>Web site:</h2>
-    • Discuss an app on <a href="https://github.com/yanus171/Handy-News-Reader\">GitHub</a><br/>
-    • old <b><a href=\"https://handynewsreader.blogspot.com\">website</a></b><br/>
-
-    <h2>Support</h2>
-    <p>If you stumble upon a problem with the app, You can:</p>
-    • open an issue on <a href="https://github.com/yanus171/Handy-News-Reader/issues\">GitHub issues page</a><br/>
-    • <a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20problem">email the developer</a><br/>
-	
-    <h2>Your Support</h2>
-    <p>If you have an idea for a new feature you can:</p>
-    • open an issue on <a href="https://github.com/yanus171/Handy-News-Reader/issues">GitHub issues page</a><br/>
-    • <a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20idea">email the developer</a>
-
-	<p>If you find this app useful please rate it at <a href="https://www.rustore.ru/catalog/app/ru.yanus171.feedexfork">RuStore</a></p>
-    You can also <a href=\"https://github.com/yanus171/Handy-News-Reader\">make a donation</a> </b> (link at the end of the description)
- 
-    <h2>Translations</h2>
-	You can help in translation to your own language at <b><a href="https://crowdin.com/project/handy-news-reader">Crowdin</a></b> If your language isn\'t available then please send an <b><a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20translation">e-mail to the developer</a></b>
-
-    <h2>Acknowledgments</h2>
-    <h3>Developers:</h3>
-    ***developerList***
-	<h3>Translators:</h3>
-    ***translatorList***
+    <string name="about_us_content" translatable="false"><![CDATA[
+    <h2>白い熊 Handy RSS</h2>
+    <p>A personal RSS reader.</p>
+    <p>This program is Free/Libre Open-Source Software, licensed under the GNU General Public License v3 or later. See <a href="http://www.gnu.org/licenses">www.gnu.org/licenses</a></p>
+    <h2>Source</h2>
+    <p><a href="https://github.com/ShiroiKuma0/shiroikuma-handyrss">github.com/ShiroiKuma0/shiroikuma-handyrss</a></p>
     ]]></string>
     <string name="app_name">白い熊 Handy RSS</string>
     <string name="about_title_version">version</string>
-    <string name="about_handy_news_reader">About Handy Reading</string>
+    <string name="about_handy_news_reader">About 白い熊 Handy RSS</string>
     <string name="about_handy_news_reader_descr">License, support, translations, etc.</string>
-    <string name="welcome_title">Welcome to Handy Reading. Would you like to add a feed?</string>
+    <string name="welcome_title">Welcome to 白い熊 Handy RSS. Would you like to add a feed?</string>
     <string name="never">never</string>
     <string name="last_update">Update</string>
     <string name="colon">:\u00A0</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_refresh">Refresh</string>
-    <string name="flym_feeds">Handy Reading Feeds</string>
+    <string name="flym_feeds">白い熊 Handy RSS Feeds</string>
     <string name="error">Error</string>
     <string name="network_error">You are off-line</string>
     <string name="loading">Loading…</string>
@@ -175,7 +135,7 @@
     <string name="menu_mark_as_unread">Mark as unread</string>
     <string name="menu_reload_full_text">Full text</string>
     <string name="menu_reload_full_text_without_mobilizer">Without Mobilizer</string>
-    <string name="share_favorites_title">Handy Reading: starred entries</string>
+    <string name="share_favorites_title">白い熊 Handy RSS: starred entries</string>
     <string name="link_was_copied_to_clipboard">Link copied</string>
     <string name="get_full_text">Show full article</string>
     <string name="show_text_in_entry_list">Show original text on article list</string>
@@ -742,7 +702,7 @@
     <string name="none">none</string>
     <string name="show_article_text">Article text</string>
     <string name="show_article_text_descr">Show article text in list</string>
-    <string name="shared_favorities_article_list_mail_sugject">Handy Reader favourite article list</string>
+    <string name="shared_favorities_article_list_mail_sugject">白い熊 Handy RSS favourite article list</string>
     <string name="settings_remove_found_categories_from_text">Remove categories from text</string>
     <string name="settings_remove_found_categories_from_text_descr">Remove found categories from article text</string>
     <string name="settings_volume_buttons_action_descr">There will be only default action when an article has video</string>
@@ -785,7 +745,7 @@
     <string name="settings_read_text_size">Article text size</string>
     <string name="settings_read_title_size">Article title size</string>
     <string name="settings_read_text_font">Article text font</string>
-    <string name="settings_category_fonts">UI fonts &amp; colors</string>
+    <string name="settings_category_fonts">白い熊 Handy RSS UI</string>
     <string name="settings_color_background">Article background</string>
     <string name="settings_color_quote_bg">Quote background</string>
     <string name="settings_color_quote_bar">Quote bar</string>

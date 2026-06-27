@@ -29,58 +29,11 @@
  THE SOFTWARE.
 -->
 <resources>
-    <string name="about_us_content" translatable="true"><![CDATA[    <b><big>许可证和信息</big></b><br/>
-    该程序是免费软件：您可以根据自由软件基金会发布的GNU通用公共许可证的条款（许可证的版本3）或（根据您的选择）任何更高版本来重新分发和/或修改它。见http://www.gnu.org/licenses<br/>
-    <br/>
-    这个程序是基于 \'Flym RSS Reader\', copyright 2013–2016 Frédéric Julian.在此fork中添加的功能包括:<br/>
-    <br/>
-    • feed组扩大<br/>
-    • 全屏不可见的向上/向下按钮<br/>
-    • 每个Feed下载最大图片数<br/>
-    •取消刷新过程的能力<br/>
-    • 以及更多<br/>
-    <br/>
-    <b><big>在哪里可以找到我们</big></b>
-    <br/>
-    • 请浏览 <b><a href="https://handynewsreader.blogspot.com">website</a></b>获取新闻和信息<br/>
-    • 您可以在此下载应用程序 <b><a href="https://play.google.com/store/apps/details?id=ru.yanus171.feedexfork">Google Play</a></b><br/>
-    • 您可以在此下载应用程序<b><a href="https://f-droid.org/de/packages/ru.yanus171.feedexfork/">F-Droid</a></b><br/>
-    • 也可以参见<b><a href="https://forum.xda-developers.com/android/apps-games/app-flym-fork-rss-reader-t3802126">XDA forum</a></b><br/>
-    • 代码在 <b><a href="https://github.com/yanus171/Handy-News-Reader">GitHub</a></b><br/>
-    <br/>
-    <b><big>我们的支持</big></b>
-    <br/>
-    如果您偶然发现了该应用程序的问题，则最好<br/>
-    • open an issue on <b><a href="https://github.com/yanus171/Handy-News-Reader/issues">GitHub issues page</a></b> or<br/>
-    • send an <b><a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20problem">e-mail to the developer</a></b><br/>
-    <br/>
-    <b><big>Your support</big></b>
-    <br/>
-    如果您有新功能的想法，可以:<br/>
-    • open an issue on <b><a href="https://github.com/yanus171/Handy-News-Reader/issues">GitHub issues page</a></b> or<br/>
-    • send an <b><a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20idea">e-mail to the developer</a></b><br/>
-    <br/>
-    <b>如果您觉得这个应用程序有用，请给它评分 <a href="https://play.google.com/store/apps/details?id=ru.yanus171.feedexfork">Google Play</a>.</b><br/>
-    <br/>
-    <b><big>Translations</big></b>
-    <br/>
-    您可以在以下位置帮助翻译成您自己的语言 <b><a href="https://crowdin.com/project/handy-news-reader">Crowdin</a></b>.<br/>
-    如果您的语言不可用，请发送 <b><a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20translation">e-mail to the developer</a></b>.<br/>
-    <br/>
-    <b><big>Acknowledgments</big></b>
-    <br/>
-    <b>Developers:</b><br/>
-    ***developerList***
-    <br/>
-    <b>Translators:</b><br/>
-    ***translatorList***
-    <br/>
-    ]]></string>
-    <string name="app_name">Handy News Reader</string>
+    <string name="app_name">白い熊 Handy RSS</string>
     <string name="about_title_version">版本</string>
     <string name="about_handy_news_reader">关于</string>
     <string name="about_handy_news_reader_descr">许可证、帮助、翻译等</string>
-    <string name="welcome_title">欢迎使用 Handy News Reader. 您想要添加一个订阅源吗?</string>
+    <string name="welcome_title">欢迎来到 白い熊 Handy RSS. 您想要添加一个Feed吗?</string>
     <string name="never">从不</string>
     <string name="last_update">更新</string>
     <string name="menu_settings">设置</string>
@@ -172,7 +125,7 @@
     <string name="menu_mark_as_unread">标记为未读</string>
     <string name="menu_reload_full_text">重新加载全文</string>
     <string name="menu_reload_full_text_without_mobilizer">不以移动版视图重新加载</string>
-    <string name="share_favorites_title">Handy News Reader：星标条目</string>
+    <string name="share_favorites_title">白い熊 Handy RSS: 已标星条目</string>
     <string name="link_was_copied_to_clipboard">链接已复制</string>
     <string name="get_full_text">加载整篇文章</string>
     <string name="show_text_in_entry_list">在文章列表中显示原文</string>
