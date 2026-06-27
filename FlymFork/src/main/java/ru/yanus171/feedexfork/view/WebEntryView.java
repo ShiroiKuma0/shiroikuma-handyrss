@@ -776,7 +776,7 @@ public class WebEntryView extends EntryView implements WebViewExtended.EntryView
 
     private void copyToClipboard(String text) {
         ((android.text.ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE)).setText(text);
-        Toast.makeText(getContext(), getContext().getString(R.string.text_was_copied_to_clipboard) + ": " + text, Toast.LENGTH_LONG).show();
+        UiUtils.styledToast(getContext(), getContext().getString(R.string.text_was_copied_to_clipboard) + ": " + text, Toast.LENGTH_LONG);
     }
 
     private void setFullTextRoot(String baseUrl, String className) {
@@ -1206,11 +1206,11 @@ public class WebEntryView extends EntryView implements WebViewExtended.EntryView
             PrefUtils.putBoolean(PREF_ARTICLE_TAP_ENABLED_TEMP, enabled);
             if ( mEntryFragment.mTapZones != null )
                 mEntryFragment.mTapZones.Update();
-            Toast.makeText(MainApplication.getContext(),
+            UiUtils.styledToast(MainApplication.getContext(),
                     enabled ?
                             MainApplication.getContext().getString(R.string.tap_actions_were_enabled) :
                             MainApplication.getContext().getString(R.string.video_tag_found_in_article) + ". " + getContext().getString(R.string.tap_actions_were_disabled),
-                    Toast.LENGTH_LONG).show();
+                    Toast.LENGTH_LONG);
         }
     }
 

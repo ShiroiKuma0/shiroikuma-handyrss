@@ -329,6 +329,39 @@
             android:selectable="false"
             android:title="@string/settings_export_feeds_title"/>
 
+        <ru.yanus171.feedexfork.view.ExportImportPreference
+            android:key="export_dir_backup"
+            android:selectable="false"
+            android:title="@string/settings_category_autobackup"/>
+
+        <CheckBoxPreference
+            android:layout="@layout/preference_indented"
+            android:defaultValue="true"
+            android:key="autobackup.enabled"
+            android:title="@string/settings_autobackup_enabled"
+            android:summary="@string/settings_autobackup_enabled_descr"/>
+        <ru.yanus171.feedexfork.view.AutoSummaryListPreference
+            android:layout="@layout/preference_indented"
+            android:defaultValue="86400000"
+            android:entries="@array/settings_intervals"
+            android:entryValues="@array/settings_interval_values"
+            android:inputType="number"
+            android:key="autobackup.interval"
+            android:dependency="autobackup.enabled"
+            android:title="@string/autobackup_interval"
+            android:summary="@string/autobackup_interval_descr"/>
+        <CheckBoxPreference
+            android:layout="@layout/preference_indented"
+            android:defaultValue="true"
+            android:key="autobackup.toast"
+            android:title="@string/settings_autobackup_toast"
+            android:summary="@string/settings_autobackup_toast_descr"/>
+        <CheckBoxPreference
+            android:layout="@layout/preference_indented"
+            android:defaultValue="true"
+            android:key="autobackup_requires_charging"
+            android:title="@string/settings_autobackup_requires_charging"/>
+
         <Preference
             android:selectable="false"
             android:title=" " />
@@ -1033,33 +1066,6 @@
             android:key="use_standard_file_manager"
             android:title="@string/use_standard_file_manager"
             android:summary="@string/use_standard_file_manager_descr"/>
-
-        <PreferenceCategory
-            android:layout="@layout/preference_category"
-            android:title="@string/settings_category_autobackup"/>
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="autobackup.enabled"
-            android:title="@string/settings_autobackup_enabled"
-            android:summary="@string/settings_autobackup_enabled_descr"/>
-        <ru.yanus171.feedexfork.view.AutoSummaryListPreference
-            android:defaultValue="86400000"
-            android:entries="@array/settings_intervals"
-            android:entryValues="@array/settings_interval_values"
-            android:inputType="number"
-            android:key="autobackup.interval"
-            android:dependency="autobackup.enabled"
-            android:title="@string/autobackup_interval"
-            android:summary="@string/autobackup_interval_descr"/>
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="autobackup.toast"
-            android:title="@string/settings_autobackup_toast"
-            android:summary="@string/settings_autobackup_toast_descr"/>
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="autobackup_requires_charging"
-            android:title="@string/settings_autobackup_requires_charging"/>
 
         <PreferenceCategory
             android:layout="@layout/preference_category"

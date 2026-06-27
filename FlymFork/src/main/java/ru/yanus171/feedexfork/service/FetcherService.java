@@ -348,6 +348,9 @@ public class FetcherService extends IntentService {
                     OPML.exportToFile( sourceFileName, true );
                     final boolean showToast = PrefUtils.getBoolean( "autobackup.toast", true );
                     FileUtils.INSTANCE.copyFileToDownload(sourceFileName, showToast);
+                    final String backupDir = PrefUtils.getString( OPML.EXPORT_DIR_BACKUP, "" );
+                    if ( !backupDir.isEmpty() )
+                        OPML.copyBackupFileToTree( sourceFileName, backupDir );
                     PrefUtils.putLong(AutoWorker.LAST_JOB_OCCURRED + PrefUtils.AUTO_BACKUP_INTERVAL, System.currentTimeMillis() );
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -1897,7 +1900,7 @@ public class FetcherService extends IntentService {
                 UiUtils.RunOnGuiThread( new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(context, R.string.network_error, Toast.LENGTH_SHORT).show();
+                        UiUtils.styledToast(context, R.string.network_error, Toast.LENGTH_SHORT);
                     }
                 });
             }

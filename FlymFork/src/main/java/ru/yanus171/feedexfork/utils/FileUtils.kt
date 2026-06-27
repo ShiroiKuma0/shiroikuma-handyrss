@@ -89,17 +89,17 @@ object FileUtils {
             } catch ( e: IllegalStateException ) {
                 e.printStackTrace()
                 UiUtils.RunOnGuiThread {
-                    Toast.makeText( MainApplication.getContext(),
+                    UiUtils.styledToast( MainApplication.getContext(),
                                     String.format(MainApplication.getContext().getString(R.string.unableToCopyFile), "$relPath/$destName"),
-                                    Toast.LENGTH_LONG ).show()
+                                    Toast.LENGTH_LONG )
                 }
                 return
             } catch ( e: NullPointerException ) {
                 e.printStackTrace()
                 UiUtils.RunOnGuiThread {
-                    Toast.makeText( MainApplication.getContext(),
+                    UiUtils.styledToast( MainApplication.getContext(),
                             String.format(MainApplication.getContext().getString(R.string.unableToCopyFile), "$relPath/$destName"),
-                            Toast.LENGTH_LONG ).show()
+                            Toast.LENGTH_LONG )
                 }
                 return
             }
@@ -114,9 +114,9 @@ object FileUtils {
         //Dog.v( String.format( "File copied to download %s -> %s", fileName, destName ) )
         if ( isToast )
             UiUtils.RunOnGuiThread {
-                Toast.makeText(MainApplication.getContext(),
+                UiUtils.styledToast(MainApplication.getContext(),
                         String.format(MainApplication.getContext().getString(R.string.fileCopiedToDownloadsFolder), destName, SUB_FOLDER + destSubFolder),
-                        Toast.LENGTH_LONG).show()
+                        Toast.LENGTH_LONG)
             }
     }
 
@@ -184,7 +184,7 @@ object FileUtils {
 
     private fun MakeDirs(result: File) {
         if ( !result.exists() && !result.mkdirs())
-            Toast.makeText(MainApplication.getContext(), "Cannot create dir: " + result.path, Toast.LENGTH_LONG).show()
+            UiUtils.styledToast(MainApplication.getContext(), "Cannot create dir: " + result.path, Toast.LENGTH_LONG)
     }
 
     fun GetImagesFolder(): File {
