@@ -181,6 +181,9 @@ public class OPML {
     private static final String OUTLINE_TITLE = "\t<outline title='";
     private static final String OUTLINE_TEXT = "' text='";   // Thunderbird names folders/feeds from text=
     private static final String OUTLINE_XMLURL = "' type='rss' xmlUrl='";
+    // Thunderbird needs BOTH type='rss' AND version='RSS' or it treats a feed outline as a folder;
+    // htmlUrl is the site link (we only store the feed URL, so reuse it). Emitted right after xmlUrl.
+    private static final String OUTLINE_FEED_EXTRA = "' version='RSS' htmlUrl='";
     private static final String OUTLINE_RETRIEVE_FULLTEXT = "' retrieveFullText='";
     private static final String CLOSING = "'/>\n";
     private static final String CLOSING_TEMP = "'>\n";
@@ -299,7 +302,7 @@ public class OPML {
             SaveSettings( writer, "\t\t");
             Cursor cursor = context.getContentResolver().query(CONTENT_URI( FetcherService.GetExtrenalLinkFeedID() ), FEEDS_PROJECTION, null, null, null);
             if ( cursor.moveToFirst() && isNotCancelRefresh() )
-                ExportFeed(writer, cursor, true);
+                ExportFeed(writer, cursor, true, false);
             cursor.close();
         }
 
@@ -317,13 +320,13 @@ public class OPML {
                 Cursor cursorFeeds = context.getContentResolver()
                         .query(FEEDS_FOR_GROUPS_CONTENT_URI(cursorGroupsAndRoot.getString(0)), FEEDS_PROJECTION, null, null, null);
                 while (cursorFeeds.moveToNext()) {
-                    ExportFeed(writer, cursorFeeds, isBackup);
+                    ExportFeed(writer, cursorFeeds, isBackup, !isBackup);
                 }
                 cursorFeeds.close();
 
                 writer.write( OUTLINE_END);
             } else
-                ExportFeed(writer, cursorGroupsAndRoot, isBackup);
+                ExportFeed(writer, cursorGroupsAndRoot, isBackup, false);
         }
 
         if ( isBackup )
@@ -366,16 +369,29 @@ public class OPML {
             IS_IMAGE_AUTO_LOAD, OPTIONS, LAST_UPDATE, REAL_LAST_UPDATE,
             PRIORITY, FETCH_MODE };
 
-    private static void ExportFeed(Writer writer, Cursor cursor, boolean isBackup) throws IOException {
+    private static void ExportFeed(Writer writer, Cursor cursor, boolean isBackup, boolean wrapInFolder) throws IOException {
         final String feedID = cursor.getString(0);
         final String fname = GetEncoded( cursor, 2 );
+        final String furl = GetEncoded( cursor, 3 );
+        if ( wrapInFolder ) {
+            // Thunderbird: wrap each grouped feed in its own folder so it appears as a separate
+            // item inside its category folder (feeds placed directly in a category folder get merged).
+            writer.write( "\t" );
+            writer.write( OUTLINE_TITLE );
+            writer.write( fname );
+            writer.write( OUTLINE_TEXT );
+            writer.write( fname );
+            writer.write( CLOSING_TEMP );
+        }
         writer.write( "\t");
         writer.write( OUTLINE_TITLE );
         writer.write( fname );
         writer.write( OUTLINE_TEXT );
         writer.write( fname );
-        writer.write(OUTLINE_XMLURL);
-        writer.write(GetEncoded( cursor, 3));
+        writer.write( OUTLINE_XMLURL );
+        writer.write( furl );
+        writer.write( OUTLINE_FEED_EXTRA );
+        writer.write( furl );
         if ( isBackup ) {
             writer.write(OUTLINE_RETRIEVE_FULLTEXT);
             writer.write(GetBoolText(cursor, 4));
@@ -388,14 +404,18 @@ public class OPML {
             WriteLongValue(writer, cursor, PRIORITY, 11);
             WriteLongValue(writer, cursor, FETCH_MODE, 12);
         }
-        writer.write(CLOSING_TEMP);
-
         if ( isBackup ) {
+            writer.write(CLOSING_TEMP);
             ExportFilters(writer, feedID);
             final boolean saveAbstract = !TRUE.equals(GetBoolText(cursor, 4));
             ExportEntries(writer, feedID, saveAbstract);
+            writer.write(OUTLINE_END);
+        } else {
+            // Thunderbird leaf feed: self-closing <outline .../>, like Thunderbird's own export.
+            writer.write(CLOSING);
         }
-        writer.write(OUTLINE_END);
+        if ( wrapInFolder )
+            writer.write(OUTLINE_END);   // close the per-feed wrapper folder
     }
 
 
@@ -578,6 +598,7 @@ public class OPML {
         private boolean mFeedEntered = false;
         private boolean mProbablyValidElement = false;
         private String mGroupId = null;
+        private int mGroupDepth = 0;   // folder-outline nesting depth (for Thunderbird per-feed wrappers)
         private String mFeedId = null;
         private Long mLabelID = null;
         private HashMap<Long, Long> mEntryFileIDToIDVoc = new HashMap<Long, Long>();
@@ -610,8 +631,11 @@ public class OPML {
                     title = attributes.getValue("", ATTRIBUTE_TEXT);
                 }
 
-                if (url == null) { // No url => this is a group
-                    if (title != null) {
+                if (url == null) { // No url => this is a folder/group outline
+                    // Only the OUTERMOST folder becomes a Handy RSS group. Deeper folders (the
+                    // Thunderbird per-feed wrapper folders) are passthrough containers, so the feed
+                    // inside still lands in the outermost category group.
+                    if (mGroupDepth == 0 && title != null) {
                         ContentValues values = new ContentValues();
                         values.put(IS_GROUP, true);
                         values.put(NAME, title);
@@ -621,9 +645,12 @@ public class OPML {
 
                         if (!cursor.moveToFirst()) {
                             mGroupId = cr.insert(GROUPS_CONTENT_URI, values).getLastPathSegment();
+                        } else {
+                            mGroupId = cursor.getString( cursor.getColumnIndex( _ID ) );
                         }
                         cursor.close();
                     }
+                    mGroupDepth++;
 
                 } else { // Url => this is a feed
                     mFeedEntered = true;
@@ -749,8 +776,11 @@ public class OPML {
             } else if (TAG_OUTLINE.equals(localName)) {
                 if (mFeedEntered) {
                     mFeedEntered = false;
-                } else {
-                    mGroupId = null;
+                } else {   // closing a folder outline
+                    if (mGroupDepth > 0)
+                        mGroupDepth--;
+                    if (mGroupDepth == 0)
+                        mGroupId = null;
                 }
             } else if (TAG_LABEL.equals(localName)) {
                 mLabelID = null;
@@ -813,8 +843,10 @@ public class OPML {
             try {
                 final String ts = new SimpleDateFormat(FILENAME_DATETIME_FORMAT).format(new Date(System.currentTimeMillis()));
                 final String fileName, mime;
-                if ( kind == KIND_SETTINGS ) { fileName = "shiroikuma-handyrss-settings_" + ts + ".opml"; mime = "text/xml"; }
-                else if ( kind == KIND_FEEDS ) { fileName = "shiroikuma-handyrss-feeds_" + ts + ".opml"; mime = "text/xml"; }
+                // Use octet-stream (not text/xml) so SAF keeps the exact name: with text/xml the
+                // provider appends ".xml" -> "....opml.xml", which Thunderbird won't recognize.
+                if ( kind == KIND_SETTINGS ) { fileName = "shiroikuma-handyrss-settings_" + ts + ".opml"; mime = "application/octet-stream"; }
+                else if ( kind == KIND_FEEDS ) { fileName = "shiroikuma-handyrss-feeds_" + ts + ".opml"; mime = "application/octet-stream"; }
                 else { fileName = "shiroikuma-handyrss_" + ts + ".backup"; mime = "application/octet-stream"; }
 
                 final DocumentFile dir = DocumentFile.fromTreeUri( getContext(), Uri.parse( treeUri ) );
