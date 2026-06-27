@@ -29,55 +29,7 @@
  THE SOFTWARE.
 -->
 <resources>
-    <string name="about_us_content" translatable="true"><![CDATA[<b><big>Лицензия</big></b><br/>
-Эта программа является свободным программным обеспечением: вы можете распространять ее и / или изменять в соответствии с условиями Универсальной общественной лицензии GNU, опубликованной Фондом свободного программного обеспечения, либо версии 3 Лицензии, либо (по вашему выбору) любой более поздней версии. См. Http://www.gnu.org/licenses <br/><br/>
-Это приложение разработано на основе исходных текстов \'Flym RSS Reader\', copyright 2013–2016 Frédéric Julian. <h2>Среди добавленных возможностей:</h2>
-<br/>
-• сворачивание папок лент новостей<br/>
-• тап зоны изменения яркости и листания страниц<br/>
-• ограничения на размер и количество загружаемых изображений<br/>
-• возможность отмены процесса обновления<br/>
-• и многое другое<br/>
-<br/>
-<b><big>Контакты</big></b>
-<br/>
-• На нашем <b><a href=\"https://handynewsreader.blogspot.com\">сайте</a></b> много информации и новостей о развитии приложения<br/>
-• Загрузить приложение можно с  <b><a href=\"https://play.google.com/store/apps/details?id=ru.yanus171.feedexfork\">Google Play</a></b><br/>
-или с <b><a href=\"https://f-droid.org/de/packages/ru.yanus171.feedexfork/\">F-Droid</a></b><br/>
-• Для обсуждения есть тема на <b><a href=\"https://forum.xda-developers.com/android/apps-games/app-flym-fork-rss-reader-t3802126\">XDA</a></b><br/>
-• А также тема на <b><a href=\"https://4pda.ru/forum/index.php?showtopic=939306\">4pda</a></b><br/>
-• Но наиболее активное обсуждение происходит на  <b><a href=\"https://github.com/yanus171/Handy-News-Reader/issues\">Github</a></b> (на русском языке тоже)<br/>
-• Там же можно быстрее всего найти <b><a href=\"https://github.com/yanus171/Handy-News-Reader/Releases\">новые версии приложения </a></b><br/>
-• Исходные тексты на <b><a href=\"https://github.com/yanus171/Handy-News-Reader\">GitHub</a></b><br/>
-    <br/>
-    <b><big>Наша помощь:</big></b>
-    <br/>
-    Если Вы столкнулись с проблемой, лучше всего<br/>
-    • задать вопрос (issue) на <b><a href=\"https://github.com/yanus171/Handy-News-Reader/issues\">GitHub </a></b> or<br/>
-    • написать разработчику <b><a href=\"mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20problem\">письмо</a></b><br/>
-    <br/>
-    <b><big>Ваша помощь:</big></b>
-    <br/>
-    Если у Вас есть идея, Вы можете<br/>
-    • изложить ее (issue) на <b><a href=\"https://github.com/yanus171/Handy-News-Reader/issues\">GitHub</a></b> or<br/>
-    • написать разработчику <b><a href=\"mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20idea\">письмо</a></b><br/>
-    <br/>
-    <b>Если Вам понравилось приложение, оцените его пожалуйста на  <a href=\"https://play.google.com/store/apps/details?id=ru.yanus171.feedexfork\">Google play</a></b>. Вы также можете поддержать автора <a href=\"https://github.com/yanus171/Handy-News-Reader\">материально</a></b> (ссылка в конце описания)<br/>
-    <br/>
-    <b><big>Перевод на Ваш язык</big></b>
-    <br/>
-    Вы можете помочь перевести приложение с английского на сайте <b><a href=\"https://crowdin.com/project/handy-news-reader\">Crowdin</a></b>.<br/>
-    Если Ваш язык там еще не добавлен <b><a href=\"mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20translation\">напишите разработчику</a></b>.<br/>
-    <br/>
-    <b><big>Благодарности</big></b>
-    <br/>
-    <b>Разработчики:</b><br/>
-    ***developerList***
-    <br/>
-    <b>Переводчики:</b><br/>
-    ***translatorList***
-    <br/>
-    ]]></string>
+
     <string name="app_name">白い熊 Handy RSS</string>
     <string name="about_title_version">версия</string>
     <string name="about_handy_news_reader">Об Удобном Чтении Новостей</string>
@@ -714,7 +666,7 @@ https://developer.android.com/reference/java/text/SimpleDateFormat </string>
     <string name="none">нет</string>
     <string name="show_article_text">Текст статьи</string>
     <string name="show_article_text_descr">Показывать текст статьи в списке</string>
-    <string name="shared_favorities_article_list_mail_sugject">Список избранного Handy Reader</string>
+    <string name="shared_favorities_article_list_mail_sugject">Список избранного 白い熊 Handy RSS</string>
     <string name="settings_remove_found_categories_from_text">Удалить категории из текста</string>
     <string name="settings_remove_found_categories_from_text_descr">Удалить найденные категории из текста статьи</string>
     <string name="settings_volume_buttons_action_descr">Действия по умолчанию будут выполняться только в том случае, если в статье есть видео</string>

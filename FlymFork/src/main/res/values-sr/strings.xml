@@ -23,7 +23,7 @@
 <resources>
 
     <!-- GENERAL -->
-    <string name="about_flym">О Handy Reading / Help / Contact developer</string>
+    <string name="about_flym">О 白い熊 Handy RSS / Help / Contact developer</string>
     <string name="welcome_title">Добро дошли у Флим. Желите ли да додате довод?</string>
     <string name="never">никад</string>
     <string name="last_update">Ажурирано</string>

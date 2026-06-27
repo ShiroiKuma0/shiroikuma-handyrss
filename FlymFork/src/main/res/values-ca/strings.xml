@@ -34,7 +34,7 @@
     <string name="colon">:u00A0</string>
     <string name="menu_settings">Paràmetres</string>
     <string name="menu_refresh">Refresca</string>
-    <string name="flym_feeds">Canals de Handy News Reader</string>
+    <string name="flym_feeds">Canals de 白い熊 Handy RSS</string>
     <string name="network_error">No hi ha connectivitat</string>
     <string name="loading">S\'està carregant.</string>
     <string name="no_result">No hi ha resultats</string>
@@ -90,7 +90,7 @@
     <string name="menu_full_screen">Pantalla completa</string>
     <string name="menu_copy_clipboard">Copia l\'enllaç</string>
     <string name="menu_mark_as_unread">Marca com a no llegit</string>
-    <string name="share_favorites_title">Handy News Reader: entrades destacades</string>
+    <string name="share_favorites_title">白い熊 Handy RSS: entrades destacades</string>
     <string name="get_full_text">Descarrega el text complet</string>
     <string name="original_text">Mostra el text original</string>
     <string name="see_enclosure">Mostra el fitxer adjunt</string>

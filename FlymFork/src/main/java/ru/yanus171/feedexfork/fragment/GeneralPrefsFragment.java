@@ -61,6 +61,7 @@ import android.text.TextUtils;
 import ru.yanus171.feedexfork.MainApplication;
 import ru.yanus171.feedexfork.R;
 import ru.yanus171.feedexfork.activity.BaseActivity;
+import ru.yanus171.feedexfork.activity.GeneralPrefsActivity;
 import ru.yanus171.feedexfork.service.AutoWorker;
 import ru.yanus171.feedexfork.utils.Brightness;
 import ru.yanus171.feedexfork.utils.FileUtils;
@@ -72,6 +73,10 @@ import static ru.yanus171.feedexfork.utils.PrefUtils.DATA_FOLDER;
 
 public class GeneralPrefsFragment extends PreferenceFragment implements  PreferenceScreen.OnPreferenceClickListener {
     public static Boolean mSetupChanged = false;
+
+    // Deep-link: open a nested PreferenceScreen directly when launched with EXTRA_OPEN_SCREEN.
+    private String mOpenScreenKey = null;
+    private boolean mOpenScreenHandled = false;
 
     private final Preference.OnPreferenceChangeListener mOnRefreshChangeListener = (preference, newValue) -> {
         Activity activity = getActivity();
@@ -92,6 +97,8 @@ public class GeneralPrefsFragment extends PreferenceFragment implements  Prefere
 
         addPreferencesFromResource(R.xml.general_preferences);
 
+        if ( getActivity() != null && getActivity().getIntent() != null )
+            mOpenScreenKey = getActivity().getIntent().getStringExtra( GeneralPrefsActivity.EXTRA_OPEN_SCREEN );
 
         Preference preference = findPreference(PrefUtils.REFRESH_ENABLED);
         preference.setOnPreferenceChangeListener(mOnRefreshChangeListener);
@@ -180,6 +187,30 @@ public class GeneralPrefsFragment extends PreferenceFragment implements  Prefere
 
         super.onResume();
 
+        if ( !mOpenScreenHandled && mOpenScreenKey != null ) {
+            mOpenScreenHandled = true;
+            OpenPreferenceScreenByKey( mOpenScreenKey );
+        }
+    }
+
+    // Programmatically open a nested PreferenceScreen (legacy android.preference framework):
+    // find it in the root adapter and dispatch its item-click, posting so the list is laid out.
+    private void OpenPreferenceScreenByKey( String key ) {
+        final PreferenceScreen root = getPreferenceScreen();
+        final Preference target = findPreference( key );
+        if ( root == null || !( target instanceof PreferenceScreen ) )
+            return;
+        final android.widget.ListAdapter adapter = root.getRootAdapter();
+        for ( int i = 0; i < adapter.getCount(); i++ ) {
+            if ( adapter.getItem( i ) == target ) {
+                final int pos = i;
+                if ( getView() != null )
+                    getView().post( () -> root.onItemClick( null, null, pos, 0 ) );
+                else
+                    root.onItemClick( null, null, pos, 0 );
+                break;
+            }
+        }
     }
 
     private void setRingtoneSummary() {

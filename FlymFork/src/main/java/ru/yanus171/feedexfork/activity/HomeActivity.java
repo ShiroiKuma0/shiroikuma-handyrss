@@ -227,6 +227,15 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
             mDrawerLayout.findViewById( R.id.drawer_header ).setBackgroundColor( Theme.GetToolBarColorInt() );
         if ( mDrawerLayout != null )
             mDrawerLayout.findViewById( R.id.left_drawer ).setBackgroundColor( Theme.GetChromeBgInt() );
+        if ( mDrawerLayout != null ) {
+            View settingsBtn = mDrawerLayout.findViewById( R.id.btn_settings_drawer );
+            if ( settingsBtn != null )
+                settingsBtn.setOnLongClickListener( v -> {
+                    startActivity( new Intent( this, GeneralPrefsActivity.class )
+                            .putExtra( GeneralPrefsActivity.EXTRA_OPEN_SCREEN, "prefs_ui_screen" ) );
+                    return true;
+                } );
+        }
         SetTaskTitle( mTitle );
         timer.End();
     }
