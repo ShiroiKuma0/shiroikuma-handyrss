@@ -315,6 +315,20 @@
             android:defaultValue="0"
             android:title="@string/settings_font_row_size"/>
 
+        <PreferenceCategory
+            android:layout="@layout/preference_font_topcat"
+            android:title="@string/settings_export_section"/>
+
+        <ru.yanus171.feedexfork.view.ExportImportPreference
+            android:key="export_dir_settings"
+            android:selectable="false"
+            android:title="@string/settings_export_settings_title"/>
+
+        <ru.yanus171.feedexfork.view.ExportImportPreference
+            android:key="export_dir_feeds"
+            android:selectable="false"
+            android:title="@string/settings_export_feeds_title"/>
+
         <Preference
             android:selectable="false"
             android:title=" " />

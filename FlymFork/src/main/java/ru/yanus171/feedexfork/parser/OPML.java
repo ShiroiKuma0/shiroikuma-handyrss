@@ -63,6 +63,7 @@ import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.documentfile.provider.DocumentFile;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -74,6 +75,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -82,12 +84,15 @@ import java.util.Map;
 
 import ru.yanus171.feedexfork.Constants;
 import ru.yanus171.feedexfork.R;
+import ru.yanus171.feedexfork.activity.GeneralPrefsActivity;
+import ru.yanus171.feedexfork.utils.PrefUtils;
 import ru.yanus171.feedexfork.utils.Theme;
 import ru.yanus171.feedexfork.provider.FeedData;
 import ru.yanus171.feedexfork.provider.FeedData.EntryColumns;
 import ru.yanus171.feedexfork.provider.FeedData.EntryLabelColumns;
 import ru.yanus171.feedexfork.provider.FeedData.FilterColumns;
 import ru.yanus171.feedexfork.provider.FeedData.LabelColumns;
+import ru.yanus171.feedexfork.service.AutoWorker;
 import ru.yanus171.feedexfork.service.FetcherService;
 import ru.yanus171.feedexfork.utils.EntryUrlVoc;
 import ru.yanus171.feedexfork.utils.FileUtils;
@@ -159,11 +164,21 @@ public class OPML {
     public static final String EXTRA_REMOVE_EXISTING_FEEDS_BEFORE_IMPORT = "EXTRA_REMOVE_EXISTING_FEEDS_BEFORE_IMPORT";
     public static final String FILENAME_DATETIME_FORMAT = "yyyyMMdd_HHmmss";
 
+    // Export/Import section (UI screen): per-block selectable directory (persisted SAF tree URI)
+    // and last-export timestamp prefs. The backup block reuses the existing auto-backup last-time pref.
+    public static final String EXPORT_DIR_SETTINGS = "export_dir_settings";
+    public static final String EXPORT_DIR_FEEDS    = "export_dir_feeds";
+    public static final String EXPORT_DIR_BACKUP   = "export_dir_backup";
+    public static final String EXPORT_LAST_SETTINGS = "export_last_settings";
+    public static final String EXPORT_LAST_FEEDS    = "export_last_feeds";
+    public static final int KIND_SETTINGS = 0, KIND_FEEDS = 1, KIND_BACKUP = 2;
+
     public static String GetAutoBackupOPMLFileName() { return getContext().getCacheDir().getAbsolutePath() + "/" + AUTO_BACKUP_OPML_FILENAME; }
 
     private static final String START = "<?xml version='1.0' encoding='utf-8'?>\n<opml version='1.1'>\n<head>\n<title>白い熊 Handy RSS export</title>\n<dateCreated>";
     private static final String AFTER_DATE = "</dateCreated>\n</head>\n<body>\n";
     private static final String OUTLINE_TITLE = "\t<outline title='";
+    private static final String OUTLINE_TEXT = "' text='";   // Thunderbird names folders/feeds from text=
     private static final String OUTLINE_XMLURL = "' type='rss' xmlUrl='";
     private static final String OUTLINE_RETRIEVE_FULLTEXT = "' retrieveFullText='";
     private static final String CLOSING = "'/>\n";
@@ -260,54 +275,62 @@ public class OPML {
             return;
 
 
-        final Context context = getContext();
         BufferedWriter writer = new BufferedWriter(new FileWriter(filename));
-        //final int status = FetcherService.Status().Start( context.getString( R.string.exportingToFile ) );
         try {
-            Cursor cursorGroupsAndRoot = context.getContentResolver()
-                    .query(GROUPS_AND_ROOT_CONTENT_URI, FEEDS_PROJECTION, null, null, null);
-
-            writer.write( START );
-            writer.write( String.valueOf( System.currentTimeMillis() ) );
-            writer.write( AFTER_DATE);
-
-            if ( isBackup ) {
-                SaveSettings( writer, "\t\t");
-                Cursor cursor = context.getContentResolver().query(CONTENT_URI( FetcherService.GetExtrenalLinkFeedID() ), FEEDS_PROJECTION, null, null, null);
-                if ( cursor.moveToFirst() && isNotCancelRefresh() )
-                    ExportFeed(writer, cursor, true);
-                cursor.close();
-            }
-
-            while (cursorGroupsAndRoot.moveToNext()) {
-                if ( isCancelRefresh() )
-                    break;
-                if (cursorGroupsAndRoot.getInt(1) == 1) { // If it is a group
-                    writer.write( OUTLINE_TITLE);
-                    writer.write( cursorGroupsAndRoot.isNull(2) ? "" : TextUtils.htmlEncode(cursorGroupsAndRoot.getString(2)));
-                    WriteLongValue(writer, cursorGroupsAndRoot, PRIORITY, 11);
-                    writer.write( CLOSING_TEMP);
-                    Cursor cursorFeeds = context.getContentResolver()
-                            .query(FEEDS_FOR_GROUPS_CONTENT_URI(cursorGroupsAndRoot.getString(0)), FEEDS_PROJECTION, null, null, null);
-                    while (cursorFeeds.moveToNext()) {
-                        ExportFeed(writer, cursorFeeds, isBackup);
-                    }
-                    cursorFeeds.close();
-
-                    writer.write( OUTLINE_END);
-                } else
-                    ExportFeed(writer, cursorGroupsAndRoot, isBackup);
-            }
-
-            if ( isBackup )
-                for ( Label label: LabelVoc.INSTANCE.getList() )
-                    Export( writer, label );
-
-            cursorGroupsAndRoot.close();
-            writer.write( END_CLOSING );
+            exportToWriter( writer, isBackup );
         } finally {
             writer.close();
         }
+    }
+
+    // Core OPML writer (the caller owns/closes the Writer). isBackup=false -> nested feeds/groups only
+    // (Thunderbird-importable); isBackup=true -> full backup (settings + entries + filters + labels).
+    public static void exportToWriter(Writer writer, boolean isBackup) throws IOException {
+        final Context context = getContext();
+        Cursor cursorGroupsAndRoot = context.getContentResolver()
+                .query(GROUPS_AND_ROOT_CONTENT_URI, FEEDS_PROJECTION, null, null, null);
+
+        writer.write( START );
+        writer.write( String.valueOf( System.currentTimeMillis() ) );
+        writer.write( AFTER_DATE);
+
+        if ( isBackup ) {
+            SaveSettings( writer, "\t\t");
+            Cursor cursor = context.getContentResolver().query(CONTENT_URI( FetcherService.GetExtrenalLinkFeedID() ), FEEDS_PROJECTION, null, null, null);
+            if ( cursor.moveToFirst() && isNotCancelRefresh() )
+                ExportFeed(writer, cursor, true);
+            cursor.close();
+        }
+
+        while (cursorGroupsAndRoot.moveToNext()) {
+            if ( isCancelRefresh() )
+                break;
+            if (cursorGroupsAndRoot.getInt(1) == 1) { // If it is a group
+                final String gname = cursorGroupsAndRoot.isNull(2) ? "" : TextUtils.htmlEncode(cursorGroupsAndRoot.getString(2));
+                writer.write( OUTLINE_TITLE);
+                writer.write( gname );
+                writer.write( OUTLINE_TEXT );
+                writer.write( gname );
+                WriteLongValue(writer, cursorGroupsAndRoot, PRIORITY, 11);
+                writer.write( CLOSING_TEMP);
+                Cursor cursorFeeds = context.getContentResolver()
+                        .query(FEEDS_FOR_GROUPS_CONTENT_URI(cursorGroupsAndRoot.getString(0)), FEEDS_PROJECTION, null, null, null);
+                while (cursorFeeds.moveToNext()) {
+                    ExportFeed(writer, cursorFeeds, isBackup);
+                }
+                cursorFeeds.close();
+
+                writer.write( OUTLINE_END);
+            } else
+                ExportFeed(writer, cursorGroupsAndRoot, isBackup);
+        }
+
+        if ( isBackup )
+            for ( Label label: LabelVoc.INSTANCE.getList() )
+                Export( writer, label );
+
+        cursorGroupsAndRoot.close();
+        writer.write( END_CLOSING );
     }
 
     private static void Export(Writer writer, Label label) throws IOException {
@@ -344,9 +367,12 @@ public class OPML {
 
     private static void ExportFeed(Writer writer, Cursor cursor, boolean isBackup) throws IOException {
         final String feedID = cursor.getString(0);
+        final String fname = GetEncoded( cursor, 2 );
         writer.write( "\t");
         writer.write( OUTLINE_TITLE );
-        writer.write(GetEncoded( cursor ,2) );
+        writer.write( fname );
+        writer.write( OUTLINE_TEXT );
+        writer.write( fname );
         writer.write(OUTLINE_XMLURL);
         writer.write(GetEncoded( cursor, 3));
         if ( isBackup ) {
@@ -762,6 +788,71 @@ public class OPML {
                 activity.runOnUiThread(() -> UiUtils.showMessage(activity, R.string.error_feed_export));
             }
         }).execute();
+    }
+
+    // ---- Export/Import section (UI screen): SAF-directory exports + settings import ----
+
+    // Settings-only OPML: head + <pref> values + close, no feed <outline> elements.
+    public static void exportSettingsToWriter(Writer writer) throws IOException {
+        writer.write( START );
+        writer.write( String.valueOf( System.currentTimeMillis() ) );
+        writer.write( AFTER_DATE );
+        SaveSettings( writer, "\t\t" );
+        writer.write( END_CLOSING );
+    }
+
+    public static void ExportSettingsToDir(Activity activity, String treeUri) { exportToDir(activity, treeUri, KIND_SETTINGS); }
+    public static void ExportFeedsToDir(Activity activity, String treeUri)    { exportToDir(activity, treeUri, KIND_FEEDS); }
+    public static void ExportBackupToDir(Activity activity, String treeUri)   { exportToDir(activity, treeUri, KIND_BACKUP); }
+
+    // Write an export into a user-chosen SAF tree directory, off the UI thread, then stamp the
+    // last-export time and refresh the matching Export/Import box.
+    private static void exportToDir(final Activity activity, final String treeUri, final int kind) {
+        new WaitDialog(activity, R.string.exportingToFile, () -> {
+            try {
+                final String ts = new SimpleDateFormat(FILENAME_DATETIME_FORMAT).format(new Date(System.currentTimeMillis()));
+                final String fileName, mime;
+                if ( kind == KIND_SETTINGS ) { fileName = "shiroikuma-handyrss-settings_" + ts + ".opml"; mime = "text/xml"; }
+                else if ( kind == KIND_FEEDS ) { fileName = "shiroikuma-handyrss-feeds_" + ts + ".opml"; mime = "text/xml"; }
+                else { fileName = "shiroikuma-handyrss_" + ts + ".backup"; mime = "application/octet-stream"; }
+
+                final DocumentFile dir = DocumentFile.fromTreeUri( getContext(), Uri.parse( treeUri ) );
+                if ( dir == null || !dir.canWrite() )
+                    throw new IOException( "export directory not writable" );
+                final DocumentFile file = dir.createFile( mime, fileName );
+                if ( file == null )
+                    throw new IOException( "cannot create export file" );
+                Writer w = new OutputStreamWriter( getContext().getContentResolver().openOutputStream( file.getUri() ), "UTF-8" );
+                try {
+                    if ( kind == KIND_SETTINGS )
+                        exportSettingsToWriter( w );
+                    else
+                        exportToWriter( w, kind == KIND_BACKUP );
+                } finally {
+                    w.close();
+                }
+
+                final String lastKey = kind == KIND_SETTINGS ? EXPORT_LAST_SETTINGS
+                                     : kind == KIND_FEEDS ? EXPORT_LAST_FEEDS
+                                     : AutoWorker.LAST_JOB_OCCURRED + PrefUtils.AUTO_BACKUP_INTERVAL;
+                PrefUtils.putLong( lastKey, System.currentTimeMillis() );
+                final String dirKey = kind == KIND_SETTINGS ? EXPORT_DIR_SETTINGS
+                                    : kind == KIND_FEEDS ? EXPORT_DIR_FEEDS : EXPORT_DIR_BACKUP;
+                activity.runOnUiThread(() -> {
+                    Toast.makeText( getContext(), R.string.export_completed, Toast.LENGTH_LONG ).show();
+                    GeneralPrefsActivity.RefreshExportPref( dirKey );
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                activity.runOnUiThread(() -> UiUtils.showMessage(activity, R.string.error_feed_export));
+            }
+        }).execute();
+    }
+
+    // Settings-only import: reuse the feed-import service path with isRemoveExistingFeeds=false.
+    // A settings-only OPML has no <outline> elements, so only <pref> values are restored.
+    public static void importSettingsFromUri(Activity activity, Uri uri) {
+        StartServiceForImport( uri.toString(), false, true );
     }
 
     static public void importFromOpml( final Activity activity ) {
