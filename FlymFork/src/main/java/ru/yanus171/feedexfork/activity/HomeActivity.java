@@ -236,6 +236,7 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
                     return true;
                 } );
         }
+        getWindow().getDecorView().post( this::SetupHomeLongPress );
         SetTaskTitle( mTitle );
         timer.End();
     }
@@ -727,10 +728,10 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
             getSupportActionBar().setHomeAsUpIndicator( 0 );
             switch (mCurrentDrawerPos) {
                 case UNREAD_DRAWER_POS:
-                    SetActionbarIndicator( R.drawable.cup_new_unread);
+                    SetActionbarIndicator( R.mipmap.ic_launcher );
                     break;
                 case ALL_DRAWER_POS:
-                    SetActionbarIndicator( R.drawable.cup_new_pot );
+                    SetActionbarIndicator( R.mipmap.ic_launcher );
                     break;
                 case FAVORITES_DRAWER_PAS:
                     SetActionbarIndicator( R.drawable.star_yellow);
@@ -762,9 +763,26 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         timer.End();
     }
 
+    // Long-press the top-left actionbar icon (the windowActionBar up/home affordance) -> open the
+    // 白い熊 Handy RSS UI screen. The home button has no view id, so find it by its content
+    // description (set by ActionBarDrawerToggle to the drawer open/close strings). Re-applied each
+    // onResume (posted, so the action bar is laid out); setting the same listener again is harmless.
+    private void SetupHomeLongPress() {
+        final java.util.ArrayList<View> outViews = new java.util.ArrayList<>();
+        final View decor = getWindow().getDecorView();
+        decor.findViewsWithText( outViews, getString( R.string.drawer_open ), View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION );
+        decor.findViewsWithText( outViews, getString( R.string.drawer_close ), View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION );
+        for ( View v : outViews )
+            v.setOnLongClickListener( view -> {
+                startActivity( new Intent( this, GeneralPrefsActivity.class )
+                        .putExtra( GeneralPrefsActivity.EXTRA_OPEN_SCREEN, "prefs_ui_screen" ) );
+                return true;
+            } );
+    }
+
     private void SetActionbarIndicator( int imageResource) {
         Bitmap original = BitmapFactory.decodeResource(getResources(), imageResource);
-        int size = UiUtils.dpToPixel( 32 );
+        int size = UiUtils.dpToPixel( 24 ); // match the 24dp toolbar action icons so it sits on their level
         Bitmap b = null;
         if ( original == null ) {
             Drawable d = ContextCompat.getDrawable(MainApplication.getContext(), imageResource);
