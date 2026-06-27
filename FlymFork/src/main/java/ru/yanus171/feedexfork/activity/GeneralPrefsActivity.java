@@ -46,10 +46,14 @@ package ru.yanus171.feedexfork.activity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceFragment;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.MenuItem;
@@ -57,9 +61,12 @@ import android.view.MenuItem;
 import ru.yanus171.feedexfork.R;
 import ru.yanus171.feedexfork.fragment.GeneralPrefsFragment;
 import ru.yanus171.feedexfork.parser.FileSelectDialog;
+import ru.yanus171.feedexfork.parser.OPML;
 import ru.yanus171.feedexfork.service.AutoWorker;
+import ru.yanus171.feedexfork.utils.PrefUtils;
 import ru.yanus171.feedexfork.utils.Theme;
 import ru.yanus171.feedexfork.utils.UiUtils;
+import ru.yanus171.feedexfork.view.ExportImportPreference;
 import ru.yanus171.feedexfork.view.FontSelectPreference;
 
 import static ru.yanus171.feedexfork.utils.Theme.GetToolBarColorInt;
@@ -68,6 +75,12 @@ import static ru.yanus171.feedexfork.view.FontSelectPreference.cAddFontFileResul
 public class GeneralPrefsActivity extends BaseActivity {
 
     public static final String EXTRA_OPEN_SCREEN = "open_screen";
+
+    // Export/Import section request codes (distinct from font-add == 1 / REQUEST_PICK_OPML_FILE == 1).
+    public static final int REQ_PICK_DIR        = 4000;
+    public static final int REQ_IMPORT_SETTINGS = 4011;
+    public static final int REQ_IMPORT_FEEDS    = 4012;
+    private static String mPendingDirKey = null;
 
     @SuppressLint("StaticFieldLeak")
     public static Activity mActivity = null;
@@ -122,10 +135,70 @@ public class GeneralPrefsActivity extends BaseActivity {
     FileSelectDialog mAddCustomFileSelectDialog =
         new FileSelectDialog(FontSelectPreference::addCustom, "ttf", cAddFontFileResultCode, R.string.error_add_customm_font );
 
+    // Launch the SAF folder picker for the given Export/Import directory pref key.
+    public static void startDirPick(String dirKey) {
+        if ( mActivity == null )
+            return;
+        mPendingDirKey = dirKey;
+        Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        i.addFlags( Intent.FLAG_GRANT_READ_URI_PERMISSION
+                  | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                  | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION );
+        mActivity.startActivityForResult(i, REQ_PICK_DIR);
+    }
+
+    // Launch the SAF file picker for an import (REQ_IMPORT_SETTINGS / REQ_IMPORT_FEEDS).
+    public static void startImport(int requestCode) {
+        if ( mActivity == null )
+            return;
+        Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        i.addCategory(Intent.CATEGORY_OPENABLE);
+        i.setType("*/*");
+        mActivity.startActivityForResult(i, requestCode);
+    }
+
+    // Refresh one Export/Import box's directory + last-export display after a pick or export.
+    // Instance form: used from onActivityResult, where the static mActivity is briefly null
+    // (cleared in onPause for the picker, re-set only in onResume which runs after onActivityResult).
+    private void refreshExportPref(String dirKey) {
+        Fragment f = getFragmentManager().findFragmentById(R.id.entry_fragment);
+        if ( f instanceof PreferenceFragment ) {
+            Preference p = ((PreferenceFragment) f).findPreference(dirKey);
+            if ( p instanceof ExportImportPreference )
+                ((ExportImportPreference) p).refresh();
+        }
+    }
+
+    // Static entry point for OPML's post-export callback (runs while the screen is resumed).
+    public static void RefreshExportPref(String dirKey) {
+        if ( mActivity instanceof GeneralPrefsActivity )
+            ((GeneralPrefsActivity) mActivity).refreshExportPref(dirKey);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         setResult(resultCode);
+        if ( resultCode == RESULT_OK && data != null && data.getData() != null ) {
+            final Uri uri = data.getData();
+            if ( requestCode == REQ_PICK_DIR ) {
+                try {
+                    getContentResolver().takePersistableUriPermission( uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION );
+                } catch ( Exception ignored ) {}
+                if ( mPendingDirKey != null ) {
+                    PrefUtils.putString( mPendingDirKey, uri.toString() );
+                    refreshExportPref( mPendingDirKey );
+                }
+                return;
+            } else if ( requestCode == REQ_IMPORT_SETTINGS ) {
+                OPML.importSettingsFromUri( this, uri );
+                return;
+            } else if ( requestCode == REQ_IMPORT_FEEDS ) {
+                OPML.AskQuestionForImport( this, uri.toString(), true );
+                return;
+            }
+        }
         mAddCustomFileSelectDialog.onActivityResult( this, requestCode, resultCode, data, false );
     }
 }
