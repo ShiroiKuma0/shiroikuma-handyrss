@@ -177,7 +177,7 @@ public class ExportImportPreference extends Preference {
         if (a == null) return;
         String dir = dirUri();
         if (dir == null || dir.isEmpty()) {
-            Toast.makeText(getContext(), R.string.settings_export_choose_folder, Toast.LENGTH_SHORT).show();
+            UiUtils.styledToast(getContext(), R.string.settings_export_choose_folder, Toast.LENGTH_SHORT);
             return;
         }
         switch (kind()) {

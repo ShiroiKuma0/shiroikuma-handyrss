@@ -887,13 +887,13 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
                             .build();
                     ShortcutManagerCompat.requestPinShortcut( getContext(), pinShortcutInfo, null);
                     if(Build.VERSION.SDK_INT< Build.VERSION_CODES.O)
-                        Toast.makeText(
+                        UiUtils.styledToast(
 
-                                getContext(),R.string.new_feed_shortcut_added,Toast.LENGTH_LONG).show();
+                                getContext(),R.string.new_feed_shortcut_added,Toast.LENGTH_LONG);
                 });
             }).execute();
         } else
-            Toast.makeText( getContext(), R.string.new_feed_shortcut_add_failed, Toast.LENGTH_LONG ).show();
+            UiUtils.styledToast( getContext(), R.string.new_feed_shortcut_add_failed, Toast.LENGTH_LONG );
     }
 
     private Uri GetUri(int pos) {
@@ -1483,7 +1483,7 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
             mListView.setSelection(0);
             if ( mTapActions != null )
                 mTapActions.Update();
-            Toast.makeText(getContext(), R.string.list_was_scrolled_to_top, Toast.LENGTH_SHORT).show();
+            UiUtils.styledToast(getContext(), R.string.list_was_scrolled_to_top, Toast.LENGTH_SHORT);
             return true;
         };
     }
@@ -1495,7 +1495,7 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
             mListView.setSelection(mListView.getCount() - 1);
             if ( mTapActions != null )
                 mTapActions.Update();
-            Toast.makeText(getContext(), R.string.list_was_scrolled_to_bottom, Toast.LENGTH_SHORT).show();
+            UiUtils.styledToast(getContext(), R.string.list_was_scrolled_to_bottom, Toast.LENGTH_SHORT);
             return true;
         };
     }

@@ -53,6 +53,8 @@
  */
 package ru.yanus171.feedexfork.activity
 
+import ru.yanus171.feedexfork.utils.UiUtils
+
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
@@ -417,7 +419,7 @@ open class EditFeedActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Curs
                         mIsAutoImageLoadCb.isChecked = true
                         mIsAutoSetAsRead.isChecked = true
 
-                        Toast.makeText(this@EditFeedActivity, R.string.feedWasAutoConfigured, Toast.LENGTH_LONG).show()
+                        UiUtils.styledToast(this@EditFeedActivity, R.string.feedWasAutoConfigured, Toast.LENGTH_LONG)
                         dialog.dismiss()
             }.create().apply { show(); Theme.TintDialog(this) }
         }
