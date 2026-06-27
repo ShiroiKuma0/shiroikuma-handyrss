@@ -25,6 +25,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.util.Linkify;
@@ -88,17 +89,39 @@ public class UiUtils {
     }
 
     static public void toastOnLocalThread(@StringRes int messageId) {
-        Toast.makeText(MainApplication.getContext(), messageId, Toast.LENGTH_LONG).show();
+        UiUtils.styledToast(MainApplication.getContext(), messageId, Toast.LENGTH_LONG);
     }
     static public void toast( @StringRes int messageId) {
         UiUtils.RunOnGuiThread(() -> UiUtils.toastOnLocalThread( messageId ));
     }
     static public void toastShort( @StringRes int messageId) {
-        Toast.makeText(MainApplication.getContext(), messageId, Toast.LENGTH_SHORT).show();
+        UiUtils.styledToast(MainApplication.getContext(), messageId, Toast.LENGTH_SHORT);
     }
 
     static public void toast( String message) {
-        Toast.makeText(MainApplication.getContext(), message, Toast.LENGTH_LONG).show();
+        UiUtils.styledToast(MainApplication.getContext(), message, Toast.LENGTH_LONG);
+    }
+
+    // HandyRss: every "flash" (toast) styled to the chrome colors — black bg, yellow text, yellow border.
+    static public void styledToast(Context ctx, CharSequence text, int duration) {
+        TextView tv = new TextView(ctx);
+        tv.setText(text);
+        tv.setTextColor(Theme.GetChromeFgInt());
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        int padH = dpToPixel(20), padV = dpToPixel(12);
+        tv.setPadding(padH, padV, padH, padV);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(Theme.GetChromeBgInt());
+        bg.setStroke(dpToPixel(2), Theme.GetChromeFgInt());
+        bg.setCornerRadius(dpToPixel(12));
+        tv.setBackground(bg);
+        Toast t = new Toast(ctx);
+        t.setView(tv);
+        t.setDuration(duration);
+        t.show();
+    }
+    static public void styledToast(Context ctx, @StringRes int resId, int duration) {
+        styledToast(ctx, ctx.getText(resId), duration);
     }
 
     public static void SetTypeFace(TextView textView) {

@@ -208,7 +208,7 @@ public class DebugApp {
 		if ( PrefUtils.getBoolean( "copy_debug_info_to_clipboard", true ) )
 			((ClipboardManager) context.getSystemService(android.content.Context.CLIPBOARD_SERVICE))
 				.setText(st.toString());
-		UiUtils.RunOnGuiThread(() -> Toast.makeText(context, R.string.toastAppCrashed, Toast.LENGTH_LONG).show());
+		UiUtils.RunOnGuiThread(() -> UiUtils.styledToast(context, R.string.toastAppCrashed, Toast.LENGTH_LONG));
 		context.startActivity(
 				Intent.createChooser(emailIntent, context.getString(R.string.criticalErrorSending)).setFlags( Intent.FLAG_ACTIVITY_NEW_TASK ));
 		System.exit(1);

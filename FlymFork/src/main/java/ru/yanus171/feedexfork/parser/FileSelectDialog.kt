@@ -47,7 +47,7 @@ public class FileSelectDialog(private val mAction: ActionWithFileName,
             builder.setItems(fileNames) { _: DialogInterface?, which: Int -> mAction.run(activity, path.toString() + File.separator + fileNames[which], false) }
             Theme.TintDialog( builder.show() )
         } catch (unused: Exception) {
-            Toast.makeText(activity, mErrorTextID, Toast.LENGTH_LONG ).show()
+            UiUtils.styledToast(activity, mErrorTextID, Toast.LENGTH_LONG )
         }
     }
 
@@ -118,7 +118,7 @@ public class FileSelectDialog(private val mAction: ActionWithFileName,
                 }
             //}
             val s = String.format(MainApplication.getContext().getString(if (result) R.string.fileCopied else R.string.unableToCopyFile), sourcePath)
-            Toast.makeText(MainApplication.getContext(), s, Toast.LENGTH_LONG).show()
+            UiUtils.styledToast(MainApplication.getContext(), s, Toast.LENGTH_LONG)
             return result
         }
 
@@ -147,9 +147,9 @@ public class FileSelectDialog(private val mAction: ActionWithFileName,
             }
             UiUtils.RunOnGuiThread {
                 if ( showError )
-                    Toast.makeText(MainApplication.getContext(),
+                    UiUtils.styledToast(MainApplication.getContext(),
                             String.format(MainApplication.getContext().getString(if (result) R.string.fileCopied else R.string.unableToCopyFile), sourceUri.toString()),
-                            Toast.LENGTH_LONG).show()
+                            Toast.LENGTH_LONG)
             }
             return result
         }
