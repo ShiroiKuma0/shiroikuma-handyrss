@@ -738,6 +738,19 @@
     <string name="settings_read_title_size">Article title size</string>
     <string name="settings_read_text_font">Article text font</string>
     <string name="settings_category_fonts">白い熊 Handy RSS UI</string>
+    <!-- Export/Import section (UI screen) -->
+    <string name="settings_export_section">Export / Import</string>
+    <string name="settings_export_settings_title">Export/import — 白い熊 Handy RSS settings</string>
+    <string name="settings_export_feeds_title">Export/import — RSS channels and feeds</string>
+    <string name="settings_export_dir_hint">Tap to choose a folder…</string>
+    <string name="settings_export_last">Last export: %s</string>
+    <string name="settings_backup_last">Last backup: %s</string>
+    <string name="settings_export_btn_export">Export</string>
+    <string name="settings_export_btn_import">Import</string>
+    <string name="settings_export_btn_backup">Backup now</string>
+    <string name="settings_export_btn_restore">Restore</string>
+    <string name="settings_export_choose_folder">Choose a folder first</string>
+    <string name="export_completed">Export completed</string>
     <string name="settings_color_background">Article background</string>
     <string name="settings_color_quote_bg">Quote background</string>
     <string name="settings_color_quote_bar">Quote bar</string>
