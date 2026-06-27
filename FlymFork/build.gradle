@@ -13,8 +13,8 @@ android {
         applicationId 'shiroikuma.handyrss'
         minSdkVersion 14
         targetSdkVersion 31
-        versionCode 3390029
-        versionName '1.1.4+29'
+        versionCode 3390031
+        versionName '1.1.4+31'
         multiDexEnabled true
     }
 
@@ -112,6 +112,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.work:work-runtime:2.7.1'
     implementation "androidx.multidex:multidex:2.0.1"
+    implementation 'androidx.documentfile:documentfile:1.0.1'
     fullImplementation "com.google.android.gms:play-services-safetynet:17+"
     fullImplementation 'com.github.barteksc:android-pdf-viewer:3.2+'
 }
