@@ -35,7 +35,7 @@ public class FontSizePreference extends Preference {
         Context ctx = getContext();
         LinearLayout root = new LinearLayout(ctx);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(UiUtils.dpToPixel(32), UiUtils.dpToPixel(2), UiUtils.dpToPixel(8), UiUtils.dpToPixel(2));
+        root.setPadding(UiUtils.dpToPixel(100), UiUtils.dpToPixel(2), UiUtils.dpToPixel(8), UiUtils.dpToPixel(2));
         final TextView label = new TextView(ctx);
         label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 22);
         label.setTextColor(0xFF989898);

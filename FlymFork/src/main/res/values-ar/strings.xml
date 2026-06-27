@@ -29,54 +29,12 @@
  THE SOFTWARE.
 -->
 <resources>
-    <string name="about_us_content" translatable="true"><![CDATA[    <h2>التَّرْخيصُ وَالمَعْلومَاتِ</h2>
-    <p>هٰذَا التَّطْبيقُ مَجّانيٌّ وَمَفْتوحُ المَصْدَرِ، بِإِمْكانِكَ إِعادَةُ تَوْزيعِهِ وَ/أَوْ تَعْديلِهِ، وَفْقًا لِشُروطِ رُخْصَةِ جِنُو العُموميَّةِ، عَلَى النَّحْوِ المَنْشورِ مِنْ قِبَلِ مُؤَسَّسَةِ البَرْمَجِيَّاتِ الحُرَّةِ، بِدْءًا مِنْ الإِصْدارِ الثّالِثِ مِنْ التَّرْخيصِ أَوْ الإِصْدَارَاتِ اللّاحِقَةِ (حَسَبَ اخْتيارِكَ). إِطَّلِعْ عَلَى <a href="http://www.gnu.org/licenses">www.gnu.org/licenses</a></p>
-    <p>يَسْتَنِدُ هٰذَا التَّطْبيقُ عَلى Flym RSS Reader، حُقوقُ النَّشْرِ 2013–2016 Frédéric Julian. مِن بَيْنِ الْمِيزَاتِ المُضافَةِ لِهٰذَا اَلْتَفَرَّعِ:</p>
-    
-    • إمْكانيَةُ تَوْسِعَةِ المَجْموعاتِ<br/>
-    • عَرْضُ المَقَالَاتِ بِمِلْءِ الشّاشَةِ تَمَامًا<br/>
-    • حَدٌّ أَقْصَى لِحَجْمِ الصّورَةِ وَ حَدِّ أَقْصَى لِعَدَدِ الصّوَرِ فِي تَحْمِيلَاتِ التَّغْذِيَةِ<br/>
-    • القُدْرَةُ عَلَى إلْغاءِ عَمَليَّةِ التَحيَّينِ<br/>
-    • وَالكَثْيرُ مِنَ المْيْزاتِ الاُخْرى
 
-    <h2>تَفاصيلُ الوُصولِ</h2>
-
-    • تَفَضَّل بِزيارَةِ <b><a href=\"https://handynewsreader.blogspot.com\">المَوْقِعِ الإِلِكْتِرونيِّ</a></b> (لِلْحُصُولِ عَلَى الأَخْبارِ وَالمَعْلُوماتِ)<br/>
-    • <a href="https://f-droid.org/de/packages/ru.yanus171.feedexfork/">F-Droid</a><br/>
-    • <a href="https://forum.xda-developers.com/android/apps-games/app-flym-fork-rss-reader-t3802126">XDA forum</a><br/>
-    • <a href="https://github.com/yanus171/Handy-News-Reader">GitHub</a>
-
-    <h2>دَعْمُنا</h2>
-    <p>إِذَا واجِهَتْكَ مُشْكِلَةٌ فِي التَّطْبيقِ، فَيُمْكِنُكَ:</p>
-    • التَّحَقُّقُ مِمَّا إِذَا تَمَّتْ مُعالَجَةُ المُشْكِلَةِ فِي الأَسْئِلَةِ الشّائِعَةِ الخاصَّةِ بِنَا <a href="https://handynewsreader.blogspot.com/2020/07/frequently-asked-questions.html">FAQ</a><br/>
-    • فَتْحُ قَضيَّةٌ فِي<a href="https://github.com/yanus171/Handy-News-Reader/issues">GitHub issues page</a><br/>
-    • <a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20problem">مُراسَلَةُ المُطَوّر</a><br/>
-
-    <h2>دَعْمُكُمْ</h2>
-    <p>إِذَا كَانَ لَدَيْكَ فِكْرَةٌ عَنْ ميزَةٍ جَديدَةٍ، يُمْكِنُكَ:</p>
-    • مُشارَكَتُها مَعَنَا فِي <a href="https://github.com/yanus171/Handy-News-Reader/issues">GitHub issues page</a><br/>
-    • <a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20idea">مُراسَلَةُ المُطَوّر</a>
-
-<p>اذَا وَجَدَتَ التَّطْبيقُ مُفِيدًا، فَيُرْجَى تَقْييمُهُ عَلَى<a href="https://play.google.com/store/apps/details?id=ru.yanus171.feedexfork">Google Play</a></p>
-    يُمْكِنُكَ أَيْضًا <a href=\"https://github.com/yanus171/Handy-News-Reader\">التَّبَرُّعُ</a> </b> (الرّابِطُ فِي نِهايَةِ الوَصْفِ)
- 
-    <h2>التَّرْجَمَاتُ</h2>
-<p>يُمْكِنُكَ المُساعَدَةُ فِي تَحْسينِ تَرْجَمَةِ التَّطْبيقِ عَلَى <b><a href="https://crowdin.com/project/handy-news-reader">Crowdin</a></b>
-
-    <h2>الشُّكْرُ والتَّقْديرِ لـِ </h2>
-    <h3>الْمُطَوِّرين:</h3>
-    ***developerList***
-    <br/><br/>
-<h3>الْمُتَرْجِمين:</h3>
-    • AI-IMED
-    ***translatorList***
-    <br/>
-    ]]></string>
     <string name="app_name">白い熊 Handy RSS</string>
     <string name="about_title_version">الإصدار</string>
-    <string name="about_handy_news_reader">حَوْلَ Handy Reading</string>
+    <string name="about_handy_news_reader">حَوْلَ 白い熊 Handy RSS</string>
     <string name="about_handy_news_reader_descr">الترخيص، الدعم، الترجمات، إلخ.</string>
-    <string name="welcome_title">مرحبًا بك في Handy Reading. استقبل وتابع المحتوى الذي يهمك عن طريق:</string>
+    <string name="welcome_title">مرحبًا بك في 白い熊 Handy RSS. استقبل وتابع المحتوى الذي يهمك عن طريق:</string>
     <string name="never">مُطْلَقًا</string>
     <string name="last_update">تَحْديث</string>
     <string name="menu_settings">الإعدادات</string>
@@ -167,7 +125,7 @@
     <string name="menu_mark_as_unread">تحديده كغير مقروء</string>
     <string name="menu_reload_full_text">النص الكامل</string>
     <string name="menu_reload_full_text_without_mobilizer">بدون مواءمة</string>
-    <string name="share_favorites_title">Handy Reading: المقالات المميزة</string>
+    <string name="share_favorites_title">白い熊 Handy RSS: المقالات المميزة</string>
     <string name="link_was_copied_to_clipboard">تم نسخ الرابط</string>
     <string name="get_full_text">تحميل النص الكامل</string>
     <string name="show_text_in_entry_list">إظهار النص الأصلي في قائمة المقالات</string>
@@ -709,7 +667,7 @@
     <string name="none">لا شيء</string>
     <string name="show_article_text">محتوى المقال</string>
     <string name="show_article_text_descr">إظهار محتوى المقال في القائمة</string>
-    <string name="shared_favorities_article_list_mail_sugject">قائمة المقالات المميزة لـ Handy Reading</string>
+    <string name="shared_favorities_article_list_mail_sugject">قائمة المقالات المميزة لـ 白い熊 Handy RSS</string>
     <string name="settings_remove_found_categories_from_text">إزالة التصنيفات من النص</string>
     <string name="settings_remove_found_categories_from_text_descr">إزالة التصنيفات المكتشفة من نص المقال</string>
     <string name="settings_volume_buttons_action_descr">سيتم استخدام الإجراء \"افتراضي\" تلقائيًا مع المقالات التي تتضمن فيديوهات</string>

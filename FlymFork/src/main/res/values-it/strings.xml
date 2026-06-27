@@ -29,62 +29,17 @@
  THE SOFTWARE.
 -->
 <resources>
-    <string name="about_us_content" translatable="true"><![CDATA[<b> <big> Licenza e informazioni </ big> </ b> <br/>
-    Questo programma è un software libero: è possibile ridistribuirlo e/o modificarlo secondo i termini della GNU General Public License pubblicata dalla Free Software Foundation, sia la versione 3 della licenza, sia (a propria scelta) qualsiasi versione successiva. Vedi http://www.gnu.org/licenses <br/>
-    <br/>
-    Questa app è basata su \'Flym RSS Reader\', copyright 2013-2016 di Frédéric Julian. Tra le funzionalità aggiunte a questo fork sono: <br/>
-    <br/>
-    • espansione del gruppo di feed <br/>
-    • pulsanti pagina su/giù invisibili a schermo intero <br/>
-    • numero massimo di download di immagini per feed <br/>
-    • possibilità di annullare il processo di aggiornamento <br/>
-    • e molto altro <br/>
-    <br/>
 
-    <h2>Puoi trovarci su:</h2>
-
-    • il nostro <b><a href=\"https://handynewsreader.blogspot.com\">sito web</a></b> (notizie e info)<br/>
-    • <a href="https://play.google.com/store/apps/details?id=ru.yanus171.feedexfork">Google Play Store</a><br/>
-    • <a href="https://f-droid.org/de/packages/ru.yanus171.feedexfork/">F-Droid</a><br/>
-    • <a href="https://forum.xda-developers.com/android/apps-games/app-flym-fork-rss-reader-t3802126">XDA forum</a><br/>
-    • <a href="https://github.com/yanus171/Handy-News-Reader">GitHub</a>
-
-
-    <h2>Il nostro aiuto</h2>
-    <p>Se riscontri un problema con l\'app, puoi:</p>
-    • controllare se è spiegata nelle nostre <a href="https://handynewsreader.blogspot.com/2020/07/frequently-asked-questions.html">FAQ</a><br/>
-    • aprire una issue sulla nostra <a href="https://github.com/yanus171/Handy-News-Reader/issues">pagina GitHub</a><br/>
-    • <a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20problem">scrivere una email allo sviluppatore</a><br/>
-
-    <h2>Il tuo aiuto</h2>
-    <p>Se hai un\'idea per una nuova funzionalità, puoi:</p>
-    • aprire una issue sulla nostra <a href="https://github.com/yanus171/Handy-News-Reader/issues">pagina GitHub</a><br/>
-    • <a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20idea">scrivere una email allo sviluppatore</a>
-
-	<p>Se la trovi utile, per favore recensiscila su <a href="https://play.google.com/store/apps/details?id=ru.yanus171.feedexfork">Google Play</a></p>
-    Puoi anche <a href=\"https://github.com/yanus171/Handy-News-Reader\">fare una donazione</a> </b> (link in fondo)
-
-    <h2>Translations</h2>
-	<p>Puoi aiutare la traduzione nella tua lingua su <b><a href="https://crowdin.com/project/handy-news-reader">Crowdin</a></b> Se la tua lingua non è presente, scrivi <b><a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20translation">una email allo sviluppatore</a></b></p>
-
-    <h2>Riconoscimenti</h2>
-    <h3>Sviluppatori:</h3>
-    ***developerList***
-    <br/><br/>
-	<h3>Traduttori:</h3>
-    ***translatorList***
-    <br/>
-    ]]></string>
     <string name="app_name">白い熊 Handy RSS</string>
     <string name="about_title_version">versione</string>
-    <string name="about_handy_news_reader">Informazioni su Handy News Reader</string>
+    <string name="about_handy_news_reader">Informazioni su 白い熊 Handy RSS</string>
     <string name="about_handy_news_reader_descr">Licenza, aiuto e come contattare lo sviluppatore </string>
-    <string name="welcome_title">Benvenuto in Handy News Reader. Vuoi aggiungere un feed?</string>
+    <string name="welcome_title">Benvenuto in 白い熊 Handy RSS. Vuoi aggiungere un feed?</string>
     <string name="never">mai</string>
     <string name="last_update">Aggiornamento</string>
     <string name="menu_settings">Impostazioni</string>
     <string name="menu_refresh">Aggiorna</string>
-    <string name="flym_feeds">Feed di Handy News Reader</string>
+    <string name="flym_feeds">Feed di 白い熊 Handy RSS</string>
     <string name="error">Errore</string>
     <string name="network_error">Nessuna connessione disponibile</string>
     <string name="loading">Caricamento in corso…</string>
@@ -170,7 +125,7 @@
     <string name="menu_mark_as_unread">Segna come Non Letto</string>
     <string name="menu_reload_full_text">Ricarica testo completo</string>
     <string name="menu_reload_full_text_without_mobilizer">Ricarica senza Mobilizer</string>
-    <string name="share_favorites_title">Handy News Reader: articoli preferiti</string>
+    <string name="share_favorites_title">白い熊 Handy RSS: articoli preferiti</string>
     <string name="link_was_copied_to_clipboard">Collegamento copiato</string>
     <string name="get_full_text">Carica testo completo</string>
     <string name="show_text_in_entry_list">Mostra testo originale nella lista degli articoli</string>

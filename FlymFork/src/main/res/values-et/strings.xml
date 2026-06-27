@@ -29,58 +29,17 @@
  THE SOFTWARE.
 -->
 <resources>
-    <string name="about_us_content" translatable="true"><![CDATA[<h2>Litsents ja teave</h2> 
-<p>See programm on vaba/avatud lähtekoodiga tarkvara: sa võid seda levitada ja/või muuta GNU Üldise Avaliku Litsentsi tingimustel, mille on avaldanud Vaba Tarkvara Fond, kas litsentsi versioon 3 või (sinu valikul) mis tahes hilisem versioon. Vaata <a href="http://www.gnu.org/licenses">www.gnu.org/licenses</a></p> 
-<p>See rakendus põhineb \'Flym RSS Reader\'il, autoriõigus 2013–2016 Frédéric Julian. Sellele harule lisatud funktsioonide hulgas on:</p>
 
-• kanalite grupi laiendamine<br/> 
-• nähtamatud täisekraani lehekülje üles|alla nupud<br/> 
-• maksimaalne piltide allalaadimise arv voo kohta<br/> 
-• värskendamise protsessi katkestamise võimalus<br/> 
-• ja palju muud 
-
-<h2>Sa leiad meid siit:</h2> 
-
-• meie <b><a href=\"https://handynewsreader.blogspot.com\">veebisait</a></b> (uudised ja info)<br/> 
-• <a href="https://play.google.com/store/apps/details?id=ru.yanus171.feedexfork">Google Play pood</a><br/> 
-• <a href="https://f-droid.org/de/packages/ru.yanus171.feedexfork/">F-Droid</a><br/> 
-• <a href="https://forum.xda-developers.com/android/apps-games/app-flym-fork-rss-reader-t3802126">XDA foorum</a><br/> 
-• <a href="https://github.com/yanus171/Handy-News-Reader">GitHub</a> 
-
-<h2>Meie tugi</h2> 
-<p>Kui sa satud rakendusega probleemi ette, siis sa saad:</p> 
-• kontrollida, kas seda probleemi on käsitletud meie <a href="https://handynewsreader.blogspot.com/2020/07/frequently-asked-questions.html">KKK-s</a><br/> 
-• avada teema <a href="https://github.com/yanus171/Handy-News-Reader/issues">GitHubi probleemide lehel</a><br/> 
-• <a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20problem">saata arendajale e-kiri</a><br/> 	 
-
-<h2>Sinu toetus</h2> 
-<p>Kui sul on idee uue funktsiooni jaoks, siis sa saad:</p> 
-• avada teema <a href="https://github.com/yanus171/Handy-News-Reader/issues">GitHubi probleemide lehel</a><br/> 
-• <a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20idea">saata arendajale e-kiri</a> 	
-
-<p>Kui sa leiad, et see rakendus on kasulik, siis palun hinda seda <a href="https://play.google.com/store/apps/details?id=ru.yanus171.feedexfork">Google Plays</a></p> 
-Sa võid ka <a href=\"https://github.com/yanus171/Handy-News-Reader\">annetuse teha</a> </b> (link kirjelduse lõpus) 
-
-<h2>Tõlked</h2> 	
-<p>Sa saad aidata tõlkimisel oma keelde <b><a href="https://crowdin.com/project/handy-news-reader">Crowdinis</a></b> Kui sinu keel pole saadaval, siis palun saada <b><a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20translation">arendajale e-kiri</a></b></p> 
-
-<h2>Tänusõnad</h2> 
-<h3>Arendajad:</h3> 
-***developerList*** 
-<br/><br/> 	
-<h3>Tõlkijad:</h3> 
-***translatorList***
-<br/>    ]]></string>
     <string name="app_name">白い熊 Handy RSS</string>
     <string name="about_title_version">versioon</string>
     <string name="about_handy_news_reader">Sellsest äppist info</string>
     <string name="about_handy_news_reader_descr">Litsents, tugi, tõlked jne.</string>
-    <string name="welcome_title">Tere tulemast Handy Reading\'usse. Kas sa sooviksid lisada kanalit?</string>
+    <string name="welcome_title">Tere tulemast 白い熊 Handy RSS\'usse. Kas sa sooviksid lisada kanalit?</string>
     <string name="never">mitte kunagi</string>
     <string name="last_update">Värskenda</string>
     <string name="menu_settings">Sätted</string>
     <string name="menu_refresh">Värskenda nüüd</string>
-    <string name="flym_feeds">Handy Reading\'u ksnalid</string>
+    <string name="flym_feeds">白い熊 Handy RSS\'u ksnalid</string>
     <string name="error">Tõrge</string>
     <string name="network_error">Sa oled võrguühenduseta</string>
     <string name="loading">Laadimine…</string>
@@ -166,7 +125,7 @@ Sa võid ka <a href=\"https://github.com/yanus171/Handy-News-Reader\">annetuse t
     <string name="menu_mark_as_unread">Märgi mitteloetuks</string>
     <string name="menu_reload_full_text">Täistekst</string>
     <string name="menu_reload_full_text_without_mobilizer">Ilma Mobilizerita</string>
-    <string name="share_favorites_title">Handy Reading: tärniga märgitud</string>
+    <string name="share_favorites_title">白い熊 Handy RSS: tärniga märgitud</string>
     <string name="link_was_copied_to_clipboard">Link kopeeritud</string>
     <string name="get_full_text">Laadi täisartikkel</string>
     <string name="show_text_in_entry_list">Kuva originaaltekst artikliloendis</string>
@@ -703,7 +662,7 @@ Sa võid ka <a href=\"https://github.com/yanus171/Handy-News-Reader\">annetuse t
     <string name="none">pole</string>
     <string name="show_article_text">Artikli tekst</string>
     <string name="show_article_text_descr">Näita artikli teksti loendis</string>
-    <string name="shared_favorities_article_list_mail_sugject">Handy Readeri lemmikartiklite loend</string>
+    <string name="shared_favorities_article_list_mail_sugject">白い熊 Handy RSSi lemmikartiklite loend</string>
     <string name="settings_remove_found_categories_from_text">Eemalda kategooriad tekstist</string>
     <string name="settings_remove_found_categories_from_text_descr">Eemalda leitud kategooriad artikli tekstist</string>
     <string name="settings_volume_buttons_action_descr">Kui artiklis on video, siis toimub ainult vaikimisi toiming</string>

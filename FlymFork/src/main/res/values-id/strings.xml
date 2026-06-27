@@ -29,67 +29,17 @@
  THE SOFTWARE.
 -->
 <resources>
-    <string name="about_us_content" translatable="true"><![CDATA[    <b><big>Lisensi dan informasi</big></b><br/>
-    Program ini adalah perangkat lunak bebas: Anda dapat mendistribusikannya kembali dan/atau memodifikasinya di bawah ketentuan
-Lisensi Publik Umum GNU yang diterbitkan oleh
-Free Software Foundation, baik versi 3 dari Lisensi, atau (sesuai pilihan Anda) versi yang lebih baru. Lihat http://www.gnu.org/licenses<br/>
-    <br/>
-    Aplikasi ini didasarkan pada \'Flym RSS Reader\', hak cipta 2013–2016 Frédéric Julian. Di antara fitur yang ditambahkan ke garpu ini adalah:<br/>
-    <br/>
-    • pemekaran
-grup umpan<br/>
-    • tombol halaman naik|turun kasat mata pada halaman layar penuh<br/>
-    • jumlah unduhan gambar
-maksimum per umpan<br/>
-    • kemampuan untuk membatalkan proses penyegaran<br/>
-    • dan banyak lagi<br/>
-    <br/>
-    <b><big>Tempat Anda dapat menemui kami</big></b>
-    <br/>
-    • Silakan kunjungi <b><a href="https://handynewsreader.blogspot.com"></a>situs web</b> kami untuk berita dan informasi<br/>
-    • Anda dapat mengunduh aplikasi ini di <b><a href="https://play.google.com/store/apps/details?id=ru.yanus171.feedexfork">Google Play</a></b><br/>
-    • Anda dapat mengunduh aplikasi ini di <b><a href="https://f-droid.org/de/packages/ru.yanus171.feedexfork/">F-Droid</a></b><br/>
-    • Ada juga utas di <b><a href="https://forum.xda-developers.com/android/apps-games/app-flym-fork-rss-reader-t3802126">XDA forum</a></b><br/>
-    • Sumber dapat Anda temukan di <b><a href="https://github.com/yanus171/Handy-News-Reader">GitHub</a></b><br/>
-    <br/>
-    <b><big>Dukungan kami</big></b>
-    <br/>
-    Bila Anda menemui masalah dengan aplikasi ini, Anda sebaiknya<br/> 
-    • memulai isu baru di <b><a href="https://github.com/yanus171/Handy-News-Reader/issues">halaman isu GitHub</a></b> atau<br/>
-    • kirim sepucuk <b><a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20problem">surel ke pengembang</a></b><br/>
-    <br/>
-    <b><big>Dukungan Anda</big></b>
-    <br/>
-    Bila Anda memiliki ide untuk fitur baru, Anda dapat:<br/>
-    • memulai isu baru di <b><a href="https://github.com/yanus171/Handy-News-Reader/issues">halaman isu GitHub </a></b> or<br/>
-    • kirim sepucuk <b><a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20idea">surel ke pengembang</a></b><br/>
-    <br/>
-    <b>Bila Anda merasa aplikasi ini bermanfaat, silakan beri peringkat di <a href="https://play.google.com/store/apps/details?id=ru.yanus171.feedexfork">Google Play</a>.</b><br/>
-    <br/>
-    <b><big>Terjemahan</big></b>
-    <br/>
-    Anda dapat membantu menerjemahkan ke bahasa Anda sendiri di <b><a href="https://crowdin.com/project/handy-news-reader">Crowdin</a></b>.<br/>
-    Jika bahasa Anda tidak tersedia maka silakan kirim sepucuk <b><a href="mailto:workyalex@mail.ru?subject=Handy%20News%20Reader%20translation">surel ke pengembang</a></b>.<br/>
-    <br/>
-    <b><big>Ucapan Terima Kasih</big></b>
-    <br/>
-    <b>Pengembang:</b><br/>
-    ***developerList***
-    <br/>
-    <b>Penerjemah:</b><br/>
-    ***translatorList***
-    <br/>
-    ]]></string>
+
     <string name="app_name">白い熊 Handy RSS</string>
     <string name="about_title_version">versi</string>
-    <string name="about_handy_news_reader">Tentang Handy News Reader</string>
+    <string name="about_handy_news_reader">Tentang 白い熊 Handy RSS</string>
     <string name="about_handy_news_reader_descr">Lisensi, dukungan, terjemahan, dll.</string>
-    <string name="welcome_title">Selamat datang di Handy News Reader. Apakah Anda ingin menambahkan feed?</string>
+    <string name="welcome_title">Selamat datang di 白い熊 Handy RSS. Apakah Anda ingin menambahkan feed?</string>
     <string name="never">jangan pernah</string>
     <string name="last_update">Pembaruan</string>
     <string name="menu_settings">Pengaturan</string>
     <string name="menu_refresh">Segarkan</string>
-    <string name="flym_feeds">Feed Handy News Reader</string>
+    <string name="flym_feeds">Feed 白い熊 Handy RSS</string>
     <string name="error">Galat</string>
     <string name="network_error">Anda sedang luring</string>
     <string name="loading">Memuat…</string>
@@ -174,7 +124,7 @@ maksimum per umpan<br/>
     <string name="menu_mark_as_unread">Tandai belum dibaca</string>
     <string name="menu_reload_full_text">Teks lengkap</string>
     <string name="menu_reload_full_text_without_mobilizer">Tanpa Mobilizer</string>
-    <string name="share_favorites_title">Handy News Reader: entri favorit</string>
+    <string name="share_favorites_title">白い熊 Handy RSS: entri favorit</string>
     <string name="link_was_copied_to_clipboard">Tautan disalin</string>
     <string name="get_full_text">Muat artikel lengkap</string>
     <string name="show_text_in_entry_list">Tampilkan teks orisinal pada daftar artikel</string>
