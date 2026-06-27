@@ -4,31 +4,31 @@ A personal rebranded fork of [yanus171/Handy-News-Reader](https://github.com/yan
 
 ## REQUIRED READING before any change
 
-Before any change on this repo, read **`.claude/skills/handy-rss-build/SKILL.md`** in full. It contains the project identity, the build-test-confirm-push workflow, the full feature history (commits 1–23), and the current open work. The skill's Workflow + Hard rules sections at the top encode lessons learned (build cache, dirty-index recovery, version-bump discipline, on-device verification) — they exist for specific, documented reasons.
+Before any change on this repo, read **`.claude/skills/handy-rss-build/SKILL.md`** in full. It contains the project identity, the build-test-confirm-push workflow, the full feature history (commits 1–30), and the current open work. The skill's Workflow + Hard rules sections at the top encode lessons learned (build cache, dirty-index recovery, version-bump discipline, on-device verification) — they exist for specific, documented reasons.
 
 ## At-a-glance conventions (full detail in the skill)
 
 - **Branch model:** all changes on the **`custom`** branch. `master` mirrors `upstream/master` (yanus171) fast-forward only and never carries our changes. `origin` is `git@github.com:ShiroiKuma0/shiroikuma-handyrss.git` (SSH push).
 - **Versioning:** `versionName = 1.1.4+N`, `versionCode = 3390000+N`. **Every build bumps N**, no exceptions. The counter lives at `$HOME/.handyrss_build_no` — outside the repo, never tracked.
 - **Reset before applying patches:** `git reset --hard HEAD`, **not** `git checkout -- .`. The latter restores from the index, so a dirty index from an aborted prior push restores an already-patched tree and the next `git apply` fails. `git status --short` should be empty after the reset.
-- **Build-test-confirm-push:** changes are tested on the Mate XT before being committed. The build step bumps the counter, builds the APK, and copies it to `~/tmp/`. **Never deploy to the phone on your own** — after a successful build, stop and ask; only `adb push` after the user explicitly instructs you to. Commit + push is a SEPARATE step again, only run after the user explicitly confirms on-device with "Push" / "good" / "confirmed".
+- **Build-test-confirm-push:** changes are tested on the Mate XT before being committed. Once a stage's scope is confirmed, **build automatically** (no per-build "shall I build?" prompt — see the auto-build auto-memory); the build step bumps the counter, builds the APK, copies it to `~/tmp/`, and **auto-delivers via the global `/after-build` skill** (`/adb-check` UNSANDBOXED → `/adb-push` to `/sdcard/tmp/` if a phone is connected, else `/scp` to `skhw:~/tmp/`). Still show the diff before building, and **commit + push only after the user confirms on-device** with "Push" / "good" / "confirmed".
 
 ## External state — outside this repo, must be preserved across sessions
 
-- **`$HOME/.handyrss_build_no`** — the build counter. **Currently `21`** (last built version `1.1.4+21`). Never commit.
+- **`$HOME/.handyrss_build_no`** — the build counter. **Currently `38`** (last built version `1.1.4+38`). Never commit.
 - **`~/.android-keystores/handyrss-custom.jks`** — signing keystore (alias `handyrss`). Without it, builds cannot be signed.
 - **`~/tmp/`** — APK archive directory. Never committed; persists across sessions.
 - **`~/git/shiroikuma-handyrss`** — the local working clone (this repo).
 
-## State checkpoint (2026-06-06)
+## State checkpoint (2026-06-27)
 
-- HEAD = `d105d9d7` (`Skill: post-build deploy gate is an explicit y/n AskUserQuestion prompt`), with the launcher-icon rebrand (`d867fa41`) just below it. Last built + on-device-confirmed `1.1.4+26`, counter at `26`.
+- HEAD = `e244d32d` (`Main-screen launcher icon + home long-press; Thunderbird-native feeds OPML export`). Last built + on-device-confirmed `1.1.4+38`, counter at `38`.
 - All commits pushed to `origin/custom`. Tree clean.
-- **Since the 2026-05-24 checkpoint:** black/yellow line-art launcher icon (yellow-traced coffee cup on a full-bleed black tile, fills black with front-to-back occlusion, ~94% fill so the steam wisp stays visible, all six mipmap densities; rendered from `data/ic_launcher.svg` via a pycairo script — the stale `ic_launcher/web_hi_res_512.png` blue-cross asset is unrelated, ignore it); and the skill's post-build deploy gate is now an explicit y/n `AskUserQuestion` prompt (`adb push` only on Yes / a standing same-turn deploy instruction).
-- **Open work** (see the skill's D2 tracker for full context):
-  1. Sweep `Theme.TintDialog(dlg)` over the remaining ~10 confirmation dialogs (delete / OPML / label / color / storage / filter / etc.) so they follow chrome too — trivial one-line addition per site.
-  2. **D2f shelved** by the user 2026-05-24: app-wide chrome body text (`textColorPrimary`/`Secondary`), settings row backgrounds, control accents. Documented in the skill under D2; revisit only if living with custom chrome colors makes the mismatch nag.
-  3. Open question (also deferred with D2f): whether to consolidate all colors under the renamed "UI fonts & colors" settings screen.
+- **This session (commits 24–30, `1.1.4+22..+38`; full detail in the skill's feature-commits list):** launcher icon; new-issue-form de-brand; dialog chrome sweep (finished the old D2f dialog tail); the **白い熊 Handy RSS UI** screen — renamed from "Fonts", drawer-settings long-tap deep-link, strict **16/50/100 dp** 3-tier indentation, full product-name brand purge; the boxed **Export/Import** section (SAF directory pickers; settings + feeds + auto-backup blocks); **auto-backup relocated** from Advanced into that section; all toasts chrome-styled; main-screen **top-left launcher icon (24 dp) + home long-press → UI screen**; **Thunderbird-native feeds OPML** (per-feed wrapper folders, self-closing `type=rss`+`version=RSS`, round-trip-safe importer, `.opml` extension).
+- **Working agreements this session** (also in auto-memory): build automatically once a stage's scope is confirmed (no "shall I build?" prompt); strict UI-screen indentation discipline; the Thunderbird OPML format + testing gotchas.
+- **Open work:**
+  1. **D2f shelved** (2026-05-24): app-wide chrome body text (`textColorPrimary`/`Secondary`), settings row/category backgrounds, control accents. The dialog tail is now DONE (commit 26). Revisit only if living with custom chrome colors makes the mismatch nag.
+  2. Open question (deferred with D2f): whether to consolidate all colors under the "白い熊 Handy RSS UI" screen.
 
 ## Note on the keystore password
 
