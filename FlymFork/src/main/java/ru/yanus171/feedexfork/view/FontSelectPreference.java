@@ -150,7 +150,7 @@ public class FontSelectPreference extends Preference {
 	protected View onCreateView(ViewGroup parent) {
 		LinearLayout vLayout = new LinearLayout(getContext());
 		vLayout.setOrientation(LinearLayout.VERTICAL);
-		vLayout.setPadding(UiUtils.dpToPixel(32), UiUtils.dpToPixel(2), UiUtils.dpToPixel(8), UiUtils.dpToPixel(2));
+		vLayout.setPadding(UiUtils.dpToPixel(100), UiUtils.dpToPixel(2), UiUtils.dpToPixel(8), UiUtils.dpToPixel(2));
 
 		TextView title = new TextView(getContext());
 		title.setText(getTitle());
