@@ -265,6 +265,16 @@ Restyling the rows meant editing the two **code-built custom preferences** (they
 - Spacing: row vertical padding ~2 dp and the weight row's `minHeight` removed to pack rows tightly; all label/value lines unified to the Font label's size (22).
 - **`menu_pref_fg` (#FFFF00) is the canonical yellow for value text; `Theme.GetMenuFontColor()` is a separate (white) color — never use it here.**
 
+## 白い熊 Handy RSS UI screen — indentation discipline (STRICT)
+
+The screen formerly titled "Fonts" is now **白い熊 Handy RSS UI** (`settings_category_fonts` string; the `prefs_ui_screen` nested `<PreferenceScreen>` in `res/xml/general_preferences.xml`). 白い熊 requires a **strict 3-tier indentation + logical grouping** on it — every item sits at its tier under its logical parent, **no exceptions** (this supersedes the older "~32 dp" numbers in the commit-12 note above). Repeatedly corrected on-device; treat as a hard rule whenever touching this screen.
+
+- **Tier 1 — section header / top-category: 16 dp.** `@layout/preference_font_topcat` (bold yellow + 2 dp underline rule). E.g. "Reading view", "List view", "Left toolbar", "Export / Import".
+- **Tier 2 — sub-head: 50 dp** (≈ mid-"a" of the parent header above it). `@layout/preference_font_subhead` (underlined yellow). E.g. "Article text", "Article headings", and the `ExportImportPreference` box titles.
+- **Tier 3 — rows / sub-items: 100 dp** (double the sub-head). Sources that must all match: `@layout/preference_font_row` (`paddingStart=100dip`); the two code-built prefs `FontSelectPreference`/`FontSizePreference` (`onCreateView` root `UiUtils.dpToPixel(100)`); `ExportImportPreference` subitems (`leftMargin = dp(100)`, its title at `dp(50)`); and plain `CheckBoxPreference`/`ListPreference` via **`android:layout="@layout/preference_indented"`** (a standard title/summary/`@android:id/widget_frame` row padded to 100 dp — so the checkbox still inflates).
+- **Grouping:** a sub-head's children — including config toggles like the auto-backup `enabled`/`interval`/`toast`/`charging` — are tier-3 sub-items of that sub-head and must be indented to 100 dp. A bare `CheckBoxPreference`/`ListPreference` defaults to flush-left (16 dp) and is **wrong** here; always give it `@layout/preference_indented`.
+- The **Export / Import** section lives at the **bottom** of this screen (after "Left toolbar"): a tier-1 "Export / Import" header, then three `ExportImportPreference` boxes (settings / RSS channels & feeds / Auto backup), with the auto-backup toggles as tier-3 rows under the Auto-backup box.
+
 ## Original rebrand procedure (historical, one-time)
 
 The rebrand is a single commit on the `custom` branch, branched off the latest upstream release tag (currently `v1.1.4`). It comprises **four file edits**, plus a keystore + SDK prerequisite. The mappings are the durable reference; Claude edits the files directly.

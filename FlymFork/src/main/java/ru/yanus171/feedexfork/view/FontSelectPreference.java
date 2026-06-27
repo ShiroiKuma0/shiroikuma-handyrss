@@ -413,7 +413,7 @@ public class FontSelectPreference extends Preference {
 				fileName = fileName + TTF_EXT;
 		}
 		if ( !fileName.toLowerCase().endsWith( TTF_EXT ) )
-			Toast.makeText( activity, R.string.wrongFontFileSelected, Toast.LENGTH_LONG ).show();
+			UiUtils.styledToast( activity, R.string.wrongFontFileSelected, Toast.LENGTH_LONG );
 		else if (FileSelectDialog.Companion.copyFile(data, FileUtils.INSTANCE.getFontsFolder() + "/" + fileName, isFileNameUri, activity)) {
 			final String value = FontsDir + "/" + fileName;
 			PrefUtils.putString(KEY, value);
