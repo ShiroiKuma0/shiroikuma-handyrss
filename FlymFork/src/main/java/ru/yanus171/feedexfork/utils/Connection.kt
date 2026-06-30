@@ -2,6 +2,7 @@ package ru.yanus171.feedexfork.utils
 
 import android.os.Build
 import okhttp3.*
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.jsoup.Jsoup
 import java.io.IOException
 import java.io.InputStream
@@ -73,11 +74,14 @@ class Connection(url: String, var mIsOKHttp: Boolean = true) {
             val client = OkHttpClient.Builder()
                     .connectTimeout(timeout.toLong(), TimeUnit.MILLISECONDS)
                     .readTimeout(timeout.toLong(), TimeUnit.MILLISECONDS)
-            var request = Request.Builder()
+            val crawler = isConsentWallHost( url )
+            val builder = Request.Builder()
                     .url(url.trim())
-                    .header( "user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36" )
-                    .header( "referer", NetworkUtils.getBaseUrl( url ) )
-                            .build()
+                    .header( "user-agent", if ( crawler ) UA_CRAWLER else UA_DEFAULT )
+            // A real crawler does not send a same-site referer; keep it for normal browsing only.
+            if ( !crawler )
+                builder.header( "referer", NetworkUtils.getBaseUrl( url ) )
+            var request = builder.build()
             if ( PrefUtils.getBoolean("ignore_all_ssl_errors", false) )
                 client.ignoreAllSSLErrors()
             var call = client.build().newCall(request)
@@ -135,5 +139,22 @@ class Connection(url: String, var mIsOKHttp: Boolean = true) {
 
     fun IsOkHttp(): Boolean {
         return mIsOKHttp && Build.VERSION.SDK_INT >= 21
+    }
+
+    companion object {
+        private const val UA_DEFAULT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
+        private const val UA_CRAWLER = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+
+        // Hosts behind the Mafra "zaplať nebo souhlas" (pay-or-consent) cookie wall. With a normal
+        // browser User-Agent the article request is 302-redirected to /nastaveni-souhlasu and the
+        // body is replaced by the consent notice ("iDNES a reklama"); a search-crawler User-Agent is
+        // served the full article. So we send Googlebot for these hosts (feed, full-text and images).
+        private val CONSENT_WALL_HOSTS = listOf("lidovky.cz", "idnes.cz", "expres.cz", "antiyoutuber.cz")
+
+        @JvmStatic
+        fun isConsentWallHost(url: String): Boolean {
+            val host = url.trim().toHttpUrlOrNull()?.host?.lowercase() ?: return false
+            return CONSENT_WALL_HOSTS.any { host == it || host.endsWith(".$it") }
+        }
     }
 }
