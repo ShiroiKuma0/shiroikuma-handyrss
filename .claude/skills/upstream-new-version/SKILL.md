@@ -1,15 +1,16 @@
 ---
 name: upstream-new-version
-description: Check yanus171/Handy-News-Reader for a new upstream release and, if there is one, fast-forward the `master` mirror and rebase the whole `custom` feature stack onto the new tag, reconciling conflicts — automatically when they are small, but stopping to discuss and plan with the user when they are significant — then reset the version base + counter and build the new APK by invoking the handy-rss-build skill, then deliver it automatically via the global /after-build skill (no transfer prompt). Use this skill when the user runs /upstream-new-version, or asks to pull/update to a new Handy News Reader (Handy-News-Reader / handyrss / FlymFork / feedexfork) upstream version, rebase onto a new release tag, or "check upstream for a new version". This is the upstream-update front-end for the handy-rss-build fork; it delegates the actual build to handy-rss-build.
+description: Check yanus171/Handy-News-Reader for new upstream work and pull it into our fork by rebasing the whole `custom` feature stack — onto the new release tag when there is one (adopting upstream's version and resetting the build counter), or, when there is no new tag but upstream/master has advanced, onto the latest master tip (keeping our version base unchanged so our +N numbering keeps growing). Before every rebase it shows a descriptive table of the new upstream functionality since our last base and waits for an OK. It fast-forwards the `master` mirror, backs up `custom`, reconciles conflicts — automatically when small, stopping to discuss and plan when significant — then builds the APK via the handy-rss-build skill and delivers it automatically via the global /after-build skill (no transfer prompt); the force-push waits for on-device confirmation. Use this skill when the user runs /upstream-new-version, or asks to pull/update to new Handy News Reader (Handy-News-Reader / handyrss / FlymFork / feedexfork) upstream work, rebase onto a new release or the latest master, or "check upstream for a new version". This is the upstream-update front-end for the handy-rss-build fork; it delegates the actual build to handy-rss-build.
 ---
 
 Base directory for this skill: /home/shiroikuma/git/shiroikuma-handyrss/.claude/skills/upstream-new-version
 
 # Handy RSS — upstream new-version rebase + rebuild
 
-This skill automates the **"a new upstream release came out, pull it into our fork"** flow for the
-user's rebranded Handy News Reader fork (`shiroikuma.handyrss` / `白い熊 Handy RSS`). It is the
-front-end to the **`handy-rss-build`** skill: it does the git work (detect new release → mirror →
+This skill automates the **"new upstream work landed, pull it into our fork"** flow for the
+user's rebranded Handy News Reader fork (`shiroikuma.handyrss` / `白い熊 Handy RSS`) — whether that work
+is a new release tag or just fresh commits on `upstream/master` (see **Two update modes**). It is the
+front-end to the **`handy-rss-build`** skill: it does the git work (detect new upstream work → mirror →
 rebase the `custom` stack → reconcile) and then hands the **build** off to `handy-rss-build`.
 
 **READ the `handy-rss-build` skill first** (`.claude/skills/handy-rss-build/SKILL.md`) — it is the
@@ -20,17 +21,36 @@ build mechanics and this skill wins for the rebase flow.
 
 ## What this skill does (and does not do)
 
-Does: fetch upstream → find the newest **release tag by date** → if it's newer than our current base,
-fast-forward `master`, back up `custom`, rebase the whole `custom` feature stack onto the new tag,
-reconcile conflicts (auto if small, **discuss-and-plan with the user if significant**), reset the
-version base + build counter, propagate the new base version into the project + skill docs, verify the
-rebrand + features survived, then build via `handy-rss-build`.
+Does: fetch upstream → decide what to rebase onto (see **Two update modes** below) → **show a
+descriptive table of the new upstream functionality since our last base and wait for an OK** →
+fast-forward `master`, back up `custom`, rebase the whole `custom` feature stack onto the target,
+reconcile conflicts (auto if small, **discuss-and-plan with the user if significant**), handle the
+version/counter per the mode, verify the rebrand + features survived, then build via `handy-rss-build`.
 
-Does NOT: force-push `custom` or commit the doc-literal updates without telling you. The build IS
+Does NOT: force-push `custom` or commit the doc/version updates without telling you. The build IS
 delivered to the phone automatically (via the global `/after-build` skill — no transfer prompt), but
 the force-push happens only **after the user has tested the new build on-device and confirmed** — same
 build-test-confirm-push discipline as `handy-rss-build` (see its Hard rules; the git-push hold applies
 here too).
+
+## Two update modes
+
+Upstream work arrives in two shapes; this skill handles both, and the mode drives the rebase target
+and the version handling:
+
+- **Release bump** — a new release **tag** (newer, by date, than the tag our stack sits on). Rebase the
+  stack onto the tag, **adopt upstream's new version** (`versionName`/`versionCode` base), and **reset
+  the build counter to 0** so the first new build is `+1`. Propagate the new base literals into the docs.
+  (Phases 6–7 apply.)
+- **Master-tip refresh** — **no** new tag, but `upstream/master` has advanced past our base. Rebase the
+  stack onto the **latest `upstream/master` tip** (all its commits). **Keep our version base exactly as
+  is** (still e.g. `1.1.4`) and **do NOT reset the counter** — our `+N` numbering just keeps growing (so
+  the next build is the current counter `+1`). No base-literal propagation. (Phases 6–7 are skipped.)
+
+Priority: if there **is** a new release tag, take the release-bump mode (rebase onto the tag, not the
+even-newer untagged commits beyond it — those wait for their own release). Only when there is no new tag
+do we target the master tip. If there is neither a new tag nor any master advance past our base, there
+is nothing to do — STOP.
 
 ## Key facts (from handy-rss-build — re-verify, don't trust blindly)
 
@@ -41,7 +61,7 @@ here too).
 | Mirror branch | `master` — fast-forward only, never carries our changes |
 | Customization branch | `custom` — a **stack** of feature commits on top of the rebrand, rebased onto each release tag |
 | Current base (as of this skill's writing) | upstream `v1.1.4`, versionName base `1.1.4`, versionCode base `3390000` (= upstream `339` × 10000) |
-| Counter (external) | `$HOME/.handyrss_build_no` — outside the repo; reset on an upstream bump so the first new build is `+1` |
+| Counter (external) | `$HOME/.handyrss_build_no` — outside the repo; **reset to 0 only on a release bump** (new tag) so the first new build is `+1`; on a **master-tip refresh** it is left as-is and `+N` keeps growing |
 | App module | `FlymFork` |
 | Build task (delegated) | `handy-rss-build` → `:FlymFork:assembleFdroidRelease` |
 
@@ -77,49 +97,73 @@ Run the phases in order. Echo what you find at each gate; stop at the named STOP
    `git rev-parse custom` should equal `git rev-parse origin/custom`. If they differ, STOP and reconcile
    first (the user may have local-only work).
 
-### Phase 1 — Detect a new release
+### Phase 1 — Detect what's new (tag or master-tip)
 
-1. Newest upstream tag **by date** — and exclude our OWN snapshot tags (`shiroikuma-v*`), which are the
-   newest refs of all and would otherwise win the date sort:
+1. **Our current base commit** — the commit the stack sits on, whether that's a tagged release or a
+   previous master tip: `OLD_BASE=$(git merge-base custom upstream/master)`. (This is robust across
+   mixed histories: after a master-tip refresh our base is a plain master SHA, not a tag.) Cross-check:
+   the committed base versionName in `FlymFork/build.gradle` (strip `+N`) names the release we *adopted*
+   (e.g. `1.1.4`); its tag `v1.1.4` should be an ancestor of `custom`.
+2. **Newest upstream release tag by date** — exclude our OWN snapshot tags (`shiroikuma-v*`):
    `NEW_TAG=$(git for-each-ref --sort=creatordate --format='%(refname:short)' refs/tags | grep -E '^v[0-9]' | grep -v '^shiroikuma-' | tail -1)`
-   (the `^v[0-9]` filter already drops `shiroikuma-v…`, but keep the explicit `grep -v` as a guard if the
-   snapshot naming ever changes.) Sanity-check against the dated list — e.g. as of this writing the newest
-   ref overall is `shiroikuma-v1.1.4` (2026-05-22, OURS); the newest *upstream* release is `v1.1.4`
-   (2026-03-29). Eyeball that the pick is a recent `FlymFork`-layout release, not a 2016 Flym tag, and
-   not one of ours.
-2. Current base tag = the upstream tag our stack sits on. Derive it from the committed base versionName
-   in `FlymFork/build.gradle` (strip the `+N`): base `1.1.4` → `OLD_TAG=v1.1.4`. Verify `OLD_TAG`
-   exists and is an ancestor of `custom` (`git merge-base --is-ancestor v1.1.4 custom`).
-3. **Compare.** If `NEW_TAG == OLD_TAG` (or `NEW_TAG` is not newer than `OLD_TAG`): **report "already on
-   the latest upstream release (vX.Y.Z), nothing to do"** and STOP — no destructive ops.
-   - Edge case: `upstream/master` has commits but no new tag → there's no new *release* to rebase onto.
-     Mention it, but do not rebase onto an untagged commit unless the user explicitly asks.
+   Sanity-check against the dated list (`… refs/tags | tail`): it must be a recent `FlymFork`-layout
+   release, not a 2016 Flym tag (`v1.8.0`/`v1.9.4` sort high lexically but are old by date), and not one
+   of ours. **Pick by date, never lexically.**
+3. **Decide the mode + target** (see *Two update modes*):
+   - **New release tag?** If `NEW_TAG` is newer than our base — i.e. `NEW_TAG` is NOT an ancestor of
+     `OLD_BASE` (`git merge-base --is-ancestor <NEW_TAG> $OLD_BASE` is false) → **release bump**:
+     `MODE=release`, `REBASE_TARGET=<NEW_TAG>`.
+   - **Else, has `upstream/master` advanced past our base?** If `git rev-list --count $OLD_BASE..upstream/master`
+     is > 0 → **master-tip refresh**: `MODE=refresh`, `REBASE_TARGET=upstream/master`.
+   - **Else nothing to do** — report "already up to date with upstream (base `<version>`; no new tag and
+     no new master commits)" and STOP. No destructive ops.
+4. Confirm `master` can fast-forward: `git merge-base --is-ancestor master upstream/master` (it should —
+   `master` carries none of our work). If not, upstream rewrote history → STOP and discuss.
 
-### Phase 2 — Confirm before destructive ops (STOP/gate)
+### Phase 2 — New-functionality table + OK-gate (STOP — before every rebase)
 
-Summarize for the user and get a go-ahead before touching branches:
-- old base `OLD_TAG` → new release `NEW_TAG` (+ its date);
-- **capture the stack size now** — `OLD_COUNT=$(git rev-list --count OLD_TAG..custom)` — and report it
-  (Phase 8 compares against it to confirm no commits were silently dropped in the rebase);
-- the plan: FF `master`, back up `custom`, rebase the stack onto `NEW_TAG`.
+**This gate fires before every rebase, both modes.** Just before touching any branch, render a
+**descriptive table of the new upstream functionality** we are about to pull in — the commits in
+`$OLD_BASE..$REBASE_TARGET` — and get the user's OK. Don't dump a raw `git log`; make it readable:
+```
+git log --no-merges --format='%h%x09%s' $OLD_BASE..$REBASE_TARGET
+```
+Present it as a table, newest first, with columns: **Commit** (`%h`), **Type** (feat / fix / refactor /
+chore / UI, inferred from the subject), and **What it does** in plain language. **Flag the commits that
+touch files our feature stack owns** (`EntriesListFragment`, `EntriesCursorAdapter`, `WebEntryContent`,
+`EntryFragment`, `Theme.java`, `DrawerAdapter`, the font prefs, the entry/list layouts,
+`res/xml/general_preferences.xml`, `res/values/{themes,styles,colors}.xml`) — those are the likely
+conflict sites, so the user sees the risk before saying go. (A quick way to spot them:
+`git log --stat $OLD_BASE..$REBASE_TARGET` and eyeball the paths.)
 
-Proceed only on the user's go-ahead.
+Also report, in the same summary:
+- the **mode** (release bump onto `NEW_TAG` vs master-tip refresh onto `upstream/master`) and what it
+  means for the version (new base + counter reset to `+1`, vs version unchanged + `+N` keeps growing);
+- the **stack size** — `OLD_COUNT=$(git rev-list --count $OLD_BASE..custom)` — so Phase 8 can confirm no
+  commit was silently dropped;
+- the plan: FF `master`, back up `custom`, rebase the stack onto `$REBASE_TARGET`.
+
+**Proceed only on the user's explicit OK.**
 
 ### Phase 3 — Fast-forward the mirror + back up custom
 
 1. `git checkout master && git merge --ff-only upstream/master` (FF only; if it can't FF, upstream
    rewrote history — STOP and discuss).
-2. **Safety backup of the stack** (recovery is then trivial): `git branch custom-pre-<NEW_TAG> custom`
-   (e.g. `custom-pre-v1.2.0`). Don't use a date in the name (timestamps aren't available); the version
-   is the stable label. `origin/custom` + the reflog are additional safety nets.
+2. **Safety backup of the stack** (recovery is then trivial): back up `custom` under a stable label —
+   `custom-pre-<NEW_TAG>` (e.g. `custom-pre-v1.2.0`) for a release bump, or `custom-pre-master-<shortsha>`
+   (the `$REBASE_TARGET` short SHA) for a master-tip refresh, since a refresh has no tag and there may be
+   several over time. `git branch <backup-name> custom`. Don't put a date in the name (timestamps aren't
+   available); the tag/SHA is the stable label. `origin/custom` + the reflog are additional safety nets.
 
-### Phase 4 — Rebase the custom stack onto the new tag
+### Phase 4 — Rebase the custom stack onto the target
 
+Only after the Phase 2 table-gate OK:
 ```
 git checkout custom
-git rebase --onto <NEW_TAG> <OLD_TAG> custom
+git rebase --onto <REBASE_TARGET> $OLD_BASE custom
 ```
-This replays the whole feature stack (rebrand + all features) onto the new release. Three outcomes:
+(`$OLD_BASE` from Phase 1; `<REBASE_TARGET>` = the new tag for a release bump, or `upstream/master` for a
+refresh.) This replays the whole feature stack (rebrand + all features) onto the target. Three outcomes:
 - **Clean** → go to Phase 6.
 - **Conflicts that are small** → resolve inline (Phase 5 → "small"), `git rebase --continue`.
 - **Conflicts that are significant** → Phase 5 → "significant": pause, plan with the user.
@@ -169,10 +213,18 @@ informative), gather the facts, and bring the user a concrete plan via `AskUserQ
 After every resolution, before `--continue`, make sure the working tree reflects the *intended* edit
 (not just "no conflict markers"). When the whole rebase finishes, the stack tip is the new `custom`.
 
-### Phase 6 — Reset the version base + counter
+### Phase 6 — Version base + counter (mode-dependent)
 
-Read the **pristine upstream** version from the new tag (NOT from our rebased build.gradle, which still
-carries our `+N` line):
+**Master-tip refresh (`MODE=refresh`): SKIP this phase.** Keep our version base exactly as it is — do
+NOT touch `build.gradle`'s `versionName`/`versionCode`, and do NOT reset the counter. The
+`handy-rss-build` build step bumps the counter as usual, so the next build is the current counter `+1`
+(e.g. `1.1.4+40`); our `+N` numbering just keeps growing across refreshes. If the rebase surfaced a
+conflict on the `versionName`/`versionCode` line because upstream changed it on master, **resolve in
+favour of our current base** (keep `1.1.4+N`) — we only adopt upstream's version on a real release,
+never from an untagged master tip.
+
+**Release bump (`MODE=release`): reset the base + counter.** Read the **pristine upstream** version from
+the new tag (NOT from our rebased build.gradle, which still carries our `+N` line):
 ```
 git show <NEW_TAG>:FlymFork/build.gradle | grep -E 'versionName|versionCode'
 ```
@@ -187,10 +239,13 @@ Let `NEW_VN` = upstream versionName (e.g. `1.2.0`), `NEW_VC_BASE` = upstream ver
    and writes `<NEW_VN>+1` / `<NEW_VC_BASE>+1` at build time. Leave the derived `applicationVariants`
    `def versionName/versionCode` lines untouched.)
 
-### Phase 7 — Propagate the new base into the docs (so the next build stamps correctly)
+### Phase 7 — Propagate the new base into the docs (release bump only)
 
-The base literals `1.1.4` and `3390000` / `339` are **hard-coded in several places** that the build
-relies on. If you don't update them, the next build stamps the OLD base. Update the ACTIVE base literals
+**Skip for a master-tip refresh** — the base literals don't change, so there's nothing to propagate.
+
+On a **release bump**, the base literals `1.1.4` and `3390000` / `339` are **hard-coded in several
+places** that the build relies on. If you don't update them, the next build stamps the OLD base. Update
+the ACTIVE base literals
 (NOT the historical feature-commit version tags, which record what shipped and must stay):
 - **`.claude/skills/handy-rss-build/SKILL.md`** — the Versioning section, the Build "Version stamp"
   paragraph, the gradle/`sed` base literals, and the "Update procedure" base literals (`1.1.4` →
@@ -213,28 +268,36 @@ Re-check the 5 rebrand edits are present on the rebased tree (per `handy-rss-bui
 - `AndroidManifest.xml`: the three authorities `shiroikuma.handyrss.provider.FeedData` /
   `.fileprovider` / `.provider.WRITE_PERMISSION`.
 - `res/values/strings.xml`: `白い熊 Handy RSS`.
-Also sanity-check the feature stack is all there: `git rev-list --count <NEW_TAG>..custom` should equal
-`OLD_COUNT` captured in Phase 2 (a smaller number means a commit was dropped during the rebase — STOP
-and investigate before building); skim `git log --oneline <NEW_TAG>..custom` to eyeball the features.
+Also sanity-check the feature stack is all there: `git rev-list --count $REBASE_TARGET..custom` should
+equal `OLD_COUNT` captured in Phase 2 (a smaller number means a commit was dropped during the rebase —
+STOP and investigate before building); skim `git log --oneline $REBASE_TARGET..custom` to eyeball the
+features.
 
 ### Phase 9 — Build, test, confirm, push (delegate to handy-rss-build)
 
 1. **Invoke the `handy-rss-build` skill** to build `:FlymFork:assembleFdroidRelease`. It bumps the
-   counter (0 → 1), stamps `<NEW_VN>+1` / `<NEW_VC_BASE>+1`, filters output via the NOISE regex, and
-   copies the APK to `~/tmp/`. Use its canonical command + flags verbatim — do not re-derive them here.
+   counter and stamps the version — for a **release bump** `<NEW_VN>+1` / `<NEW_VC_BASE>+1` (counter
+   0 → 1); for a **master-tip refresh** the unchanged base `+<next N>` (counter keeps growing, e.g.
+   `1.1.4+40`) — filters output via the NOISE regex, and copies the APK to `~/tmp/`. Use its canonical
+   command + flags verbatim — do not re-derive them here.
 2. **Deliver automatically.** After a successful build, invoke the global `/after-build` skill — it
    `/adb-check`s UNSANDBOXED, then `/adb-push`es to the phone if connected, else `/scp`s to `skhw`,
    announcing what landed. No transfer prompt (handy-rss-build "Deliver" rule).
 3. **User tests on-device.** A new-upstream build deserves a real smoke test: launch, open an article
    (reading view), check the list/grid, fonts, and chrome colors all survived the rebase.
 4. **Only after the user confirms on-device** ("Push" / "good" / "confirmed"):
-   - `git add -A` and commit (the rebased stack tip already carries the features; commit any Phase 6-7
-     doc/version edits). Because the rebase rewrote history, publishing `custom` is a **force-push**:
-     `git push -f origin custom`.
+   - Stage **explicitly, NOT `git add -A`** — the working tree carries unrelated untracked files
+     (`.bashrc`, `.claude/…`, etc.) that must never be committed. Add just the version stamp and any
+     Phase 6–7 doc edits: `git add FlymFork/build.gradle` plus, on a release bump,
+     `.claude/skills/handy-rss-build/SKILL.md .claude/skills/upstream-new-version/SKILL.md CLAUDE.md`.
+     Then commit (the rebased stack tip already carries the features; this commit records the last-built
+     version stamp — for a refresh, e.g. "Rebase onto upstream master @ `<shortsha>`; build `1.1.4+N`").
+     Because the rebase rewrote history, publishing `custom` is a **force-push**: `git push -f origin custom`.
    - Then sync: `git fetch origin --tags && git pull --rebase origin custom`.
-   - Optional snapshot tag: `git tag shiroikuma-v<NEW_VN> && git push origin shiroikuma-v<NEW_VN>`.
-   - Once the new `custom` is confirmed pushed, the `custom-pre-<NEW_TAG>` backup branch can be deleted
-     (ask first): `git branch -D custom-pre-<NEW_TAG>`.
+   - **Release bump only** — optional snapshot tag: `git tag shiroikuma-v<NEW_VN> && git push origin shiroikuma-v<NEW_VN>`.
+     (A refresh keeps the same version, so no new snapshot tag.)
+   - Once the new `custom` is confirmed pushed, the `<backup-name>` branch (from Phase 3) can be deleted
+     (ask first): `git branch -D <backup-name>`.
 
 ## Hard rules
 
@@ -243,23 +306,33 @@ and investigate before building); skim `git log --oneline <NEW_TAG>..custom` to 
   `git push -f origin custom` waits for on-device confirmation. (Inherits handy-rss-build's gates.)
 - **Never recreate `custom` from scratch.** It's a feature stack — rebase it; if it won't rebase
   cleanly, that's a "significant conflict" to discuss, not a reason to rebuild from the rebrand seds.
-- **Back up before rebasing** (`custom-pre-<NEW_TAG>`), and don't delete the backup until the new
-  `custom` is pushed and confirmed.
+- **Show the new-functionality table and get an OK before every rebase.** Both modes: render the
+  descriptive table of the `$OLD_BASE..$REBASE_TARGET` commits (Commit / Type / What it does, flagging
+  the ones that touch files we own) and proceed only on the user's explicit OK (Phase 2).
+- **No new tag but `upstream/master` moved ⇒ master-tip refresh, NOT "nothing to do".** Rebase onto
+  `upstream/master`, keep the version base, let `+N` keep growing. Only STOP as "up to date" when there
+  is neither a new tag nor any master advance past our base. (When there IS a new tag, prefer it — rebase
+  onto the tag, not the untagged commits beyond it.)
+- **Back up before rebasing** (`custom-pre-<NEW_TAG>` for a release bump, `custom-pre-master-<shortsha>`
+  for a refresh), and don't delete the backup until the new `custom` is pushed and confirmed.
 - **`master` is FF-only.** If it can't fast-forward, stop — upstream rewrote history; that's a
   conversation, not a `--force`.
 - **Significant conflict ⇒ plan with the user first.** Don't improvise large reconciliations silently.
   Surface the conflicting commits + options via `AskUserQuestion` and act on the choice.
-- **Counter resets to 0 on an upstream bump**, so the first build is `+1`. Every build still bumps it,
+- **Counter resets to 0 only on a release bump** (new tag), so the first new-release build is `+1`. On a
+  **master-tip refresh the counter is left as-is** and `+N` keeps growing. Every build still bumps it,
   failed ones included; never reuse an `+N`.
-- **Propagate the new base literals** into build.gradle + both docs, or the next build stamps the old
-  base. Don't rewrite historical feature-commit version mentions.
+- **Propagate the new base literals** (release bump only) into build.gradle + both docs, or the next
+  build stamps the old base. A refresh leaves the base unchanged — nothing to propagate. Don't rewrite
+  historical feature-commit version mentions.
 - **Pick the newest tag by date, never lexically** (the 2016 Flym tags are a trap).
 
 ## Recovery
 
 - Mid-rebase, to bail: `git rebase --abort` (restores `custom` to its pre-rebase tip).
-- After a finished-but-wrong rebase: `git reset --hard custom-pre-<NEW_TAG>` (or `git reset --hard
-  origin/custom` if not yet force-pushed) puts `custom` back.
+- After a finished-but-wrong rebase: `git reset --hard <backup-name>` (the Phase 3 backup branch —
+  `custom-pre-<NEW_TAG>` or `custom-pre-master-<shortsha>`) (or `git reset --hard origin/custom` if not
+  yet force-pushed) puts `custom` back.
 - `master` FF is always safe to keep; it carries none of our work.
 - The build counter lives outside the repo, so git resets don't touch it — if you reset after a build,
   the counter has still advanced (correct; never reuse a number).
