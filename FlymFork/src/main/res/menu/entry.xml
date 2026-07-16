@@ -6,7 +6,7 @@
         android:id="@+id/menu_star"
         android:icon="@drawable/ic_star_border"
         android:title="@string/menu_star"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/menu_read_text_size"
         android:icon="@drawable/ic_format_size"
