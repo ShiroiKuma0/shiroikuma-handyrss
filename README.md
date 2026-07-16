@@ -5,7 +5,7 @@ A personal, rebranded Android RSS reader — a fork of
 [Flym](https://github.com/FredJul/Flym)). It installs **side-by-side** with the official app
 (`shiroikuma.handyrss`), with its own icon and name, fully signed for self-install.
 
-**Latest release:** `1.1.4+38` · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
+**Latest release:** `1.1.4+41` · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
 
 ## What this fork adds on top of Handy News Reader
 
@@ -27,7 +27,12 @@ A personal, rebranded Android RSS reader — a fork of
 - **Scheduled auto-backup** — periodic full backup (feeds, starred articles, filters, labels, settings)
   to a folder of your choice, on a configurable interval.
 - **Quick-control toolbars** — adjust text size, title size, and body font in the reading view, or
-  columns / title lines / image size in the grid, on the fly.
+  columns / title lines / image size in the grid, on the fly; star/unstar an article with one tap from
+  the always-visible ★ in the reading toolbar.
+- **Paywall bypass for Mafra sites** — articles from lidovky.cz and idnes.cz load their full text past
+  the pay-or-consent wall (fetched with a Googlebot user agent).
+- **Tracks upstream** — regularly rebased onto the latest Handy News Reader development (full-width
+  article images, feed multiselect delete, network-timeout fixes, and more from upstream master).
 
 ## Install
 
