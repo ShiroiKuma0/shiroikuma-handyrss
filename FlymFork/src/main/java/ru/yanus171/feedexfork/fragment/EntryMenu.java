@@ -31,7 +31,7 @@ public class EntryMenu {
             inflateSubMenu(menu, inflater, R.id.menu_share_group, R.menu.entry_menu_share);
             inflateSubMenu(menu, inflater, R.id.menu_display_options_group, R.menu.entry_menu_display);
             inflateSubMenu(menu, inflater, R.id.menu_reload_group, R.menu.entry_menu_reload);
-            menu.findItem(R.id.menu_star).setShowAsAction( GetIsActionBarHidden() ? MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW : MenuItem.SHOW_AS_ACTION_IF_ROOM );
+            menu.findItem(R.id.menu_star).setShowAsAction( GetIsActionBarHidden() ? MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW : MenuItem.SHOW_AS_ACTION_ALWAYS );
         } else
             inflater.inflate(mMenuID, menu);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
