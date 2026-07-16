@@ -15,17 +15,18 @@ Before any change on this repo, read **`.claude/skills/handy-rss-build/SKILL.md`
 
 ## External state — outside this repo, must be preserved across sessions
 
-- **`$HOME/.handyrss_build_no`** — the build counter. **Currently `38`** (last built version `1.1.4+38`). Never commit.
+- **`$HOME/.handyrss_build_no`** — the build counter. **Currently `41`** (last built version `1.1.4+41`). Never commit.
 - **`~/.android-keystores/handyrss-custom.jks`** — signing keystore (alias `handyrss`). Without it, builds cannot be signed.
 - **`~/tmp/`** — APK archive directory. Never committed; persists across sessions.
 - **`~/git/shiroikuma-handyrss`** — the local working clone (this repo).
 
-## State checkpoint (2026-06-27)
+## State checkpoint (2026-07-16)
 
-- HEAD = `e244d32d` (`Main-screen launcher icon + home long-press; Thunderbird-native feeds OPML export`). Last built + on-device-confirmed `1.1.4+38`, counter at `38`.
+- HEAD = `cb8d9a98` (`README: 1.1.4+41 fork overview + major features`). Last built + on-device-confirmed `1.1.4+41`, counter at `41`. Published as GitHub release `1.1.4+41` (APK attached, default branch `custom`).
 - All commits pushed to `origin/custom`. Tree clean.
-- **This session (commits 24–30, `1.1.4+22..+38`; full detail in the skill's feature-commits list):** launcher icon; new-issue-form de-brand; dialog chrome sweep (finished the old D2f dialog tail); the **白い熊 Handy RSS UI** screen — renamed from "Fonts", drawer-settings long-tap deep-link, strict **16/50/100 dp** 3-tier indentation, full product-name brand purge; the boxed **Export/Import** section (SAF directory pickers; settings + feeds + auto-backup blocks); **auto-backup relocated** from Advanced into that section; all toasts chrome-styled; main-screen **top-left launcher icon (24 dp) + home long-press → UI screen**; **Thunderbird-native feeds OPML** (per-feed wrapper folders, self-closing `type=rss`+`version=RSS`, round-trip-safe importer, `.opml` extension).
-- **Working agreements this session** (also in auto-memory): build automatically once a stage's scope is confirmed (no "shall I build?" prompt); strict UI-screen indentation discipline; the Thunderbird OPML format + testing gotchas.
+- **The `custom` stack now sits on `upstream/master` @ `3e885f98` (2026-07-16 master-tip refresh), NOT on the `v1.1.4` tag** — 28 upstream commits pulled in (full-width article images, FB2 poem CSS, anchor back-navigation, network-timeout fixes, WebView file-access hardening, feed-list multiselect delete, edit-feed-list import/export, toast threading fix). Version base stays `1.1.4`; `+N` keeps growing across refreshes. Conflict resolutions are recorded in commit `3275bd00`; notably upstream split `EditFeedsListFragment` into `EditFeedListFragment` + `EditFeedListDragNDropListener` + `GroupActionMode` + `FeedActionCallBack`, and our `Theme.TintDialog` wraps were ported to all six dialog sites there (incl. upstream's new multiselect-delete dialog).
+- **Recent feature commits (31–33, `1.1.4+39..+41`; full detail in the skill's feature-commits list):** Mafra pay-or-consent wall bypass via Googlebot UA (lidovky.cz / idnes.cz / expres.cz / antiyoutuber.cz, suffix host match in `Connection.kt`); reading-view **★ Star as an always-visible toolbar action** (was `ifRoom` + a runtime `IF_ROOM` downgrade in `EntryMenu` that pushed it into the overflow); the upstream master-tip rebase itself.
+- **Working agreements** (also in auto-memory): build automatically once a stage's scope is confirmed (no "shall I build?" prompt); strict UI-screen indentation discipline; the Thunderbird OPML format + testing gotchas.
 - **Open work:**
   1. **D2f shelved** (2026-05-24): app-wide chrome body text (`textColorPrimary`/`Secondary`), settings row/category backgrounds, control accents. The dialog tail is now DONE (commit 26). Revisit only if living with custom chrome colors makes the mismatch nag.
   2. Open question (deferred with D2f): whether to consolidate all colors under the "白い熊 Handy RSS UI" screen.
