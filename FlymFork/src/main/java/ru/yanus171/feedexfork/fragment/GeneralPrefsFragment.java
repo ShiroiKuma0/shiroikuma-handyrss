@@ -64,6 +64,7 @@ import ru.yanus171.feedexfork.activity.BaseActivity;
 import ru.yanus171.feedexfork.activity.GeneralPrefsActivity;
 import ru.yanus171.feedexfork.service.AutoWorker;
 import ru.yanus171.feedexfork.utils.Brightness;
+import ru.yanus171.feedexfork.utils.Eximport;
 import ru.yanus171.feedexfork.utils.FileUtils;
 import ru.yanus171.feedexfork.utils.PrefUtils;
 import ru.yanus171.feedexfork.utils.UiUtils;
@@ -134,6 +135,14 @@ public class GeneralPrefsFragment extends PreferenceFragment implements  Prefere
 
         if ( PrefUtils.getBoolean(PrefUtils.BRIGHTNESS_GESTURE_ENABLED, false ) )
             ApplyBrightness( getPreferenceScreen(), (BaseActivity) getActivity());
+
+        // Export/Import row at the top of the UI screen opens the category panel.
+        Preference exim = findPreference( "eximport_open" );
+        if ( exim != null )
+            exim.setOnPreferenceClickListener( p -> {
+                Eximport.show( getActivity() );
+                return true;
+            } );
     }
 
     // -------------------------------------------------------------------------
@@ -186,6 +195,11 @@ public class GeneralPrefsFragment extends PreferenceFragment implements  Prefere
         setRingtoneSummary();
 
         super.onResume();
+
+        // Query the export directory for the newest export whenever the page opens.
+        Preference exim = findPreference( "eximport_open" );
+        if ( exim != null && getActivity() != null )
+            exim.setSummary( Eximport.pageSummary( getActivity() ) );
 
         if ( !mOpenScreenHandled && mOpenScreenKey != null ) {
             mOpenScreenHandled = true;

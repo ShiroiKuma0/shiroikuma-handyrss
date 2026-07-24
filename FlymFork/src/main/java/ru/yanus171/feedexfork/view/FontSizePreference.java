@@ -35,14 +35,15 @@ public class FontSizePreference extends Preference {
         Context ctx = getContext();
         LinearLayout root = new LinearLayout(ctx);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(UiUtils.dpToPixel(100), UiUtils.dpToPixel(2), UiUtils.dpToPixel(8), UiUtils.dpToPixel(2));
+        // kxkb look: L2 indent (90dp), 16sp yellow title over 13sp dim-yellow value
+        root.setPadding(UiUtils.dpToPixel(90), UiUtils.dpToPixel(5), UiUtils.dpToPixel(16), UiUtils.dpToPixel(5));
         final TextView label = new TextView(ctx);
-        label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 22);
-        label.setTextColor(0xFF989898);
+        label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        label.setTextColor(Theme.GetChromeFgInt());
         root.addView(label);
         final TextView valueView = new TextView(ctx);
-        valueView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 22);
-        valueView.setTextColor(Theme.GetChromeFgInt());
+        valueView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+        valueView.setTextColor(0xFFC8C800);
         root.addView(valueView);
         final TextView preview = new TextView(ctx);
         preview.setTextColor(Theme.GetChromeFgInt());

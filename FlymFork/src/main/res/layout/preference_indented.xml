@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- HandyRss: a standard preference row indented to the row/sub-item level (100dp), so plain
-     CheckBox/List preferences sit under an Export/Import sub-head with the boxed contents.
-     Keeps @android:id/title, @android:id/summary and @android:id/widget_frame so CheckBoxPreference
-     still inflates its checkbox into the widget frame. -->
+<!-- HandyRss: a standard preference row at the kxkb L1 indent (72dp — directly under a section
+     heading). Keeps @android:id/title, @android:id/summary and @android:id/widget_frame so
+     CheckBoxPreference still inflates its checkbox into the widget frame. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="wrap_content"
-    android:minHeight="48dp"
+    android:minHeight="44dp"
     android:gravity="center_vertical"
-    android:paddingStart="100dip" android:paddingEnd="12dip"
-    android:paddingTop="6dip" android:paddingBottom="6dip">
+    android:paddingStart="72dip" android:paddingEnd="16dip"
+    android:paddingTop="5dip" android:paddingBottom="5dip">
 
     <LinearLayout
         android:layout_width="0dp" android:layout_height="wrap_content"
@@ -16,11 +15,11 @@
         android:orientation="vertical">
         <TextView android:id="@android:id/title"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:textColor="@color/menu_pref_fg" android:textSize="18sp"/>
+            android:textColor="@color/menu_pref_fg" android:textSize="16sp"/>
         <TextView android:id="@android:id/summary"
             android:layout_width="match_parent" android:layout_height="wrap_content"
             android:layout_marginTop="2dip"
-            android:textColor="@color/menu_pref_fg" android:textSize="14sp"
+            android:textColor="@color/menu_pref_fg_dim" android:textSize="13sp"
             android:maxLines="6"/>
     </LinearLayout>
 
