@@ -957,7 +957,7 @@ public class EntryFragment extends /*SwipeRefresh*/Fragment implements LoaderMan
                     final Uri uri = ContentUris.withAppendedId(mBaseUri, mEntryPagerAdapter.GetEntry( mPagerPos ).mID);
                     ContentResolver cr = MainApplication.getContext().getContentResolver();
                     if ( mSetAsRead ) {
-                        if ( cr.update(uri, FeedData.getReadContentValues(), EntryColumns.WHERE_UNREAD + DB_AND + EntryColumns.WHERE_NOT_FAVORITE , null) > 0 )
+                        if ( cr.update(uri, FeedData.getReadContentValues(), EntryColumns.WHERE_UNREAD, null) > 0 )
                             newNumber(mFeedID, DrawerAdapter.NewNumberOperType.Update, true );
                     }
                     cr.update(uri, FeedData.getOldContentValues(), EntryColumns.WHERE_NEW, null);
