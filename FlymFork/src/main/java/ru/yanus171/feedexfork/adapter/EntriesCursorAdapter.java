@@ -610,7 +610,14 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
             holder.titleTextView.setText(titleText);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
             holder.titleTextView.setTextDirection( isTextRTL( titleText ) ? TEXT_DIRECTION_RTL : TEXT_DIRECTION_ANY_RTL );
-        holder.titleTextView.setMaxLines( isTextShown ? 20 : (mGridMode ? mGridTitleLines : 5) );
+        if ( mGridMode && !isTextShown ) {
+            // fixed line count keeps every grid card the same height: GridView advances rows by the
+            // LAST column's card, and taller cards get painted over by the next row's opaque cards
+            holder.titleTextView.setLines( mGridTitleLines );
+        } else {
+            holder.titleTextView.setMinLines( 0 );
+            holder.titleTextView.setMaxLines( isTextShown ? 20 : 5 );
+        }
         if (mGridMode && holder.mainImgView != null && holder.mainImgView.getParent() instanceof ViewGroup) {
             ViewGroup imgFrame = (ViewGroup) holder.mainImgView.getParent();
             ViewGroup.LayoutParams lp = imgFrame.getLayoutParams();
@@ -694,7 +701,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
         String textSizeText = " " + GetTextSizeText( textSize );
         if (mGridMode && !isTextShown) {
             holder.dateTextView.setText( mShowFeedInfo && mFeedNamePos > -1 && feedName != null ? feedName : "" );
-            holder.gridDateLine.setText(StringUtils.getDateTimeString(cursor.getLong(mDatePos)) + textSizeText);
+            holder.gridDateLine.setText((StringUtils.getDateTimeString(cursor.getLong(mDatePos)) + textSizeText + " " + GetImageSizeText(cursor.getInt(mImageSizePos))).trim());
             holder.gridDateLine.setVisibility(View.VISIBLE);
         } else {
             holder.gridDateLine.setVisibility(View.GONE);
@@ -720,7 +727,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
         }
 
         final int imageSize = cursor.getInt( mImageSizePos );
-        if ( PrefUtils.CALCULATE_IMAGES_SIZE() && imageSize  != 0 ) {
+        if ( PrefUtils.CALCULATE_IMAGES_SIZE() && imageSize  != 0 && !mGridMode ) {
             holder.imageSizeTextView.setVisibility( View.VISIBLE );
             holder.imageSizeTextView.setText(GetImageSizeText(imageSize));
         } else
@@ -859,7 +866,8 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
         }
 
 
-        holder.dayTextView.setVisibility( View.GONE );
+        // INVISIBLE in grid mode reserves the day-header line so all cards keep uniform height
+        holder.dayTextView.setVisibility( mGridMode ? View.INVISIBLE : View.GONE );
         if ( !mEntriesListFragment.mIsSingleLabel ) {
             if ( cursor.isFirst() ) {
                 holder.dayTextView.setVisibility(View.VISIBLE);
