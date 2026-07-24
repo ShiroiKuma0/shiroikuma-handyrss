@@ -150,12 +150,13 @@ public class FontSelectPreference extends Preference {
 	protected View onCreateView(ViewGroup parent) {
 		LinearLayout vLayout = new LinearLayout(getContext());
 		vLayout.setOrientation(LinearLayout.VERTICAL);
-		vLayout.setPadding(UiUtils.dpToPixel(100), UiUtils.dpToPixel(2), UiUtils.dpToPixel(8), UiUtils.dpToPixel(2));
+		// kxkb look: L2 indent (90dp), 16sp yellow title
+		vLayout.setPadding(UiUtils.dpToPixel(90), UiUtils.dpToPixel(5), UiUtils.dpToPixel(16), UiUtils.dpToPixel(5));
 
 		TextView title = new TextView(getContext());
 		title.setText(getTitle());
-		title.setTextColor(0xFF989898);
-		title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 22);
+		title.setTextColor(Theme.GetChromeFgInt());
+		title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
 		vLayout.addView(title);
 
 		mSpinApp = new Spinner(getContext());

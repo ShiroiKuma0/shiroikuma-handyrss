@@ -37,4 +37,6 @@
     <!-- black/yellow recolor for system-drawn menus + settings -->
     <color name="menu_pref_fg">#FFFF00</color>
     <color name="menu_pref_bg">#000000</color>
+    <!-- dimmed yellow for secondary text on the UI screen (kxkb look) -->
+    <color name="menu_pref_fg_dim">#C8C800</color>
 </resources>

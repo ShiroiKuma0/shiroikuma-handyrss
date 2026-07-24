@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- HandyRss: two-line font row (grey label / yellow value), indented inside its category -->
+<!-- HandyRss: two-line font row (kxkb look: yellow title over dim-yellow value), L2 indent (90dp,
+     under a sub-heading) -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:orientation="vertical" android:gravity="center_vertical"
-    android:paddingStart="100dip" android:paddingEnd="8dip"
-    android:paddingTop="2dip" android:paddingBottom="2dip">
+    android:paddingStart="90dip" android:paddingEnd="16dip"
+    android:paddingTop="5dip" android:paddingBottom="5dip">
     <TextView android:id="@android:id/title"
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:textColor="#FF989898" android:textSize="22dp"/>
+        android:textColor="@color/menu_pref_fg" android:textSize="16sp"/>
     <TextView android:id="@android:id/summary"
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:textColor="@color/menu_pref_fg" android:textSize="22dp"/>
+        android:textColor="@color/menu_pref_fg_dim" android:textSize="13sp"/>
 </LinearLayout>

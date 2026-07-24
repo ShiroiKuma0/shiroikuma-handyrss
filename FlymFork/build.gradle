@@ -13,8 +13,8 @@ android {
         applicationId 'shiroikuma.handyrss'
         minSdkVersion 14
         targetSdkVersion 31
-        versionCode 3390045
-        versionName '1.1.4+45'
+        versionCode 3390046
+        versionName '1.1.4+46'
         multiDexEnabled true
     }
 
