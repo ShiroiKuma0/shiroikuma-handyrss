@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- HandyRss: kxkb-style sub-heading — 17sp bold with a 1.5dp underline exactly as wide as the
-     text (wrap_content container trick). -->
+<!-- HandyRss: kxkb-style FIRST section header — same as preference_font_topcat but without the
+     full-width hairline above (nothing precedes the first section). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingStart="54dip" android:paddingEnd="8dip"
-    android:paddingTop="10dip" android:paddingBottom="2dip">
+    android:paddingTop="12dip" android:paddingBottom="2dip">
     <LinearLayout
         android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginStart="36dip">
         <TextView android:id="@android:id/title"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:textColor="@color/menu_pref_fg" android:textStyle="bold" android:textSize="17sp"/>
-        <View android:layout_width="match_parent" android:layout_height="1.5dp"
+            android:textColor="@color/menu_pref_fg" android:textStyle="bold" android:textSize="20sp"/>
+        <View android:layout_width="match_parent" android:layout_height="2.5dp"
             android:layout_marginTop="2dip" android:background="@color/menu_pref_fg"/>
     </LinearLayout>
 </LinearLayout>

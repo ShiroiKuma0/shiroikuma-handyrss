@@ -199,6 +199,16 @@
         android:title="@string/settings_category_fonts">
 
         <PreferenceCategory
+            android:layout="@layout/preference_font_topcat_first"
+            android:title="@string/settings_export_section"/>
+
+        <Preference
+            android:layout="@layout/preference_indented"
+            android:key="eximport_open"
+            android:title="@string/settings_export_section"
+            android:summary="@string/eim_desc"/>
+
+        <PreferenceCategory
             android:layout="@layout/preference_font_topcat"
             android:title="@string/settings_font_top_reading"/>
 
@@ -317,21 +327,6 @@
 
         <PreferenceCategory
             android:layout="@layout/preference_font_topcat"
-            android:title="@string/settings_export_section"/>
-
-        <ru.yanus171.feedexfork.view.ExportImportPreference
-            android:key="export_dir_settings"
-            android:selectable="false"
-            android:title="@string/settings_export_settings_title"/>
-
-        <ru.yanus171.feedexfork.view.ExportImportPreference
-            android:key="export_dir_feeds"
-            android:selectable="false"
-            android:title="@string/settings_export_feeds_title"/>
-
-        <ru.yanus171.feedexfork.view.ExportImportPreference
-            android:key="export_dir_backup"
-            android:selectable="false"
             android:title="@string/settings_category_autobackup"/>
 
         <CheckBoxPreference

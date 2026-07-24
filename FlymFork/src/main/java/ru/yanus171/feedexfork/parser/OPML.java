@@ -82,10 +82,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import ru.yanus171.feedexfork.Constants;
 import ru.yanus171.feedexfork.R;
-import ru.yanus171.feedexfork.activity.GeneralPrefsActivity;
 import ru.yanus171.feedexfork.utils.PrefUtils;
 import ru.yanus171.feedexfork.utils.Theme;
 import ru.yanus171.feedexfork.provider.FeedData;
@@ -93,9 +93,9 @@ import ru.yanus171.feedexfork.provider.FeedData.EntryColumns;
 import ru.yanus171.feedexfork.provider.FeedData.EntryLabelColumns;
 import ru.yanus171.feedexfork.provider.FeedData.FilterColumns;
 import ru.yanus171.feedexfork.provider.FeedData.LabelColumns;
-import ru.yanus171.feedexfork.service.AutoWorker;
 import ru.yanus171.feedexfork.service.FetcherService;
 import ru.yanus171.feedexfork.utils.EntryUrlVoc;
+import ru.yanus171.feedexfork.utils.Eximport;
 import ru.yanus171.feedexfork.utils.FileUtils;
 import ru.yanus171.feedexfork.utils.Label;
 import ru.yanus171.feedexfork.utils.LabelVoc;
@@ -165,14 +165,29 @@ public class OPML {
     public static final String EXTRA_REMOVE_EXISTING_FEEDS_BEFORE_IMPORT = "EXTRA_REMOVE_EXISTING_FEEDS_BEFORE_IMPORT";
     public static final String FILENAME_DATETIME_FORMAT = "yyyyMMdd_HHmmss";
 
-    // Export/Import section (UI screen): per-block selectable directory (persisted SAF tree URI)
-    // and last-export timestamp prefs. The backup block reuses the existing auto-backup last-time pref.
+    // Export/Import (UI screen): ONE shared export directory (persisted SAF tree URI). The legacy
+    // per-block keys remain only as read fallbacks so an already-picked directory carries over.
+    public static final String EXPORT_DIR = "export_dir";
     public static final String EXPORT_DIR_SETTINGS = "export_dir_settings";
     public static final String EXPORT_DIR_FEEDS    = "export_dir_feeds";
     public static final String EXPORT_DIR_BACKUP   = "export_dir_backup";
     public static final String EXPORT_LAST_SETTINGS = "export_last_settings";
     public static final String EXPORT_LAST_FEEDS    = "export_last_feeds";
-    public static final int KIND_SETTINGS = 0, KIND_FEEDS = 1, KIND_BACKUP = 2;
+
+    /** The shared export directory, falling back to the legacy per-block keys. */
+    public static String getEximportDir() {
+        String d = PrefUtils.getString(EXPORT_DIR, "");
+        if (d.isEmpty()) d = PrefUtils.getString(EXPORT_DIR_BACKUP, "");
+        if (d.isEmpty()) d = PrefUtils.getString(EXPORT_DIR_SETTINGS, "");
+        if (d.isEmpty()) d = PrefUtils.getString(EXPORT_DIR_FEEDS, "");
+        return d;
+    }
+
+    // Category-selective import filter (set by Eximport around importFromFile, cleared after):
+    // sImportPrefCats == null -> all prefs; sImportFeeds == false -> skip feed/group/label outlines.
+    public static Set<Integer> sImportPrefCats = null;
+    public static boolean sImportFeeds = true;
+    public static boolean sImportShowToast = true;
 
     public static String GetAutoBackupOPMLFileName() { return getContext().getCacheDir().getAbsolutePath() + "/" + AUTO_BACKUP_OPML_FILENAME; }
 
@@ -253,12 +268,13 @@ public class OPML {
         } finally {
             SetAutoBackupEnabled(true);
         }
-        UiUtils.RunOnGuiThread(new Runnable() {
-            @Override
-            public void run() {
-                UiUtils.styledToast( getContext(), R.string.import_completed, Toast.LENGTH_LONG );
-            }
-        });
+        if ( sImportShowToast )
+            UiUtils.RunOnGuiThread(new Runnable() {
+                @Override
+                public void run() {
+                    UiUtils.styledToast( getContext(), R.string.import_completed, Toast.LENGTH_LONG );
+                }
+            });
     }
 
     private static void SetAutoBackupEnabled(boolean b) {
@@ -290,21 +306,44 @@ public class OPML {
     // Core OPML writer (the caller owns/closes the Writer). isBackup=false -> nested feeds/groups only
     // (Thunderbird-importable); isBackup=true -> full backup (settings + entries + filters + labels).
     public static void exportToWriter(Writer writer, boolean isBackup) throws IOException {
-        final Context context = getContext();
-        Cursor cursorGroupsAndRoot = context.getContentResolver()
-                .query(GROUPS_AND_ROOT_CONTENT_URI, FEEDS_PROJECTION, null, null, null);
-
         writer.write( START );
         writer.write( String.valueOf( System.currentTimeMillis() ) );
         writer.write( AFTER_DATE);
 
         if ( isBackup ) {
             SaveSettings( writer, "\t\t");
-            Cursor cursor = context.getContentResolver().query(CONTENT_URI( FetcherService.GetExtrenalLinkFeedID() ), FEEDS_PROJECTION, null, null, null);
+            Cursor cursor = getContext().getContentResolver().query(CONTENT_URI( FetcherService.GetExtrenalLinkFeedID() ), FEEDS_PROJECTION, null, null, null);
             if ( cursor.moveToFirst() && isNotCancelRefresh() )
                 ExportFeed(writer, cursor, true, false);
             cursor.close();
         }
+
+        writeFeedsBody( writer, isBackup );
+
+        if ( isBackup )
+            for ( Label label: LabelVoc.INSTANCE.getList() )
+                Export( writer, label );
+
+        writer.write( END_CLOSING );
+    }
+
+    // Category-selective export (the Export/Import panel): selected pref categories + optionally
+    // the feed outlines, one OPML document. The feeds part stays Thunderbird-importable.
+    public static void exportSelected(Writer writer, boolean withFeeds, Set<Integer> prefCats) throws IOException {
+        writer.write( START );
+        writer.write( String.valueOf( System.currentTimeMillis() ) );
+        writer.write( AFTER_DATE );
+        SaveSettings( writer, "\t\t", prefCats );
+        if ( withFeeds )
+            writeFeedsBody( writer, false );
+        writer.write( END_CLOSING );
+    }
+
+    // The groups + feeds outline body shared by exportToWriter and exportSelected.
+    private static void writeFeedsBody(Writer writer, boolean isBackup) throws IOException {
+        final Context context = getContext();
+        Cursor cursorGroupsAndRoot = context.getContentResolver()
+                .query(GROUPS_AND_ROOT_CONTENT_URI, FEEDS_PROJECTION, null, null, null);
 
         while (cursorGroupsAndRoot.moveToNext()) {
             if ( isCancelRefresh() )
@@ -329,12 +368,7 @@ public class OPML {
                 ExportFeed(writer, cursorGroupsAndRoot, isBackup, false);
         }
 
-        if ( isBackup )
-            for ( Label label: LabelVoc.INSTANCE.getList() )
-                Export( writer, label );
-
         cursorGroupsAndRoot.close();
-        writer.write( END_CLOSING );
     }
 
     private static void Export(Writer writer, Label label) throws IOException {
@@ -550,8 +584,20 @@ public class OPML {
     private static final String PREF_CLASS_STRING = "String";
 
     private static void SaveSettings(Writer writer, final String prefix) throws IOException {
+        SaveSettings( writer, prefix, null );
+    }
+
+    // cats == null -> every pref (legacy backup). Otherwise only keys whose Eximport category is
+    // selected, minus the device-local keys (SAF dir URIs etc.) that must not travel.
+    private static void SaveSettings(Writer writer, final String prefix, final Set<Integer> cats) throws IOException {
         final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getContext());
         for (final Map.Entry<String, ?> entry : settings.getAll().entrySet()) {
+            if ( cats != null ) {
+                if ( Eximport.isExcludedFromExport( entry.getKey() ) )
+                    continue;
+                if ( !cats.contains( Eximport.categoryOf( entry.getKey() ) ) )
+                    continue;
+            }
             String prefClass = entry.getValue().getClass().getName();
             String prefValue;
             if (prefClass.contains(PREF_CLASS_STRING)) {
@@ -635,7 +681,7 @@ public class OPML {
                     // Only the OUTERMOST folder becomes a Handy RSS group. Deeper folders (the
                     // Thunderbird per-feed wrapper folders) are passthrough containers, so the feed
                     // inside still lands in the outermost category group.
-                    if (mGroupDepth == 0 && title != null) {
+                    if (sImportFeeds && mGroupDepth == 0 && title != null) {
                         ContentValues values = new ContentValues();
                         values.put(IS_GROUP, true);
                         values.put(NAME, title);
@@ -654,6 +700,10 @@ public class OPML {
 
                 } else { // Url => this is a feed
                     mFeedEntered = true;
+                    if (!sImportFeeds) {  // feeds not selected for import: skip the insert entirely
+                        mFeedId = null;
+                        return;
+                    }
                     ContentValues values = new ContentValues();
 
                     values.put(URL, url);
@@ -735,6 +785,8 @@ public class OPML {
                 if ( attributes.getIndex(_ID) != -1 )
                     mEntryFileIDToIDVoc.put(Long.valueOf(GetText(attributes, _ID)), id);
             } else if (TAG_LABEL.equals(localName)) {
+                if (!sImportFeeds)  // labels belong to the feeds world
+                    return;
                 mLabelOrder++;
                 ContentValues values = new ContentValues();
                 putString( values, LabelColumns.NAME, attributes, LabelColumns.NAME);
@@ -754,6 +806,8 @@ public class OPML {
                 final String className = attributes.getValue( ATTR_PREF_CLASSNAME );
                 final String value = attributes.getValue( ATTR_PREF_VALUE);
                 final String key = attributes.getValue( ATTR_PREF_KEY );
+                if (sImportPrefCats != null && !sImportPrefCats.contains( Eximport.categoryOf( key ) ))
+                    return;  // category not selected for import
                 if (className.contains(PREF_CLASS_STRING)) {
                     mEditor.putString(key, value.replace("\\n", "\n"));
                 } else if (className.contains(PREF_CLASS_BOOLEAN)) {
@@ -821,72 +875,8 @@ public class OPML {
         }).execute();
     }
 
-    // ---- Export/Import section (UI screen): SAF-directory exports + settings import ----
-
-    // Settings-only OPML: head + <pref> values + close, no feed <outline> elements.
-    public static void exportSettingsToWriter(Writer writer) throws IOException {
-        writer.write( START );
-        writer.write( String.valueOf( System.currentTimeMillis() ) );
-        writer.write( AFTER_DATE );
-        SaveSettings( writer, "\t\t" );
-        writer.write( END_CLOSING );
-    }
-
-    public static void ExportSettingsToDir(Activity activity, String treeUri) { exportToDir(activity, treeUri, KIND_SETTINGS); }
-    public static void ExportFeedsToDir(Activity activity, String treeUri)    { exportToDir(activity, treeUri, KIND_FEEDS); }
-    public static void ExportBackupToDir(Activity activity, String treeUri)   { exportToDir(activity, treeUri, KIND_BACKUP); }
-
-    // Write an export into a user-chosen SAF tree directory, off the UI thread, then stamp the
-    // last-export time and refresh the matching Export/Import box.
-    private static void exportToDir(final Activity activity, final String treeUri, final int kind) {
-        new WaitDialog(activity, R.string.exportingToFile, () -> {
-            try {
-                final String ts = new SimpleDateFormat(FILENAME_DATETIME_FORMAT).format(new Date(System.currentTimeMillis()));
-                final String fileName, mime;
-                // Use octet-stream (not text/xml) so SAF keeps the exact name: with text/xml the
-                // provider appends ".xml" -> "....opml.xml", which Thunderbird won't recognize.
-                if ( kind == KIND_SETTINGS ) { fileName = "shiroikuma-handyrss-settings_" + ts + ".opml"; mime = "application/octet-stream"; }
-                else if ( kind == KIND_FEEDS ) { fileName = "shiroikuma-handyrss-feeds_" + ts + ".opml"; mime = "application/octet-stream"; }
-                else { fileName = "shiroikuma-handyrss_" + ts + ".backup"; mime = "application/octet-stream"; }
-
-                final DocumentFile dir = DocumentFile.fromTreeUri( getContext(), Uri.parse( treeUri ) );
-                if ( dir == null || !dir.canWrite() )
-                    throw new IOException( "export directory not writable" );
-                final DocumentFile file = dir.createFile( mime, fileName );
-                if ( file == null )
-                    throw new IOException( "cannot create export file" );
-                Writer w = new OutputStreamWriter( getContext().getContentResolver().openOutputStream( file.getUri() ), "UTF-8" );
-                try {
-                    if ( kind == KIND_SETTINGS )
-                        exportSettingsToWriter( w );
-                    else
-                        exportToWriter( w, kind == KIND_BACKUP );
-                } finally {
-                    w.close();
-                }
-
-                final String lastKey = kind == KIND_SETTINGS ? EXPORT_LAST_SETTINGS
-                                     : kind == KIND_FEEDS ? EXPORT_LAST_FEEDS
-                                     : AutoWorker.LAST_JOB_OCCURRED + PrefUtils.AUTO_BACKUP_INTERVAL;
-                PrefUtils.putLong( lastKey, System.currentTimeMillis() );
-                final String dirKey = kind == KIND_SETTINGS ? EXPORT_DIR_SETTINGS
-                                    : kind == KIND_FEEDS ? EXPORT_DIR_FEEDS : EXPORT_DIR_BACKUP;
-                activity.runOnUiThread(() -> {
-                    UiUtils.styledToast( getContext(), R.string.export_completed, Toast.LENGTH_LONG );
-                    GeneralPrefsActivity.RefreshExportPref( dirKey );
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                activity.runOnUiThread(() -> UiUtils.showMessage(activity, R.string.error_feed_export));
-            }
-        }).execute();
-    }
-
-    // Settings-only import: reuse the feed-import service path with isRemoveExistingFeeds=false.
-    // A settings-only OPML has no <outline> elements, so only <pref> values are restored.
-    public static void importSettingsFromUri(Activity activity, Uri uri) {
-        StartServiceForImport( uri.toString(), false, true );
-    }
+    // ---- Export/Import (UI screen): category-selective export lives in exportSelected() above;
+    // the panel UI + SAF plumbing live in utils/Eximport.java. ----
 
     // Copy an existing backup file into a user-chosen SAF tree directory (scheduled auto-backup path,
     // which runs in the background service, so no WaitDialog). No-op if no backup directory is set.
