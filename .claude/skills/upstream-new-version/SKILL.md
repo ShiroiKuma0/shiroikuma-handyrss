@@ -43,9 +43,15 @@ and the version handling:
   the build counter to 0** so the first new build is `+1`. Propagate the new base literals into the docs.
   (Phases 6–7 apply.)
 - **Master-tip refresh** — **no** new tag, but `upstream/master` has advanced past our base. Rebase the
-  stack onto the **latest `upstream/master` tip** (all its commits). **Keep our version base exactly as
-  is** (still e.g. `1.1.4`) and **do NOT reset the counter** — our `+N` numbering just keeps growing (so
-  the next build is the current counter `+1`). No base-literal propagation. (Phases 6–7 are skipped.)
+  stack onto the **latest `upstream/master` tip** (all its commits). Then look at what `versionName` the
+  rebased-onto master carries:
+  - **It changed** (upstream bumped the version on master without tagging — e.g. `1.1.4` → untagged
+    `1.1.5`): **adopt it anyway.** 白い熊's standing rule is *always rebase to the latest untagged
+    version*, so this is treated exactly like a release bump — new base literals, counter reset to 0,
+    docs propagated. (Phases 6–7 apply.)
+  - **It is unchanged**: keep our base and **do NOT reset the counter** — our `+N` numbering just keeps
+    growing (so the next build is the current counter `+1`). No base-literal propagation. (Phases 6–7
+    are skipped.)
 
 Priority: if there **is** a new release tag, take the release-bump mode (rebase onto the tag, not the
 even-newer untagged commits beyond it — those wait for their own release). Only when there is no new tag
@@ -60,8 +66,8 @@ is nothing to do — STOP.
 | Origin remote | `origin` → `git@github.com:ShiroiKuma0/shiroikuma-handyrss.git` (SSH, push) |
 | Mirror branch | `master` — fast-forward only, never carries our changes |
 | Customization branch | `custom` — a **stack** of feature commits on top of the rebrand, rebased onto each release tag |
-| Current base (as of this skill's writing) | upstream `v1.1.4`, versionName base `1.1.4`, versionCode base `3390000` (= upstream `339` × 10000) |
-| Counter (external) | `$HOME/.handyrss_build_no` — outside the repo; **reset to 0 only on a release bump** (new tag) so the first new build is `+1`; on a **master-tip refresh** it is left as-is and `+N` keeps growing |
+| Current base (as of this skill's writing) | `upstream/master` @ `9c1c6dd4` (untagged), versionName base `1.1.5`, versionCode base `3400000` (= upstream `340` × 10000) — **not a tag**; the newest tag is still `v1.1.4` |
+| Counter (external) | `$HOME/.handyrss_build_no` — outside the repo; **reset to 0 whenever the adopted base version changes** (new tag OR untagged master bump) so the first build on the new base is `+1`; on a **same-version refresh** it is left as-is and `+N` keeps growing |
 | App module | `FlymFork` |
 | Build task (delegated) | `handy-rss-build` → `:FlymFork:assembleFdroidRelease` |
 
@@ -215,13 +221,17 @@ After every resolution, before `--continue`, make sure the working tree reflects
 
 ### Phase 6 — Version base + counter (mode-dependent)
 
-**Master-tip refresh (`MODE=refresh`): SKIP this phase.** Keep our version base exactly as it is — do
-NOT touch `build.gradle`'s `versionName`/`versionCode`, and do NOT reset the counter. The
-`handy-rss-build` build step bumps the counter as usual, so the next build is the current counter `+1`
-(e.g. `1.1.4+40`); our `+N` numbering just keeps growing across refreshes. If the rebase surfaced a
-conflict on the `versionName`/`versionCode` line because upstream changed it on master, **resolve in
-favour of our current base** (keep `1.1.4+N`) — we only adopt upstream's version on a real release,
-never from an untagged master tip.
+**Master-tip refresh (`MODE=refresh`) where the master `versionName` is UNCHANGED: SKIP this phase.**
+Keep our version base exactly as it is — do NOT touch `build.gradle`'s `versionName`/`versionCode`, and
+do NOT reset the counter. The `handy-rss-build` build step bumps the counter as usual, so the next build
+is the current counter `+1` (e.g. `1.1.5+7`); our `+N` numbering just keeps growing across refreshes.
+
+**Master-tip refresh where upstream BUMPED the version on master without tagging: treat it as a release
+bump** and run the reset below against the untagged master version. 白い熊's standing rule (2026-07-25)
+is *always rebase to the latest untagged version*, so an untagged `1.1.5` on master is adopted just like
+a tagged release would be. During the rebase, the `versionName`/`versionCode` conflict is still resolved
+in favour of **our** stamp line (the historical `+N` each stack commit carried) — the new base is applied
+once, here, at the end.
 
 **Release bump (`MODE=release`): reset the base + counter.** Read the **pristine upstream** version from
 the new tag (NOT from our rebased build.gradle, which still carries our `+N` line):
@@ -239,21 +249,22 @@ Let `NEW_VN` = upstream versionName (e.g. `1.2.0`), `NEW_VC_BASE` = upstream ver
    and writes `<NEW_VN>+1` / `<NEW_VC_BASE>+1` at build time. Leave the derived `applicationVariants`
    `def versionName/versionCode` lines untouched.)
 
-### Phase 7 — Propagate the new base into the docs (release bump only)
+### Phase 7 — Propagate the new base into the docs (whenever the base version changed)
 
-**Skip for a master-tip refresh** — the base literals don't change, so there's nothing to propagate.
+**Skip only when the base version is unchanged** — then the literals don't change, so there's nothing
+to propagate.
 
-On a **release bump**, the base literals `1.1.4` and `3390000` / `339` are **hard-coded in several
+When the base changed, the base literals `1.1.5` and `3400000` / `340` are **hard-coded in several
 places** that the build relies on. If you don't update them, the next build stamps the OLD base. Update
 the ACTIVE base literals
 (NOT the historical feature-commit version tags, which record what shipped and must stay):
 - **`.claude/skills/handy-rss-build/SKILL.md`** — the Versioning section, the Build "Version stamp"
-  paragraph, the gradle/`sed` base literals, and the "Update procedure" base literals (`1.1.4` →
-  `<NEW_VN>`, `3390000` → `<NEW_VC_BASE>`, `339` → upstream's new versionCode). Update its project-
+  paragraph, the gradle/`sed` base literals, and the "Update procedure" base literals (`1.1.5` →
+  `<NEW_VN>`, `3400000` → `<NEW_VC_BASE>`, `340` → upstream's new versionCode). Update its project-
   identity table's "latest upstream release" too.
-- **`CLAUDE.md`** — the at-a-glance Versioning line (`1.1.4+N` / `3390000+N`) and the State-checkpoint
+- **`CLAUDE.md`** — the at-a-glance Versioning line (`1.1.5+N` / `3400000+N`) and the State-checkpoint
   block (HEAD, last-built version, counter).
-- Do a final `grep -rn '1\.1\.4\|3390000\|\b339\b'` over both docs to catch stragglers; eyeball each —
+- Do a final `grep -rn '1\.1\.5\|3400000\|\b340\b'` over both docs to catch stragglers; eyeball each —
   keep historical mentions, change active base literals.
 
 (These doc edits are bookkeeping; they may be committed with the rebased stack or in a follow-up commit,
@@ -319,12 +330,16 @@ features.
   conversation, not a `--force`.
 - **Significant conflict ⇒ plan with the user first.** Don't improvise large reconciliations silently.
   Surface the conflicting commits + options via `AskUserQuestion` and act on the choice.
-- **Counter resets to 0 only on a release bump** (new tag), so the first new-release build is `+1`. On a
-  **master-tip refresh the counter is left as-is** and `+N` keeps growing. Every build still bumps it,
+- **Always rebase to the latest untagged version** (白い熊's standing rule, 2026-07-25). If
+  `upstream/master` carries a newer `versionName` than ours, we adopt it whether or not it was ever
+  tagged. There is no "wait for the tag".
+- **The counter resets to 0 whenever the adopted base version changes** — a new tag OR an untagged
+  master bump — so the first build on the new base is `+1`. When a refresh brings new commits but the
+  **same** base version, the counter is left as-is and `+N` keeps growing. Every build still bumps it,
   failed ones included; never reuse an `+N`.
-- **Propagate the new base literals** (release bump only) into build.gradle + both docs, or the next
-  build stamps the old base. A refresh leaves the base unchanged — nothing to propagate. Don't rewrite
-  historical feature-commit version mentions.
+- **Propagate the new base literals** whenever the base changed, into build.gradle + both docs, or the
+  next build stamps the old base. A same-version refresh leaves the base unchanged — nothing to
+  propagate. Don't rewrite historical feature-commit version mentions.
 - **Pick the newest tag by date, never lexically** (the 2016 Flym tags are a trap).
 
 ## Recovery
