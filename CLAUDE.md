@@ -16,14 +16,16 @@ Before any change on this repo, read **`.claude/skills/handy-rss-build/SKILL.md`
 
 ## External state — outside this repo, must be preserved across sessions
 
-- **`$HOME/.handyrss_build_no`** — the build counter. **Currently `1`** (last built version `1.1.5+1`; reset to 0 when the base moved `1.1.4` → `1.1.5`). Never commit.
+- **`$HOME/.handyrss_build_no`** — the build counter. **Currently `5`** (last built version `1.1.5+5`; reset to 0 when the base moved `1.1.4` → `1.1.5`). Never commit.
 - **`~/.android-keystores/handyrss-custom.jks`** — signing keystore (alias `handyrss`). Without it, builds cannot be signed.
 - **`~/tmp/`** — APK archive directory. Never committed; persists across sessions.
 - **`~/git/shiroikuma-handyrss`** — the local working clone (this repo).
 
 ## State checkpoint (2026-07-25)
 
-- Built `1.1.5+1`, counter at `1`. Delivered to the Mate XT; **awaiting on-device confirmation** — not yet committed or force-pushed.
+- Last built + pushed `1.1.5+5`, counter at `5` (`+2..+4` were the automation-UI iterations).
+- **The export artefact is now a ZIP, not an OPML** (commit 40) — `shiroikuma-handyrss_<ts>.zip`. Import still accepts old plain-OPML backups.
+- **Not yet verified on device:** the 保存復元 receiver path (hand-off acceptance tests 2–10). The UI rows were confirmed on screen; the broadcast round-trip, `path` override, `items` subset and progress broadcasts have never been exercised. Needs All-files-access granted plus the token, then the adb `am broadcast` checklist.
 - **The `custom` stack (54 commits) sits on `upstream/master` @ `9c1c6dd4` (2026-07-25 master-tip refresh; previous refreshes `726fefe3` 2026-07-24 and `3e885f98` 2026-07-16), NOT on any tag** — the newest upstream tag is still `v1.1.4`, but master carries an untagged `1.1.5` / `340` (`02e7ea30`) and **we adopt untagged master versions** per the standing rule, so the base moved `1.1.4`/`3390000` → `1.1.5`/`3400000` and the counter was reset. 20 upstream commits, 15 of them Crowdin churn; the functional two are jsoup `1.17.2` → `1.22.2` and the removal of the `Accept-Encoding: identity` header. Two conflicts, both predicted: the `build.gradle` version block (our stamp kept, upstream's jsoup adopted) and `Connection.kt` vs our consent-wall bypass (upstream's header deletion adopted, our Googlebot-UA + conditional-referer logic kept).
 - **Recent feature commits (34–39; full detail in the skill's feature-commits list):** uniform grid-card height; mark entries read on leaving the reading view even when starred; the UI-screen kxkb restyle + category Export/Import panel (`1.1.4+46`); the 2026-07-25 rebase + `1.1.5` base adoption; **long-press the top-right ⋮ in the entry list → 白い熊 Handy RSS UI screen** (`EntriesListFragment.SetupMoreOptionsLongPress`, third entry point beside the drawer settings icon and the top-left actionbar icon).
 - Backup branch `custom-pre-master-9c1c6dd4` holds the pre-rebase tip (`f41b9502`); delete it once the new `custom` is force-pushed and confirmed.
