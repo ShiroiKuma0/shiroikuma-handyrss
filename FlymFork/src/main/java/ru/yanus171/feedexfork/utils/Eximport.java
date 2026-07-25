@@ -25,13 +25,14 @@ import android.widget.Toast;
 
 import androidx.documentfile.provider.DocumentFile;
 
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -53,12 +54,21 @@ public class Eximport {
                             CAT_LIST = 3, CAT_READING = 4, CAT_OTHER = 5;
 
     private static final int WARN_COLOR = 0xFFFF5252;
-    private static final String EXPORT_FILE_PREFIX = "shiroikuma-handyrss";
 
-    // Device-local keys that must never travel to another install.
+    // Family naming convention (白い熊, 2026-07-25): <english-dash-separated-app-name>_<ts>.zip —
+    // no version, no "-export" infix, no "-ui"/"-settings" suffix, because every sister app's
+    // backups live in one directory and must sort and read uniformly. The pre-2026-07-25 name is
+    // still recognised when looking for the last export, so older backups stay visible.
+    public static final String EXPORT_FILE_PREFIX = "shiroikuma-handyrss_";
+    public static final String EXPORT_FILE_EXT = ".zip";
+    private static final String EXPORT_FILE_PREFIX_LEGACY = "shiroikuma-handyrss-export_";
+
+    // Device-local keys that must never travel to another install. The automation switch + token
+    // belong here too: a backup must never carry the credential that unlocks the export receiver.
     private static final Set<String> EXPORT_EXCLUDE = new HashSet<>(Arrays.asList(
             OPML.EXPORT_DIR, OPML.EXPORT_DIR_SETTINGS, OPML.EXPORT_DIR_FEEDS, OPML.EXPORT_DIR_BACKUP,
-            OPML.EXPORT_LAST_SETTINGS, OPML.EXPORT_LAST_FEEDS, "data_folder" ));
+            OPML.EXPORT_LAST_SETTINGS, OPML.EXPORT_LAST_FEEDS, "data_folder",
+            AutomationAuth.PREF_ENABLED, AutomationAuth.PREF_TOKEN ));
 
     private static final Set<String> COLOR_KEYS = new HashSet<>(Arrays.asList(
             "theme", "customColors", "lighttheme", "textColor", "toolBarColor", "feedListColor",
@@ -299,21 +309,23 @@ public class Eximport {
         final Activity activity = mActivity;
         new WaitDialog(activity, R.string.exportingToFile, () -> {
             try {
-                final String ts = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
-                final String fileName = EXPORT_FILE_PREFIX + "-export_" + ts + ".opml";
+                final String ts = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(new Date());
+                final String fileName = EXPORT_FILE_PREFIX + ts + EXPORT_FILE_EXT;
                 final DocumentFile dirDoc = DocumentFile.fromTreeUri(MainApplication.getContext(), Uri.parse(dir));
                 if (dirDoc == null || !dirDoc.canWrite())
                     throw new Exception("export directory not writable");
-                // octet-stream keeps the exact name (text/xml would append ".xml")
+                // octet-stream keeps the exact name (a typed mime would append its own extension)
                 final DocumentFile file = dirDoc.createFile("application/octet-stream", fileName);
                 if (file == null)
                     throw new Exception("cannot create export file");
-                Writer w = new OutputStreamWriter(
-                        MainApplication.getContext().getContentResolver().openOutputStream(file.getUri()), "UTF-8");
+                // Same core the headless automation receiver calls — one ZIP, never two callers'
+                // worth of duplicated export logic.
+                OutputStream os = MainApplication.getContext().getContentResolver().openOutputStream(file.getUri());
                 try {
-                    OPML.exportSelected(w, cats.contains(CAT_FEEDS), cats);
+                    StateZip.write(cats, os, null);
                 } finally {
-                    w.close();
+                    if (os != null)
+                        os.close();
                 }
                 activity.runOnUiThread(() -> {
                     refreshStatus();
@@ -345,10 +357,17 @@ public class Eximport {
         }
         new WaitDialog(activity, R.string.eim_importing, () -> {
             try {
-                OPML.sImportPrefCats = cats;
-                OPML.sImportFeeds = cats.contains(CAT_FEEDS);
-                OPML.sImportShowToast = false;
-                OPML.importFromFile(uri, false);
+                if (isZip(uri))
+                    // A state ZIP written by this app (or by the automation receiver).
+                    StateZip.read(MainApplication.getContext().getContentResolver().openInputStream(uri), cats);
+                else {
+                    // A plain OPML — every backup written before 2026-07-25, and any feed list
+                    // exported from another reader.
+                    OPML.sImportPrefCats = cats;
+                    OPML.sImportFeeds = cats.contains(CAT_FEEDS);
+                    OPML.sImportShowToast = false;
+                    OPML.importFromFile(uri, false);
+                }
                 activity.runOnUiThread(() -> showImportResult(activity));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -525,9 +544,10 @@ public class Eximport {
             DocumentFile newest = null;
             for (DocumentFile f : dir.listFiles()) {
                 String name = f.getName();
-                if (!f.isFile() || name == null || !name.startsWith(EXPORT_FILE_PREFIX))
+                if (!f.isFile() || name == null
+                        || !(name.startsWith(EXPORT_FILE_PREFIX) || name.startsWith(EXPORT_FILE_PREFIX_LEGACY)))
                     continue;
-                if (!name.endsWith(".opml") && !name.endsWith(".backup"))
+                if (!name.endsWith(EXPORT_FILE_EXT) && !name.endsWith(".opml") && !name.endsWith(".backup"))
                     continue;
                 if (newest == null || f.lastModified() > newest.lastModified())
                     newest = f;
@@ -535,6 +555,29 @@ public class Eximport {
             return newest;
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    /** Sniff the `PK\003\004` header so a picked file is routed to the right reader. */
+    private static boolean isZip(Uri uri) {
+        InputStream is = null;
+        try {
+            is = MainApplication.getContext().getContentResolver().openInputStream(uri);
+            if (is == null)
+                return false;
+            byte[] head = new byte[4];
+            int read = 0;
+            while (read < head.length) {
+                int n = is.read(head, read, head.length - read);
+                if (n < 0)
+                    break;
+                read += n;
+            }
+            return read == head.length && StateZip.isZip(head);
+        } catch (Exception e) {
+            return false;
+        } finally {
+            try { if (is != null) is.close(); } catch (Exception ignored) {}
         }
     }
 

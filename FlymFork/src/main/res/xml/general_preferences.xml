@@ -208,6 +208,18 @@
             android:title="@string/settings_export_section"
             android:summary="@string/eim_desc"/>
 
+        <CheckBoxPreference
+            android:layout="@layout/preference_indented"
+            android:key="automation_enabled"
+            android:defaultValue="false"
+            android:title="@string/automation_enabled_title"
+            android:summary="@string/automation_enabled_summary"/>
+
+        <ru.yanus171.feedexfork.view.AutomationTokenPreference
+            android:layout="@layout/preference_automation_token"
+            android:key="automation_token_row"
+            android:title="@string/automation_token_title"/>
+
         <PreferenceCategory
             android:layout="@layout/preference_font_topcat"
             android:title="@string/settings_font_top_reading"/>

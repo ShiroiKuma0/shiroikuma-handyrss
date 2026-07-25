@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- HandyRss: the automation-token row — preference_indented plus the token value itself on the
+     second line and a Regenerate action on the right. Tapping the row copies the full token.
+
+     Deliberately NOT using @android:id/summary or @android:id/widget_frame: Preference.onBindView
+     hides the summary view when android:summary is empty, and Preference.onCreateView hides the
+     widget frame unless the preference supplies an android:widgetLayout. Our own ids keep the
+     framework's visibility management out of it. -->
+<!-- descendantFocusability + the button's focusable="false": a focusable child inside a ListView
+     row swallows the row's own click, which would stop Preference.onClick() (tap to copy the
+     token) from ever firing. The button keeps its OnClickListener either way. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:minHeight="44dp"
+    android:gravity="center_vertical"
+    android:descendantFocusability="blocksDescendants"
+    android:paddingStart="72dip" android:paddingEnd="16dip"
+    android:paddingTop="5dip" android:paddingBottom="5dip">
+
+    <LinearLayout
+        android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <TextView android:id="@android:id/title"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textColor="@color/menu_pref_fg" android:textSize="16sp"/>
+        <TextView android:id="@+id/automation_token_value"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="2dip"
+            android:textColor="@color/menu_pref_fg_dim" android:textSize="13sp"
+            android:typeface="monospace"
+            android:maxLines="3"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+        <Button android:id="@+id/automation_regenerate"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginStart="12dip"
+            android:focusable="false" android:focusableInTouchMode="false"
+            android:minWidth="0dp" android:minHeight="0dp"
+            android:paddingStart="16dip" android:paddingEnd="16dip"
+            android:paddingTop="6dip" android:paddingBottom="6dip"
+            android:textAllCaps="false" android:textSize="13sp"
+            android:text="@string/automation_token_regenerate"/>
+    </LinearLayout>
+</LinearLayout>

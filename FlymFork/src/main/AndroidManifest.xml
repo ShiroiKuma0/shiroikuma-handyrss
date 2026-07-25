@@ -6,6 +6,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
+    <!-- 保存復元 automation: EXPORT_STATE may be handed an absolute `path` (e.g. the one shared
+         directory 自由作業盤 batches every sister app into), which scoped storage cannot reach.
+         Without the grant the receiver falls back to the app's own SAF directory. -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -56,6 +61,17 @@
         <receiver android:name=".service.BroadcastActionReciever" android:exported="false" >
             <intent-filter>
                 <action android:name="ru.yanus171.feedexfork.service.BROADCAST_ACTION" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 保存復元 state-export contract. No android:permission — the caller cannot hold one;
+             the automation switch + token are the gate (see StateExportReceiver). -->
+        <receiver
+            android:name=".service.StateExportReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="shiroikuma.handyrss.action.EXPORT_STATE" />
+                <action android:name="shiroikuma.handyrss.action.LIST_CATEGORIES" />
             </intent-filter>
         </receiver>
 

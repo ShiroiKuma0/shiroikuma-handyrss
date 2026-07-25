@@ -772,6 +772,14 @@
     <string name="eim_restart_now">Restart now</string>
     <string name="eim_restart_later">Later</string>
     <string name="eim_importing">Importing…</string>
+    <string name="automation_enabled_title">Automation export</string>
+    <string name="automation_enabled_summary">Let a sister-app task trigger this app\'s export through a token-gated intent. Off by default.</string>
+    <string name="automation_token_title">Automation token</string>
+    <string name="automation_token_copied">Token copied to the clipboard.</string>
+    <string name="automation_token_regenerate">Regenerate</string>
+    <string name="automation_token_regenerate_warn">A new token is generated and the old one stops working at once. Every place the old token was pasted must be updated.</string>
+    <string name="automation_token_regenerated">New token generated.</string>
+    <string name="automation_unit_categories" translatable="false">区分</string>
     <string name="settings_color_background">Article background</string>
     <string name="settings_color_quote_bg">Quote background</string>
     <string name="settings_color_quote_bar">Quote bar</string>
