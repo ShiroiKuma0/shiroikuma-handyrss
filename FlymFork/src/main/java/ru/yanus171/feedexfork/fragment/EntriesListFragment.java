@@ -100,6 +100,7 @@ import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutManagerCompat;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -128,6 +129,7 @@ import ru.yanus171.feedexfork.R;
 import ru.yanus171.feedexfork.activity.ArticleWebSearchActivity;
 import ru.yanus171.feedexfork.activity.BaseActivity;
 import ru.yanus171.feedexfork.activity.EntriesListTapActions;
+import ru.yanus171.feedexfork.activity.GeneralPrefsActivity;
 import ru.yanus171.feedexfork.activity.HomeActivity;
 import ru.yanus171.feedexfork.activity.HomeActivityNewTask;
 import ru.yanus171.feedexfork.adapter.DrawerAdapter;
@@ -499,7 +501,30 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
 
         UpdateActions();
 
+        SetupMoreOptionsLongPress();
+
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    // Long-press the top-right overflow button of the entry list -> open the 白い熊 Handy RSS UI
+    // screen directly, the same shortcut the top-left home icon and the drawer settings button
+    // already carry (HomeActivity.SetupHomeLongPress). The ActionMenuItemView for the menu item
+    // only exists once the toolbar has laid the menu out, so the lookup is posted; returning true
+    // consumes the press, which also suppresses the default title tooltip.
+    private void SetupMoreOptionsLongPress() {
+        final FragmentActivity activity = getActivity();
+        if ( activity == null )
+            return;
+        final View decor = activity.getWindow().getDecorView();
+        decor.post( () -> {
+            final View button = decor.findViewById( R.id.menu_more_options );
+            if ( button != null )
+                button.setOnLongClickListener( view -> {
+                    startActivity( new Intent( activity, GeneralPrefsActivity.class )
+                            .putExtra( GeneralPrefsActivity.EXTRA_OPEN_SCREEN, "prefs_ui_screen" ) );
+                    return true;
+                } );
+        } );
     }
 
     @Override
