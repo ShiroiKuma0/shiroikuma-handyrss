@@ -5,7 +5,7 @@ A personal, rebranded Android RSS reader — a fork of
 [Flym](https://github.com/FredJul/Flym)). It installs **side-by-side** with the official app
 (`shiroikuma.handyrss`), with its own icon and name, fully signed for self-install.
 
-**Latest release:** `1.1.4+46` · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
+**Latest release:** [`1.1.5+5`](../../releases/latest) · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
 
 ## What this fork adds on top of Handy News Reader
 
@@ -20,13 +20,18 @@ A personal, rebranded Android RSS reader — a fork of
   drawer, menus, dialogs, action icons), with user-customizable chrome and article-content colors.
 - **白い熊 Handy RSS UI screen** — one consolidated screen for all fonts & colors, styled with text-wide
   underlined headings and thin section separators, reachable instantly by long-pressing the drawer's
-  settings icon or the top-left home icon.
+  settings icon, the top-left home icon, or the article list's top-right ⋮ button.
 - **Export / Import by category** — the UI screen's first section: one shared export folder (last
   export shown live), and a panel with **category checkboxes** — feeds, UI fonts, colours & theme,
   article list & grid, reading view, everything else — behind round pill buttons; import restores
-  only the categories you tick.
-- **Thunderbird-compatible feed export** — export your categories and feeds as OPML that imports into
-  **Mozilla Thunderbird** as folders, each with the individual feeds inside (readable separately).
+  only the categories you tick. One backup is **one ZIP**, `shiroikuma-handyrss_<timestamp>.zip`.
+- **Headless automation backup** — a token-gated intent lets a companion automation app trigger the
+  same export with no UI, pick the categories, choose the destination folder, and read back the
+  written path and size, with live progress reported in real counts. Off by default, behind a
+  24-byte token that never travels inside a backup.
+- **Thunderbird-compatible feed export** — your categories and feeds go out as OPML (`feeds.opml`
+  inside the backup ZIP) that imports into **Mozilla Thunderbird** as folders, each with the
+  individual feeds inside, readable separately.
 - **Scheduled auto-backup** — periodic full backup (feeds, starred articles, filters, labels, settings)
   to a folder of your choice, on a configurable interval.
 - **Quick-control toolbars** — adjust text size, title size, and body font in the reading view, or
@@ -34,8 +39,9 @@ A personal, rebranded Android RSS reader — a fork of
   the always-visible ★ in the reading toolbar.
 - **Paywall bypass for Mafra sites** — articles from lidovky.cz and idnes.cz load their full text past
   the pay-or-consent wall (fetched with a Googlebot user agent).
-- **Tracks upstream** — regularly rebased onto the latest Handy News Reader development (full-width
-  article images, feed multiselect delete, network-timeout fixes, and more from upstream master).
+- **Tracks upstream** — regularly rebased onto the latest Handy News Reader development, including
+  versions upstream has bumped on `master` but not yet tagged (currently `1.1.5`): full-width article
+  images, feed multiselect delete, network-timeout fixes, the newest jsoup, and more.
 
 ## Install
 
