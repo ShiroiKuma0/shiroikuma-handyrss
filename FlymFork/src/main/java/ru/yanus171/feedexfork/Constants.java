@@ -78,6 +78,9 @@ public final class Constants {
   public static final String FROM_AUTO_REFRESH = "from_auto_refresh";
   public static final String FROM_AUTO_BACKUP = "from_auto_backup";
   public static final String FROM_DELETE_OLD = "from_delete_old";
+  // The orphan-file sweep on its own, without the entry purge that FROM_DELETE_OLD also runs —
+  // fired after a feed or group is deleted, whose images and article files nothing else reaps.
+  public static final String FROM_DELETE_GHOST = "from_delete_ghost";
   public static final String FROM_RELOAD_ALL_TEXT = "reload_all_texts";
   public static final String FROM_IMPORT = "from_import";
   public static final String URL_LIST = "url_list";

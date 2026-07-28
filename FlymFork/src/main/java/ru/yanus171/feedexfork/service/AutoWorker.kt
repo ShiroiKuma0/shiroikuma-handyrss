@@ -158,7 +158,11 @@ class AutoWorker(context: Context, workerParams: WorkerParameters) : Worker(cont
             val context = MainApplication.getContext()
             if (Build.VERSION.SDK_INT >= 21) {
                 initAutoJob(context, REFRESH_INTERVAL, REFRESH_ENABLED, getMinCustomRefreshInterval(), AUTO_REFRESH_JOB_ID, true, getBoolean("auto_refresh_requires_charging", false))
-                initAutoJob(context, DELETE_OLD_INTERVAL, REFRESH_ENABLED, -1, DELETE_OLD_JOB_ID, false, getBoolean("delete_old_requires_charging", true))
+                // Default false, matching general_preferences.xml's own defaultValue for this key.
+                // It used to default true here while the XML said false, so an install that never
+                // wrote the checkbox got a purge that only ran on the charger — and since the
+                // purge is the only thing that reaps orphaned images, they accumulated instead.
+                initAutoJob(context, DELETE_OLD_INTERVAL, REFRESH_ENABLED, -1, DELETE_OLD_JOB_ID, false, getBoolean("delete_old_requires_charging", false))
                 initAutoJob(context, AUTO_BACKUP_INTERVAL, AUTO_BACKUP_ENABLED, -1, AUTO_BACKUP_JOB_ID, false, getBoolean("autobackup_requires_charging", true))
             }
         }
