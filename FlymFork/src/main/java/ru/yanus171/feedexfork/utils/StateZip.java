@@ -1,8 +1,11 @@
 package ru.yanus171.feedexfork.utils;
 
+import static ru.yanus171.feedexfork.utils.Eximport.CAT_ARTICLES;
+import static ru.yanus171.feedexfork.utils.Eximport.CAT_ARTICLES_TEXT;
 import static ru.yanus171.feedexfork.utils.Eximport.CAT_COLORS;
 import static ru.yanus171.feedexfork.utils.Eximport.CAT_FEEDS;
 import static ru.yanus171.feedexfork.utils.Eximport.CAT_FONTS;
+import static ru.yanus171.feedexfork.utils.Eximport.CAT_IMAGES;
 import static ru.yanus171.feedexfork.utils.Eximport.CAT_LIST;
 import static ru.yanus171.feedexfork.utils.Eximport.CAT_OTHER;
 import static ru.yanus171.feedexfork.utils.Eximport.CAT_READING;
@@ -17,6 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,16 +49,23 @@ import ru.yanus171.feedexfork.parser.OPML;
  *
  * ONE zip per export, named `shiroikuma-handyrss_<yyyy-MM-dd_HH-mm-ss>.zip`:
  *
- *   manifest.json   format / version / app / appVersion / createdTs / categories
- *   feeds.opml      the feed + group outlines, still Thunderbird-native (unzip and import)
- *   fonts.json      one type-tagged pref dump per settings category, named by its stable id
+ *   manifest.json     format / version / app / appVersion / createdTs / categories
+ *   feeds.opml        the feed + group outlines, still Thunderbird-native (unzip and import)
+ *   articles.backup   every entry with its read/starred/scroll state, each feed's own settings,
+ *                     the per-feed filters, the labels and the external-link pseudo-feed —
+ *                     stock .backup shape MINUS its <pref> block (see OPML.exportArticles)
+ *   html/<md5>        the downloaded article text (`articles.text`)
+ *   images/<name>     the downloaded article images
+ *   fonts/<name>      the font FILES the user installed; without them fonts.json restores names
+ *                     pointing at nothing and the app silently falls back to the default
+ *   fonts.json        one type-tagged pref dump per settings category, named by its stable id
  *   colors.json
  *   list.json
  *   reading.json
  *   other.json
  *
  * The category ids here are exactly the ids LIST_CATEGORIES advertises and EXPORT_STATE accepts in
- * `items`, and they are the zip entry names — the three stay in lockstep by construction.
+ * `items`, and they name the zip entries — the three stay in lockstep by construction.
  */
 public class StateZip {
 
@@ -63,27 +74,76 @@ public class StateZip {
 
     public static final String MANIFEST_ENTRY = "manifest.json";
     public static final String FEEDS_ENTRY = "feeds.opml";
+    public static final String ARTICLES_ENTRY = "articles.backup";
 
-    /** Export/import order — feeds first, then the settings categories. */
-    public static final int[] ORDER = { CAT_FEEDS, CAT_FONTS, CAT_COLORS, CAT_LIST, CAT_READING, CAT_OTHER };
+    // Folder-backed categories. `fonts/` cannot collide with `fonts.json` — one is a prefix.
+    private static final String HTML_PREFIX = "html/";
+    private static final String IMAGES_PREFIX = "images/";
+    private static final String FONTS_PREFIX = "fonts/";
+
+    /** Mirrors NetworkUtils.TEMP_PREFIX (private there): a half-downloaded image, never exported. */
+    private static final String TEMP_IMAGE_PREFIX = "TEMP__";
+
+    /** Export/import order — content first, then the settings categories. */
+    public static final int[] ORDER = { CAT_FEEDS, CAT_ARTICLES, CAT_ARTICLES_TEXT, CAT_IMAGES,
+                                        CAT_FONTS, CAT_COLORS, CAT_LIST, CAT_READING, CAT_OTHER };
 
     /** Reports real counts (never a percentage) while the archive is written. */
     public interface Progress {
         void on(long current, long total, String unit, String text);
     }
 
+    /**
+     * A cancel signal the write loops POLL at every entry boundary — never a thread interrupt, so
+     * nothing is ever torn apart mid-write(). Set by CANCEL_EXPORT; the export unwinds at the next
+     * boundary and its caller deletes the partial file.
+     */
+    public static class Canceller {
+        private volatile boolean mCancelled = false;
+        public void cancel() { mCancelled = true; }
+        public boolean isCancelled() { return mCancelled; }
+    }
+
+    /** Thrown out of write() once a Canceller fires — the caller deletes its `.part` and replies. */
+    public static class CancelledException extends IOException {
+        public CancelledException() { super( "cancelled" ); }
+    }
+
+    private static void throwIfCancelled(Canceller cancel) throws CancelledException {
+        if ( cancel != null && cancel.isCancelled() )
+            throw new CancelledException();
+    }
+
     // ---- category id / label mapping -----------------------------------------------------------
 
     public static String idOf(int cat) {
         switch ( cat ) {
-            case CAT_FEEDS:   return "feeds";
-            case CAT_FONTS:   return "fonts";
-            case CAT_COLORS:  return "colors";
-            case CAT_LIST:    return "list";
-            case CAT_READING: return "reading";
-            case CAT_OTHER:   return "other";
-            default:          return "";
+            case CAT_FEEDS:         return "feeds";
+            case CAT_ARTICLES:      return "articles";
+            case CAT_ARTICLES_TEXT: return "articles.text";
+            case CAT_IMAGES:        return "images";
+            case CAT_FONTS:         return "fonts";
+            case CAT_COLORS:        return "colors";
+            case CAT_LIST:          return "list";
+            case CAT_READING:       return "reading";
+            case CAT_OTHER:         return "other";
+            default:                return "";
         }
+    }
+
+    /** The parent item id in the 保存復元 picker, or "" for a top-level item. */
+    public static String parentOf(int cat) {
+        return cat == CAT_ARTICLES_TEXT ? idOf( CAT_ARTICLES ) : "";
+    }
+
+    /**
+     * Whether the item starts ticked, in this app's own panel and in 保存復元's picker alike.
+     * Everything here is `on`: nothing this app exports is both derived and re-creatable, so there
+     * is nothing that earns an `off` default (白い熊, 2026-07-28 — including the two large but
+     * genuinely irreplaceable ones, `articles.text` and `images`).
+     */
+    public static boolean defaultOf(int cat) {
+        return true;
     }
 
     /** -1 when the id is not one of ours (EXPORT_STATE reports it back as an unknown category). */
@@ -96,27 +156,32 @@ public class StateZip {
 
     public static String labelOf(Context context, int cat) {
         switch ( cat ) {
-            case CAT_FEEDS:   return context.getString( R.string.eim_cat_feeds );
-            case CAT_FONTS:   return context.getString( R.string.eim_cat_fonts );
-            case CAT_COLORS:  return context.getString( R.string.eim_cat_colors );
-            case CAT_LIST:    return context.getString( R.string.eim_cat_list );
-            case CAT_READING: return context.getString( R.string.eim_cat_reading );
-            case CAT_OTHER:   return context.getString( R.string.eim_cat_other );
-            default:          return "";
+            case CAT_FEEDS:         return context.getString( R.string.eim_cat_feeds );
+            case CAT_ARTICLES:      return context.getString( R.string.eim_cat_articles );
+            case CAT_ARTICLES_TEXT: return context.getString( R.string.eim_cat_articles_text );
+            case CAT_IMAGES:        return context.getString( R.string.eim_cat_images );
+            case CAT_FONTS:         return context.getString( R.string.eim_cat_fonts );
+            case CAT_COLORS:        return context.getString( R.string.eim_cat_colors );
+            case CAT_LIST:          return context.getString( R.string.eim_cat_list );
+            case CAT_READING:       return context.getString( R.string.eim_cat_reading );
+            case CAT_OTHER:         return context.getString( R.string.eim_cat_other );
+            default:                return "";
         }
     }
 
-    public static String entryNameOf(int cat) {
-        return cat == CAT_FEEDS ? FEEDS_ENTRY : idOf( cat ) + ".json";
-    }
-
-    /** The `id<TAB>label` lines LIST_CATEGORIES replies with. Flat — no sub-options in this app. */
+    /**
+     * The LIST_CATEGORIES reply: `id<TAB>label<TAB>parent<TAB>on|off` per line. The last two fields
+     * are positional and optional in the contract, but both are always written here — a top-level
+     * item still needs the empty third field so the fourth lands in the right column.
+     */
     public static String categoryLines(Context context) {
         final StringBuilder sb = new StringBuilder();
         for ( int cat : ORDER ) {
             if ( sb.length() > 0 )
                 sb.append( "\n" );
-            sb.append( idOf( cat ) ).append( "\t" ).append( labelOf( context, cat ) );
+            sb.append( idOf( cat ) ).append( "\t" ).append( labelOf( context, cat ) )
+              .append( "\t" ).append( parentOf( cat ) )
+              .append( "\t" ).append( defaultOf( cat ) ? "on" : "off" );
         }
         return sb.toString();
     }
@@ -136,35 +201,126 @@ public class StateZip {
      * and returns the number of categories written.
      */
     public static int write(Set<Integer> cats, OutputStream os, Progress progress) throws IOException {
+        return write( cats, os, progress, null );
+    }
+
+    /**
+     * As above, but pollable: `cancel` is checked at every category and every file boundary, and
+     * handed to OPML so the long `articles.backup` write unwinds at its next feed/entry boundary
+     * too. Throws CancelledException — the caller is responsible for the partial file.
+     */
+    public static int write(Set<Integer> cats, OutputStream os, Progress progress, Canceller cancel) throws IOException {
         final Context context = MainApplication.getContext();
         final List<Integer> selected = ordered( cats );
         final ZipOutputStream zos = new ZipOutputStream( new BufferedOutputStream( os ) );
         final String unit = context.getString( R.string.automation_unit_categories );
 
+        OPML.sExportCancel = cancel;
+        try {
+            return writeEntries( context, zos, selected, unit, progress, cancel );
+        } finally {
+            OPML.sExportCancel = null;
+        }
+    }
+
+    private static int writeEntries(Context context, ZipOutputStream zos, List<Integer> selected,
+                                    String unit, Progress progress, Canceller cancel) throws IOException {
         zos.putNextEntry( new ZipEntry( MANIFEST_ENTRY ) );
         zos.write( manifest( context, selected ).getBytes( "UTF-8" ) );
         zos.closeEntry();
 
         int done = 0;
         for ( int cat : selected ) {
+            throwIfCancelled( cancel );
             done++;
+            final String head = unit + " " + done + "/" + selected.size() + " — " + labelOf( context, cat );
             if ( progress != null )
-                progress.on( done, selected.size(), unit,
-                        unit + " " + done + "/" + selected.size() + " — " + labelOf( context, cat ) );
-            zos.putNextEntry( new ZipEntry( entryNameOf( cat ) ) );
-            if ( cat == CAT_FEEDS ) {
-                // Thunderbird-native outlines, no prefs — the feeds half of the old plain export.
-                final Writer w = new OutputStreamWriter( zos, "UTF-8" );
-                OPML.exportSelected( w, true, Collections.<Integer>emptySet() );
-                w.flush(); // NOT close() — that would close the zip stream
-            } else
-                zos.write( prefsJson( context, cat ).getBytes( "UTF-8" ) );
-            zos.closeEntry();
+                progress.on( done, selected.size(), unit, head );
+            switch ( cat ) {
+                case CAT_FEEDS:
+                    // Thunderbird-native outlines, no prefs — the feeds half of the old plain export.
+                    writeOpml( zos, FEEDS_ENTRY, false, cancel );
+                    break;
+                case CAT_ARTICLES:
+                    writeOpml( zos, ARTICLES_ENTRY, true, cancel );
+                    break;
+                case CAT_ARTICLES_TEXT:
+                    writeFolder( zos, FileUtils.INSTANCE.GetHTMLFolder(), HTML_PREFIX,
+                            progress, done, selected.size(), unit, head, cancel );
+                    break;
+                case CAT_IMAGES:
+                    writeFolder( zos, FileUtils.INSTANCE.GetImagesFolder(), IMAGES_PREFIX,
+                            progress, done, selected.size(), unit, head, cancel );
+                    break;
+                case CAT_FONTS:
+                    // The only category that is both files and settings: the installed font files
+                    // plus the prefs naming them.
+                    writeFolder( zos, FileUtils.INSTANCE.getFontsFolder(), FONTS_PREFIX,
+                            progress, done, selected.size(), unit, head, cancel );
+                    writePrefs( zos, context, cat );
+                    break;
+                default:
+                    writePrefs( zos, context, cat );
+            }
         }
 
         zos.finish();
         zos.flush();
         return selected.size();
+    }
+
+    private static void writeOpml(ZipOutputStream zos, String entryName, boolean articles, Canceller cancel) throws IOException {
+        zos.putNextEntry( new ZipEntry( entryName ) );
+        final Writer w = new OutputStreamWriter( zos, "UTF-8" );
+        if ( articles )
+            OPML.exportArticles( w );
+        else
+            OPML.exportSelected( w, true, Collections.<Integer>emptySet() );
+        w.flush(); // NOT close() — that would close the zip stream
+        zos.closeEntry();
+        // OPML breaks its own loops on the shared flag rather than throwing through the SAX-era
+        // code, so the document just ends early — turn that back into a real unwind here.
+        throwIfCancelled( cancel );
+    }
+
+    private static void writePrefs(ZipOutputStream zos, Context context, int cat) throws IOException {
+        zos.putNextEntry( new ZipEntry( idOf( cat ) + ".json" ) );
+        zos.write( prefsJson( context, cat ).getBytes( "UTF-8" ) );
+        zos.closeEntry();
+    }
+
+    /**
+     * Every regular file directly in `dir`, stored under `prefix`. All three folders are flat by
+     * construction (md5-hashed names), so there is nothing to recurse into.
+     *
+     * Progress keeps `current`/`total` on the category spine — the receiver's numbers stay
+     * monotonic — and reports the file count in the text, which is the part that moves.
+     */
+    private static void writeFolder(ZipOutputStream zos, File dir, String prefix, Progress progress,
+                                    long catDone, long catTotal, String unit, String head,
+                                    Canceller cancel) throws IOException {
+        final File[] files = dir.listFiles();
+        if ( files == null )
+            return;
+        int n = 0;
+        for ( File f : files ) {
+            throwIfCancelled( cancel );
+            final String name = f.getName();
+            // .nomedia, and images still being downloaded
+            if ( !f.isFile() || name.startsWith( "." ) || name.startsWith( TEMP_IMAGE_PREFIX ) )
+                continue;
+            n++;
+            if ( progress != null )
+                progress.on( catDone, catTotal, unit, head + " " + n + "/" + files.length );
+            zos.putNextEntry( new ZipEntry( prefix + name ) );
+            final FileInputStream fis = new FileInputStream( f );
+            try {
+                copy( fis, zos );
+            } finally {
+                fis.close();
+            }
+            zos.closeEntry();
+        }
     }
 
     private static String manifest(Context context, List<Integer> selected) throws IOException {
@@ -248,7 +404,19 @@ public class StateZip {
                     checkManifest( readAll( zis ) );
                 } else if ( FEEDS_ENTRY.equals( name ) ) {
                     if ( cats.contains( CAT_FEEDS ) )
-                        importFeeds( context, zis );
+                        importOpml( context, zis, "state-feeds.opml" );
+                } else if ( ARTICLES_ENTRY.equals( name ) ) {
+                    if ( cats.contains( CAT_ARTICLES ) )
+                        importOpml( context, zis, "state-articles.opml" );
+                } else if ( name.startsWith( HTML_PREFIX ) ) {
+                    if ( cats.contains( CAT_ARTICLES_TEXT ) )
+                        extractTo( FileUtils.INSTANCE.GetHTMLFolder(), name.substring( HTML_PREFIX.length() ), zis );
+                } else if ( name.startsWith( IMAGES_PREFIX ) ) {
+                    if ( cats.contains( CAT_IMAGES ) )
+                        extractTo( FileUtils.INSTANCE.GetImagesFolder(), name.substring( IMAGES_PREFIX.length() ), zis );
+                } else if ( name.startsWith( FONTS_PREFIX ) ) {
+                    if ( cats.contains( CAT_FONTS ) )
+                        extractTo( FileUtils.INSTANCE.getFontsFolder(), name.substring( FONTS_PREFIX.length() ), zis );
                 } else if ( name.endsWith( ".json" ) ) {
                     final int cat = catOf( name.substring( 0, name.length() - ".json".length() ) );
                     if ( cat >= 0 && cats.contains( cat ) )
@@ -277,11 +445,12 @@ public class StateZip {
     }
 
     /**
-     * The OPML importer owns (and closes) the stream it is given, so the feeds entry is spooled to
-     * a cache file first rather than handing it the live ZipInputStream.
+     * The OPML importer owns (and closes) the stream it is given, so the entry is spooled to a
+     * cache file first rather than handing it the live ZipInputStream. Serves both `feeds.opml`
+     * and `articles.backup` — the parser reads the same document shape either way.
      */
-    private static void importFeeds(Context context, InputStream zis) throws Exception {
-        final File tmp = new File( context.getCacheDir(), "state-feeds.opml" );
+    private static void importOpml(Context context, InputStream zis, String tmpName) throws Exception {
+        final File tmp = new File( context.getCacheDir(), tmpName );
         final FileOutputStream fos = new FileOutputStream( tmp );
         try {
             copy( zis, fos );
@@ -292,7 +461,7 @@ public class StateZip {
         final Set<Integer> prevCats = OPML.sImportPrefCats;
         final boolean prevFeeds = OPML.sImportFeeds;
         try {
-            OPML.sImportPrefCats = noPrefs; // feeds.opml carries no prefs; be explicit anyway
+            OPML.sImportPrefCats = noPrefs; // neither entry carries prefs; be explicit anyway
             OPML.sImportFeeds = true;
             OPML.importFromFile( tmp.getAbsolutePath(), false );
         } finally {
@@ -300,6 +469,24 @@ public class StateZip {
             OPML.sImportFeeds = prevFeeds;
             //noinspection ResultOfMethodCallIgnored
             tmp.delete();
+        }
+    }
+
+    /**
+     * Restore one file into a data folder. The name is the zip entry's last component and must
+     * stay that way: anything carrying a separator or `..` is dropped rather than allowed to
+     * escape the target folder (a state ZIP can come from anywhere).
+     */
+    private static void extractTo(File dir, String name, InputStream zis) throws IOException {
+        if ( name.isEmpty() || name.contains( "/" ) || name.contains( "\\" ) || name.contains( ".." ) )
+            return;
+        if ( !dir.exists() && !dir.mkdirs() )
+            throw new IOException( "cannot create " + dir.getAbsolutePath() );
+        final FileOutputStream fos = new FileOutputStream( new File( dir, name ) );
+        try {
+            copy( zis, fos );
+        } finally {
+            fos.close();
         }
     }
 

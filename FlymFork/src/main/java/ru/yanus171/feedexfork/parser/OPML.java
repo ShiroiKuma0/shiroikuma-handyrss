@@ -99,6 +99,7 @@ import ru.yanus171.feedexfork.utils.Eximport;
 import ru.yanus171.feedexfork.utils.FileUtils;
 import ru.yanus171.feedexfork.utils.Label;
 import ru.yanus171.feedexfork.utils.LabelVoc;
+import ru.yanus171.feedexfork.utils.StateZip;
 import ru.yanus171.feedexfork.utils.UiUtils;
 import ru.yanus171.feedexfork.utils.WaitDialog;
 
@@ -109,7 +110,9 @@ import static ru.yanus171.feedexfork.Constants.TRUE;
 import static ru.yanus171.feedexfork.MainApplication.getContext;
 import static ru.yanus171.feedexfork.provider.FeedData.EntryColumns.ABSTRACT;
 import static ru.yanus171.feedexfork.provider.FeedData.EntryColumns.AUTHOR;
+import static ru.yanus171.feedexfork.provider.FeedData.EntryColumns.CATEGORIES;
 import static ru.yanus171.feedexfork.provider.FeedData.EntryColumns.DATE;
+import static ru.yanus171.feedexfork.provider.FeedData.EntryColumns.ENCLOSURE;
 import static ru.yanus171.feedexfork.provider.FeedData.EntryColumns.ENTRIES_FOR_FEED_CONTENT_URI;
 import static ru.yanus171.feedexfork.provider.FeedData.EntryColumns.FETCH_DATE;
 import static ru.yanus171.feedexfork.provider.FeedData.EntryColumns.GUID;
@@ -184,6 +187,18 @@ public class OPML {
     }
 
     // Category-selective import filter (set by Eximport around importFromFile, cleared after):
+    /**
+     * Set by StateZip for the length of a state-ZIP export, so a CANCEL_EXPORT unwinds the long
+     * `articles.backup` write at its next feed / entry boundary. Deliberately NOT the refresh
+     * cancel (isCancelRefresh) — cancelling a backup must not look like cancelling a refresh.
+     */
+    public static volatile StateZip.Canceller sExportCancel = null;
+
+    private static boolean isExportCancelled() {
+        final StateZip.Canceller c = sExportCancel;
+        return c != null && c.isCancelled();
+    }
+
     // sImportPrefCats == null -> all prefs; sImportFeeds == false -> skip feed/group/label outlines.
     public static Set<Integer> sImportPrefCats = null;
     public static boolean sImportFeeds = true;
@@ -312,18 +327,37 @@ public class OPML {
 
         if ( isBackup ) {
             SaveSettings( writer, "\t\t");
-            Cursor cursor = getContext().getContentResolver().query(CONTENT_URI( FetcherService.GetExtrenalLinkFeedID() ), FEEDS_PROJECTION, null, null, null);
-            if ( cursor.moveToFirst() && isNotCancelRefresh() )
-                ExportFeed(writer, cursor, true, false);
-            cursor.close();
-        }
+            writeBackupBody( writer );
+        } else
+            writeFeedsBody( writer, false );
 
-        writeFeedsBody( writer, isBackup );
+        writer.write( END_CLOSING );
+    }
 
-        if ( isBackup )
-            for ( Label label: LabelVoc.INSTANCE.getList() )
-                Export( writer, label );
+    // Full-fidelity body: the external-link pseudo-feed, then every feed with its own settings,
+    // filters and entries, then the labels. Shared by the stock .backup and the state ZIP's
+    // articles entry — the two must never drift apart.
+    private static void writeBackupBody(Writer writer) throws IOException {
+        Cursor cursor = getContext().getContentResolver().query(CONTENT_URI( FetcherService.GetExtrenalLinkFeedID() ), FEEDS_PROJECTION, null, null, null);
+        if ( cursor.moveToFirst() && isNotCancelRefresh() )
+            ExportFeed(writer, cursor, true, false);
+        cursor.close();
 
+        writeFeedsBody( writer, true );
+
+        for ( Label label: LabelVoc.INSTANCE.getList() )
+            Export( writer, label );
+    }
+
+    // Articles for the state ZIP (`articles.backup`): the same body as the stock .backup, but with
+    // NO <pref> block. The archive keeps prefs in its per-category JSON, where the device-local keys
+    // are filtered out — SaveSettings(null) writes EVERY pref, which would carry the SAF directory
+    // URIs and the 保存復元 automation token into a file meant to be copied off the device.
+    public static void exportArticles(Writer writer) throws IOException {
+        writer.write( START );
+        writer.write( String.valueOf( System.currentTimeMillis() ) );
+        writer.write( AFTER_DATE );
+        writeBackupBody( writer );
         writer.write( END_CLOSING );
     }
 
@@ -346,7 +380,7 @@ public class OPML {
                 .query(GROUPS_AND_ROOT_CONTENT_URI, FEEDS_PROJECTION, null, null, null);
 
         while (cursorGroupsAndRoot.moveToNext()) {
-            if ( isCancelRefresh() )
+            if ( isCancelRefresh() || isExportCancelled() )
                 break;
             if (cursorGroupsAndRoot.getInt(1) == 1) { // If it is a group
                 final String gname = cursorGroupsAndRoot.isNull(2) ? "" : TextUtils.htmlEncode(cursorGroupsAndRoot.getString(2));
@@ -465,7 +499,10 @@ public class OPML {
             IS_NEW, IS_READ, SCROLL_POS, ABSTRACT,
             AUTHOR, DATE, FETCH_DATE, IMAGE_URL,
             IS_FAVORITE, EntryColumns._ID, GUID, IS_WAS_AUTO_UNSTAR,
-            IS_WITH_TABLES, READ_DATE, IS_LANDSCAPE, MOBILIZED_HTML, _ID, ZOOM, X_OFFSET, IS_SCROLL_ZOOM };
+            IS_WITH_TABLES, READ_DATE, IS_LANDSCAPE, MOBILIZED_HTML, _ID, ZOOM, X_OFFSET, IS_SCROLL_ZOOM,
+            // 2026-07-28: both were simply absent. ENCLOSURE loses the media attachment of a
+            // podcast-style entry; CATEGORIES loses the tags a filter applied to category matches.
+            ENCLOSURE, CATEGORIES };
 
 //    private static String GetMobilizedText(long entryID ) {
 //        String result = "";
@@ -484,6 +521,8 @@ public class OPML {
                 .query(ENTRIES_FOR_FEED_CONTENT_URI( feedID ), ENTRIES_PROJECTION, null, null, null);
         if (cur != null && cur.getCount() != 0) {
             while (cur.moveToNext()) {
+                if ( isExportCancelled() )
+                    break;   // a big feed is the longest stretch in the whole archive
                 writer.write("\t");
                 writer.write(String.format( TAG_START, TAG_ENTRY, TITLE) );
                 writer.write(cur.isNull( 0 ) ? "" : TextUtils.htmlEncode(cur.getString(0)));
@@ -520,6 +559,8 @@ public class OPML {
                 WriteText(writer, cur, ZOOM, 19);
                 WriteText(writer, cur, X_OFFSET, 20);
                 WriteBoolValue(writer, cur, IS_SCROLL_ZOOM, 21);
+                WriteEncodedText(writer, cur, ENCLOSURE, 22);
+                WriteEncodedText(writer, cur, CATEGORIES, 23);
 
                 writer.write(CLOSING);
             }
@@ -777,6 +818,8 @@ public class OPML {
                 putString( values, IS_WITH_TABLES, attributes, IS_WITH_TABLES);
                 putString( values, IS_SCROLL_ZOOM, attributes, IS_SCROLL_ZOOM);
                 putString( values, IS_LANDSCAPE, attributes, IS_LANDSCAPE);
+                putString( values, ENCLOSURE, attributes, ENCLOSURE);
+                putString( values, CATEGORIES, attributes, CATEGORIES);
                 putString( values, ZOOM, attributes, ZOOM);
                 if ( attributes.getIndex( MOBILIZED_HTML ) >= 0 )
                     FileUtils.INSTANCE.saveMobilizedHTML(link, attributes.getValue(MOBILIZED_HTML), values);
@@ -806,6 +849,9 @@ public class OPML {
                 final String className = attributes.getValue( ATTR_PREF_CLASSNAME );
                 final String value = attributes.getValue( ATTR_PREF_VALUE);
                 final String key = attributes.getValue( ATTR_PREF_KEY );
+                if (Eximport.isExcludedFromExport( key ))
+                    return;  // never let a foreign file plant a directory URI or the automation
+                             // token — a stock .backup carries every pref, ours are filtered
                 if (sImportPrefCats != null && !sImportPrefCats.contains( Eximport.categoryOf( key ) ))
                     return;  // category not selected for import
                 if (className.contains(PREF_CLASS_STRING)) {

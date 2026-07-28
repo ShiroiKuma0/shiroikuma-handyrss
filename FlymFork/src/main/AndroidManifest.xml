@@ -72,6 +72,7 @@
             <intent-filter>
                 <action android:name="shiroikuma.handyrss.action.EXPORT_STATE" />
                 <action android:name="shiroikuma.handyrss.action.LIST_CATEGORIES" />
+                <action android:name="shiroikuma.handyrss.action.CANCEL_EXPORT" />
             </intent-filter>
         </receiver>
 
