@@ -785,6 +785,10 @@
     <string name="automation_token_regenerate_warn">A new token is generated and the old one stops working at once. Every place the old token was pasted must be updated.</string>
     <string name="automation_token_regenerated">New token generated.</string>
     <string name="automation_unit_categories" translatable="false">区分</string>
+    <string name="automation_unit_entries" translatable="false">記事</string>
+    <string name="automation_export_title">Exporting backup</string>
+    <string name="automation_battery_title">Let the backup finish in the background</string>
+    <string name="automation_battery_text">Tap to exempt 白い熊 Handy RSS from battery optimisation. On Huawei also set アプリ起動管理 → 手動管理 with バックグラウンドで実行 ON — no app can set that for itself.</string>
     <string name="settings_color_background">Article background</string>
     <string name="settings_color_quote_bg">Quote background</string>
     <string name="settings_color_quote_bar">Quote bar</string>

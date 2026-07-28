@@ -90,7 +90,25 @@ public class StateZip {
 
     /** Reports real counts (never a percentage) while the archive is written. */
     public interface Progress {
-        void on(long current, long total, String unit, String text);
+        /**
+         * @param item    the category id being written (see idOf) — the 保存復元 panel highlights
+         *                that row rather than counting to it, so a sub-option like `articles.text`
+         *                sends itself, never its parent. Empty means nothing is being written.
+         * @param current 1-based position of the category, paired with the label in `text`
+         */
+        void on(String item, long current, long total, String unit, String text);
+
+        /**
+         * Source bytes stored so far / to be stored, for the file categories. Sticky: the pair
+         * stands until replaced, so a category with nothing measurable (the OPML documents, the
+         * prefs JSON) leaves the last real numbers alone rather than inventing a zero.
+         */
+        void bytes(long done, long total);
+    }
+
+    /** Running byte tally shared across the folder categories of one export. */
+    private static class Bytes {
+        long mDone = 0, mTotal = 0;
     }
 
     /**
@@ -229,34 +247,39 @@ public class StateZip {
         zos.write( manifest( context, selected ).getBytes( "UTF-8" ) );
         zos.closeEntry();
 
+        // One listFiles() pass over the three flat folders, up front, so the byte total is known
+        // before the first file is stored rather than growing as we go.
+        final Bytes bytes = new Bytes();
+        for ( int cat : selected )
+            for ( File f : storedFiles( folderOf( cat ) ) )
+                bytes.mTotal += f.length();
+        if ( progress != null && bytes.mTotal > 0 )
+            progress.bytes( 0, bytes.mTotal );
+
         int done = 0;
         for ( int cat : selected ) {
             throwIfCancelled( cancel );
             done++;
+            final String item = idOf( cat );
             final String head = unit + " " + done + "/" + selected.size() + " — " + labelOf( context, cat );
             if ( progress != null )
-                progress.on( done, selected.size(), unit, head );
+                progress.on( item, done, selected.size(), unit, head );
             switch ( cat ) {
                 case CAT_FEEDS:
                     // Thunderbird-native outlines, no prefs — the feeds half of the old plain export.
                     writeOpml( zos, FEEDS_ENTRY, false, cancel );
                     break;
                 case CAT_ARTICLES:
-                    writeOpml( zos, ARTICLES_ENTRY, true, cancel );
+                    writeArticles( zos, progress, item, done, selected.size(), unit, head, cancel );
                     break;
                 case CAT_ARTICLES_TEXT:
-                    writeFolder( zos, FileUtils.INSTANCE.GetHTMLFolder(), HTML_PREFIX,
-                            progress, done, selected.size(), unit, head, cancel );
-                    break;
                 case CAT_IMAGES:
-                    writeFolder( zos, FileUtils.INSTANCE.GetImagesFolder(), IMAGES_PREFIX,
-                            progress, done, selected.size(), unit, head, cancel );
+                    writeFolder( zos, cat, progress, item, done, selected.size(), unit, head, cancel, bytes );
                     break;
                 case CAT_FONTS:
                     // The only category that is both files and settings: the installed font files
                     // plus the prefs naming them.
-                    writeFolder( zos, FileUtils.INSTANCE.getFontsFolder(), FONTS_PREFIX,
-                            progress, done, selected.size(), unit, head, cancel );
+                    writeFolder( zos, cat, progress, item, done, selected.size(), unit, head, cancel, bytes );
                     writePrefs( zos, context, cat );
                     break;
                 default:
@@ -267,6 +290,43 @@ public class StateZip {
         zos.finish();
         zos.flush();
         return selected.size();
+    }
+
+    /** The data folder a category stores, or null for the ones that are not file-backed. */
+    private static File folderOf(int cat) {
+        switch ( cat ) {
+            case CAT_ARTICLES_TEXT: return FileUtils.INSTANCE.GetHTMLFolder();
+            case CAT_IMAGES:        return FileUtils.INSTANCE.GetImagesFolder();
+            case CAT_FONTS:         return FileUtils.INSTANCE.getFontsFolder();
+            default:                return null;
+        }
+    }
+
+    private static String prefixOf(int cat) {
+        switch ( cat ) {
+            case CAT_ARTICLES_TEXT: return HTML_PREFIX;
+            case CAT_IMAGES:        return IMAGES_PREFIX;
+            case CAT_FONTS:         return FONTS_PREFIX;
+            default:                return "";
+        }
+    }
+
+    /**
+     * The files a folder category will ACTUALLY store — never the raw directory listing, which
+     * carries `.nomedia` and half-downloaded `TEMP__` images. Counting stored files against the raw
+     * length gave a denominator the counter could never reach.
+     */
+    private static File[] storedFiles(File dir) {
+        final File[] all = dir == null ? null : dir.listFiles();
+        if ( all == null )
+            return new File[0];
+        final List<File> out = new ArrayList<>();
+        for ( File f : all ) {
+            final String name = f.getName();
+            if ( f.isFile() && !name.startsWith( "." ) && !name.startsWith( TEMP_IMAGE_PREFIX ) )
+                out.add( f );
+        }
+        return out.toArray( new File[0] );
     }
 
     private static void writeOpml(ZipOutputStream zos, String entryName, boolean articles, Canceller cancel) throws IOException {
@@ -290,36 +350,59 @@ public class StateZip {
     }
 
     /**
-     * Every regular file directly in `dir`, stored under `prefix`. All three folders are flat by
+     * Every storable file directly in the category's folder. All three folders are flat by
      * construction (md5-hashed names), so there is nothing to recurse into.
      *
-     * Progress keeps `current`/`total` on the category spine — the receiver's numbers stay
-     * monotonic — and reports the file count in the text, which is the part that moves.
+     * Progress keeps `current`/`total` on the category spine — the panel highlights by `item`, not
+     * by counting — and moves the file count and the byte tally, which are the parts that change.
      */
-    private static void writeFolder(ZipOutputStream zos, File dir, String prefix, Progress progress,
+    private static void writeFolder(ZipOutputStream zos, int cat, Progress progress, String item,
                                     long catDone, long catTotal, String unit, String head,
-                                    Canceller cancel) throws IOException {
-        final File[] files = dir.listFiles();
-        if ( files == null )
-            return;
+                                    Canceller cancel, Bytes bytes) throws IOException {
+        final File[] files = storedFiles( folderOf( cat ) );
+        final String prefix = prefixOf( cat );
         int n = 0;
         for ( File f : files ) {
             throwIfCancelled( cancel );
-            final String name = f.getName();
-            // .nomedia, and images still being downloaded
-            if ( !f.isFile() || name.startsWith( "." ) || name.startsWith( TEMP_IMAGE_PREFIX ) )
-                continue;
             n++;
             if ( progress != null )
-                progress.on( catDone, catTotal, unit, head + " " + n + "/" + files.length );
-            zos.putNextEntry( new ZipEntry( prefix + name ) );
-            final FileInputStream fis = new FileInputStream( f );
+                progress.on( item, catDone, catTotal, unit, head + " " + n + "/" + files.length );
+            // A file that vanished or turned unreadable since the listing is skipped, never waited
+            // on — the broadcast is a heartbeat, and one bad file must not stall the whole batch.
             try {
-                copy( fis, zos );
-            } finally {
-                fis.close();
+                zos.putNextEntry( new ZipEntry( prefix + f.getName() ) );
+                final FileInputStream fis = new FileInputStream( f );
+                try {
+                    copy( fis, zos );
+                } finally {
+                    fis.close();
+                }
+                zos.closeEntry();
+            } catch ( IOException e ) {
+                e.printStackTrace();
             }
-            zos.closeEntry();
+            bytes.mDone += f.length();
+            if ( progress != null && bytes.mTotal > 0 )
+                progress.bytes( bytes.mDone, bytes.mTotal );
+        }
+    }
+
+    /**
+     * The longest single stretch of the whole archive — minutes on a real corpus. OPML gets a
+     * progress sink for the length of the write, the same way it already gets the cancel flag, so
+     * the run keeps a heartbeat instead of going silent and being presumed dead.
+     */
+    private static void writeArticles(ZipOutputStream zos, Progress progress, String item,
+                                      long catDone, long catTotal, String unit, String head,
+                                      Canceller cancel) throws IOException {
+        final String entriesUnit = MainApplication.getContext().getString( R.string.automation_unit_entries );
+        OPML.sExportProgress = progress == null ? null : ( entriesDone, entriesTotal ) ->
+                progress.on( item, catDone, catTotal, unit,
+                        head + " — " + entriesUnit + " " + entriesDone + "/" + entriesTotal );
+        try {
+            writeOpml( zos, ARTICLES_ENTRY, true, cancel );
+        } finally {
+            OPML.sExportProgress = null;
         }
     }
 
