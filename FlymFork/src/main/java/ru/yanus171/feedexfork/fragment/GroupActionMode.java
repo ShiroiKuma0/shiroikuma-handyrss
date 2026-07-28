@@ -12,8 +12,10 @@ import android.widget.EditText;
 
 import androidx.appcompat.view.ActionMode;
 
+import ru.yanus171.feedexfork.Constants;
 import ru.yanus171.feedexfork.R;
 import ru.yanus171.feedexfork.provider.FeedData;
+import ru.yanus171.feedexfork.service.FetcherService;
 import ru.yanus171.feedexfork.utils.Theme;
 
 class GroupActionModeCallBack implements ActionMode.Callback {
@@ -74,6 +76,8 @@ class GroupActionModeCallBack implements ActionMode.Callback {
                     public void run() {
                         ContentResolver cr = mFragment.getActivity().getContentResolver();
                         cr.delete(FeedData.FeedColumns.GROUPS_CONTENT_URI(groupId), null, null);
+                        // A group takes its feeds with it — reap their images and article files too.
+                        FetcherService.Start(FetcherService.GetIntent(Constants.FROM_DELETE_GHOST), false);
                     }
                 }.start()).setNegativeButton(android.R.string.no, null).show() );
     }

@@ -17,10 +17,12 @@ import androidx.appcompat.view.ActionMode;
 
 import java.util.HashSet;
 
+import ru.yanus171.feedexfork.Constants;
 import ru.yanus171.feedexfork.MainApplication;
 import ru.yanus171.feedexfork.R;
 import ru.yanus171.feedexfork.activity.EditFeedActivity;
 import ru.yanus171.feedexfork.provider.FeedData;
+import ru.yanus171.feedexfork.service.FetcherService;
 import ru.yanus171.feedexfork.utils.EntryUrlVoc;
 import ru.yanus171.feedexfork.utils.UiUtils;
 import ru.yanus171.feedexfork.utils.Theme;
@@ -86,6 +88,8 @@ public class FeedActionCallBack implements ActionMode.Callback {
                             ContentResolver cr = MainApplication.getContext().getContentResolver();
                             cr.delete(feedUri, null, null);
                             EntryUrlVoc.INSTANCE.reinit( true );
+                            // Reap the deleted feed's images and article files — nothing else does.
+                            FetcherService.Start(FetcherService.GetIntent(Constants.FROM_DELETE_GHOST), false);
                         }
                     }.start();
                     if ( mode != null )
@@ -109,6 +113,8 @@ public class FeedActionCallBack implements ActionMode.Callback {
                                 if ( !isGroup( id ) && id != GetExtrenalLinkFeedIDLong())
                                     cr.delete(FeedData.FeedColumns.CONTENT_URI(id), null, null);
                             EntryUrlVoc.INSTANCE.reinit( true );
+                            // Reap the deleted feeds' images and article files — nothing else does.
+                            FetcherService.Start(FetcherService.GetIntent(Constants.FROM_DELETE_GHOST), false);
                             UiUtils.toast( R.string.feed_deleted );
                         }
                     }.start();
