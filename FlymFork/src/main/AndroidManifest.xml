@@ -16,6 +16,10 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- The state export must survive the screen going off: with the CPU dozed it stops part-way,
+         with no crash and nothing in the log. targetSdk is 31, so FOREGROUND_SERVICE_DATA_SYNC is
+         not required (that one is enforced from API 34). -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
 
     <permission
@@ -75,6 +79,13 @@
                 <action android:name="shiroikuma.handyrss.action.CANCEL_EXPORT" />
             </intent-filter>
         </receiver>
+
+        <!-- Where the export actually runs. NOT exported — a third-party app cannot start it, which
+             is why CANCEL_EXPORT keeps arriving at the receiver above and is signalled in here. -->
+        <service
+            android:name=".service.StateExportService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <provider
             android:name=".provider.FeedDataContentProvider"

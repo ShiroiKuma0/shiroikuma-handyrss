@@ -199,6 +199,36 @@ public class OPML {
         return c != null && c.isCancelled();
     }
 
+    /**
+     * Progress sink for the long `articles.backup` write, set and cleared by StateZip.write the
+     * same way sExportCancel is. Without it the whole articles category is silent, and a caller
+     * that treats each broadcast as a heartbeat presumes the app dead.
+     */
+    public interface ArticlesProgress {
+        void on(long entriesDone, long entriesTotal);
+    }
+
+    public static volatile ArticlesProgress sExportProgress = null;
+
+    private static long sEntriesWritten = 0, sEntriesTotal = 0;
+
+    private static void reportArticlesProgress() {
+        final ArticlesProgress p = sExportProgress;
+        if ( p != null )
+            p.on( sEntriesWritten, sEntriesTotal );
+    }
+
+    /** One cheap count so the heartbeat carries a real denominator, not a running total. */
+    private static long countEntries() {
+        try ( Cursor cur = getContext().getContentResolver()
+                .query( EntryColumns.CONTENT_URI, EntryColumns.PROJECTION_ID, null, null, null ) ) {
+            return cur == null ? 0 : cur.getCount();
+        } catch ( Exception e ) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     // sImportPrefCats == null -> all prefs; sImportFeeds == false -> skip feed/group/label outlines.
     public static Set<Integer> sImportPrefCats = null;
     public static boolean sImportFeeds = true;
@@ -354,6 +384,9 @@ public class OPML {
     // are filtered out — SaveSettings(null) writes EVERY pref, which would carry the SAF directory
     // URIs and the 保存復元 automation token into a file meant to be copied off the device.
     public static void exportArticles(Writer writer) throws IOException {
+        sEntriesWritten = 0;
+        sEntriesTotal = countEntries();
+        reportArticlesProgress();
         writer.write( START );
         writer.write( String.valueOf( System.currentTimeMillis() ) );
         writer.write( AFTER_DATE );
@@ -382,6 +415,8 @@ public class OPML {
         while (cursorGroupsAndRoot.moveToNext()) {
             if ( isCancelRefresh() || isExportCancelled() )
                 break;
+            // Per-feed tick, so even a run of empty feeds keeps the heartbeat alive.
+            reportArticlesProgress();
             if (cursorGroupsAndRoot.getInt(1) == 1) { // If it is a group
                 final String gname = cursorGroupsAndRoot.isNull(2) ? "" : TextUtils.htmlEncode(cursorGroupsAndRoot.getString(2));
                 writer.write( OUTLINE_TITLE);
@@ -563,6 +598,8 @@ public class OPML {
                 WriteEncodedText(writer, cur, CATEGORIES, 23);
 
                 writer.write(CLOSING);
+                sEntriesWritten++;
+                reportArticlesProgress();
             }
             writer.write("\t");
         }
