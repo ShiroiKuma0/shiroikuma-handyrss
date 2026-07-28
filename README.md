@@ -5,7 +5,7 @@ A personal, rebranded Android RSS reader — a fork of
 [Flym](https://github.com/FredJul/Flym)). It installs **side-by-side** with the official app
 (`shiroikuma.handyrss`), with its own icon and name, fully signed for self-install.
 
-**Latest release:** [`1.1.5+8`](../../releases/latest) · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
+**Latest release:** [`1.1.5+9`](../../releases/latest) · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
 
 ## What this fork adds on top of Handy News Reader
 
@@ -33,9 +33,13 @@ A personal, rebranded Android RSS reader — a fork of
   a half-written archive that looks like a real one.
 - **Headless automation backup** — a token-gated intent lets a companion automation app trigger the
   same export with no UI, pick the categories, choose the destination folder, and read back the
-  written path and size, with live progress reported in real counts. It can also be **cancelled from
-  outside** mid-export, cleanly and without a trace. Off by default, behind a 24-byte token that
-  never travels inside a backup.
+  written path and size. It reports live progress in real counts — naming the category it is on,
+  the files and articles done, and the bytes written — never goes quiet for long enough to look
+  dead, and can be **cancelled from outside** mid-export, cleanly and without a trace. Off by
+  default, behind a 24-byte token that never travels inside a backup.
+- **Exports that finish** — the work runs in a foreground service holding a wakelock, not inside a
+  broadcast receiver, so a long backup survives the screen going off instead of being killed
+  part-way with nothing written and nobody told.
 - **Storage that cleans up after itself** — deleting a feed or a group now reaps the downloaded
   images and article files that went with it, and the periodic cleanup no longer waits for the phone
   to be on a charger. Upstream leaves both behind indefinitely.
