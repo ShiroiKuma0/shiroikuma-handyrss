@@ -5,7 +5,7 @@ A personal, rebranded Android RSS reader — a fork of
 [Flym](https://github.com/FredJul/Flym)). It installs **side-by-side** with the official app
 (`shiroikuma.handyrss`), with its own icon and name, fully signed for self-install.
 
-**Latest release:** [`1.1.5+5`](../../releases/latest) · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
+**Latest release:** [`1.1.5+8`](../../releases/latest) · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
 
 ## What this fork adds on top of Handy News Reader
 
@@ -21,14 +21,24 @@ A personal, rebranded Android RSS reader — a fork of
 - **白い熊 Handy RSS UI screen** — one consolidated screen for all fonts & colors, styled with text-wide
   underlined headings and thin section separators, reachable instantly by long-pressing the drawer's
   settings icon, the top-left home icon, or the article list's top-right ⋮ button.
+- **A backup that actually holds everything** — one ZIP, `shiroikuma-handyrss_<timestamp>.zip`,
+  covering **nine categories**: feeds, your **articles** with their read/starred/scroll state,
+  labels and filters, the **downloaded article text**, the **downloaded images**, your **installed
+  font files**, and the four settings groups. Stock's own backup carries none of the last three, and
+  restores font settings that point at fonts it never saved. Import restores only the categories you
+  tick, and still reads every older plain-OPML backup.
 - **Export / Import by category** — the UI screen's first section: one shared export folder (last
-  export shown live), and a panel with **category checkboxes** — feeds, UI fonts, colours & theme,
-  article list & grid, reading view, everything else — behind round pill buttons; import restores
-  only the categories you tick. One backup is **one ZIP**, `shiroikuma-handyrss_<timestamp>.zip`.
+  export shown live) and a panel of category checkboxes behind round pill buttons. Every export is
+  written to a `.part` file and renamed only once it is whole, so an interrupted backup never leaves
+  a half-written archive that looks like a real one.
 - **Headless automation backup** — a token-gated intent lets a companion automation app trigger the
   same export with no UI, pick the categories, choose the destination folder, and read back the
-  written path and size, with live progress reported in real counts. Off by default, behind a
-  24-byte token that never travels inside a backup.
+  written path and size, with live progress reported in real counts. It can also be **cancelled from
+  outside** mid-export, cleanly and without a trace. Off by default, behind a 24-byte token that
+  never travels inside a backup.
+- **Storage that cleans up after itself** — deleting a feed or a group now reaps the downloaded
+  images and article files that went with it, and the periodic cleanup no longer waits for the phone
+  to be on a charger. Upstream leaves both behind indefinitely.
 - **Thunderbird-compatible feed export** — your categories and feeds go out as OPML (`feeds.opml`
   inside the backup ZIP) that imports into **Mozilla Thunderbird** as folders, each with the
   individual feeds inside, readable separately.
