@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import ru.yanus171.feedexfork.MainApplication;
 import ru.yanus171.feedexfork.parser.OPML;
@@ -36,11 +37,17 @@ import ru.yanus171.feedexfork.utils.StateZip;
  * token-gated intent at every sister app, each exports itself headlessly and replies with the
  * written path and size, and 自由作業盤 collects the replies into one summary.
  *
- * Two actions, both exported and both gated by the automation switch + token (never by a manifest
+ * Three actions, all exported and all gated by the automation switch + token (never by a manifest
  * permission — the caller cannot hold one):
  *
- *   shiroikuma.handyrss.action.LIST_CATEGORIES  -> OK: + one `id<TAB>label` line per category
+ *   shiroikuma.handyrss.action.LIST_CATEGORIES  -> OK: + one `id<TAB>label<TAB>parent<TAB>on|off` line per category
  *   shiroikuma.handyrss.action.EXPORT_STATE     -> writes ONE zip, replies OK:path|bytes|human|n categories
+ *   shiroikuma.handyrss.action.CANCEL_EXPORT    -> unwinds the running export; answers NOTHING
+ *
+ * The cancel is fire-and-forget by design: its own broadcast gets no reply, and the terminal
+ * `ERROR:cancelled` goes to the export request it stopped. Sending it when nothing is running, or
+ * after the export already finished, is a silent no-op rather than an error. It routes through
+ * this exported receiver precisely because a third-party app cannot reach a non-exported service.
  *
  * The reply is always a FRESH BROADCAST — never a ResultReceiver / PendingIntent / Messenger, and
  * never only the ordered-broadcast result: EMUI will not reliably carry a live Binder between
@@ -53,6 +60,7 @@ public class StateExportReceiver extends BroadcastReceiver {
 
     public static final String ACTION_EXPORT_STATE    = "shiroikuma.handyrss.action.EXPORT_STATE";
     public static final String ACTION_LIST_CATEGORIES = "shiroikuma.handyrss.action.LIST_CATEGORIES";
+    public static final String ACTION_CANCEL_EXPORT   = "shiroikuma.handyrss.action.CANCEL_EXPORT";
 
     private static final String EXTRA_TOKEN           = "token";
     private static final String EXTRA_PATH            = "path";
@@ -63,6 +71,18 @@ public class StateExportReceiver extends BroadcastReceiver {
     private static final String EXTRA_REPLY_ID        = "reply_id";
 
     private static final long PROGRESS_MIN_INTERVAL_MS = 500;
+
+    /**
+     * The one export that may be in flight. Two at once are forbidden, which is exactly what makes
+     * a CANCEL_EXPORT carrying no `reply_id` unambiguous — there is only ever one thing to cancel.
+     */
+    private static final AtomicReference<Running> sRunning = new AtomicReference<>( null );
+
+    private static class Running {
+        final String mReplyId;
+        final StateZip.Canceller mCancel = new StateZip.Canceller();
+        Running(String replyId) { mReplyId = replyId; }
+    }
 
     @Override
     public void onReceive(Context context, final Intent intent) {
@@ -86,6 +106,15 @@ public class StateExportReceiver extends BroadcastReceiver {
         final String replyAction  = intent.getStringExtra( EXTRA_REPLY_ACTION );
         final String replyPackage = intent.getStringExtra( EXTRA_REPLY_PACKAGE );
         final String replyId      = intent.getStringExtra( EXTRA_REPLY_ID );
+
+        // CANCEL_EXPORT is fire-and-forget — it needs no reply address and is answered with
+        // nothing at all, so it is handled ahead of the reply-address guard below. Still gated by
+        // the same switch + token as everything else, and a silent no-op when nothing is running.
+        if ( ACTION_CANCEL_EXPORT.equals( action ) ) {
+            if ( AutomationAuth.isEnabled() && AutomationAuth.check( intent.getStringExtra( EXTRA_TOKEN ) ) )
+                cancelExport( replyId );
+            return;
+        }
 
         // Without a reply address there is nobody to answer; refuse to do any work.
         if ( TextUtils.isEmpty( replyAction ) || TextUtils.isEmpty( replyPackage ) || TextUtils.isEmpty( replyId ) ) {
@@ -113,6 +142,27 @@ public class StateExportReceiver extends BroadcastReceiver {
             return;
         }
         replier.send( "ERROR:unknown action " + action );
+    }
+
+    /**
+     * Signal the running export to unwind. Sends no reply of its own: the terminal
+     * `ERROR:cancelled` belongs to the ORIGINAL request and is sent by the export thread as it
+     * unwinds, through the same Replier whose AtomicBoolean keeps it from racing a success.
+     *
+     * Safe at any time — nothing running, or an export that already finished, is a silent no-op.
+     */
+    private static void cancelExport(String replyId) {
+        final Running running = sRunning.get();
+        if ( running == null ) {
+            Log.i( TAG, "cancel: nothing running — no-op" );
+            return;
+        }
+        if ( !TextUtils.isEmpty( replyId ) && !replyId.equals( running.mReplyId ) ) {
+            Log.i( TAG, "cancel: " + replyId + " is not the running export — no-op" );
+            return;
+        }
+        Log.i( TAG, "cancel: unwinding " + running.mReplyId );
+        running.mCancel.cancel();
     }
 
     private void exportState(Context context, Intent intent, Replier replier) {
@@ -167,21 +217,41 @@ public class StateExportReceiver extends BroadcastReceiver {
                 intent.getStringExtra( EXTRA_REPLY_PACKAGE ),
                 intent.getStringExtra( EXTRA_REPLY_ID ) );
 
+        // One export at a time — the contract forbids two, and the cancel path relies on it.
+        final Running running = new Running( intent.getStringExtra( EXTRA_REPLY_ID ) );
+        if ( !sRunning.compareAndSet( null, running ) ) {
+            replier.send( "ERROR:export already running" );
+            return;
+        }
+
         try {
             final int count;
             final String reportedPath;
             final long bytes;
 
+            // Everything is written to `<final-name>.part` and renamed only once the archive is
+            // whole, so a cancel or a failure leaves the directory exactly as it was found.
             if ( useRawPath ) {
                 final File dir = new File( rawPath );
                 if ( !dir.exists() && !dir.mkdirs() )
                     throw new Exception( "cannot create " + rawPath );
                 final File out = new File( dir, fileName );
-                final FileOutputStream fos = new FileOutputStream( out );
+                final File part = new File( dir, fileName + Eximport.EXPORT_PART_SUFFIX );
+                boolean complete = false;
                 try {
-                    count = StateZip.write( cats, fos, progress );
+                    final FileOutputStream fos = new FileOutputStream( part );
+                    try {
+                        count = StateZip.write( cats, fos, progress, running.mCancel );
+                    } finally {
+                        fos.close();
+                    }
+                    if ( !part.renameTo( out ) )
+                        throw new Exception( "cannot rename " + part.getName() );
+                    complete = true;
                 } finally {
-                    fos.close();
+                    if ( !complete )
+                        //noinspection ResultOfMethodCallIgnored
+                        part.delete();
                 }
                 reportedPath = out.getAbsolutePath();
                 bytes = out.length();
@@ -190,15 +260,25 @@ public class StateExportReceiver extends BroadcastReceiver {
                 if ( dirDoc == null || !dirDoc.canWrite() )
                     throw new Exception( "export directory not writable" );
                 // octet-stream keeps the exact name (a typed mime would append its own extension)
-                final DocumentFile file = dirDoc.createFile( "application/octet-stream", fileName );
+                final DocumentFile file = dirDoc.createFile( "application/octet-stream",
+                        fileName + Eximport.EXPORT_PART_SUFFIX );
                 if ( file == null )
                     throw new Exception( "cannot create export file" );
-                final OutputStream os = context.getContentResolver().openOutputStream( file.getUri() );
+                boolean complete = false;
                 try {
-                    count = StateZip.write( cats, os, progress );
+                    final OutputStream os = context.getContentResolver().openOutputStream( file.getUri() );
+                    try {
+                        count = StateZip.write( cats, os, progress, running.mCancel );
+                    } finally {
+                        if ( os != null )
+                            os.close();
+                    }
+                    if ( !file.renameTo( fileName ) )
+                        throw new Exception( "cannot rename " + fileName + Eximport.EXPORT_PART_SUFFIX );
+                    complete = true;
                 } finally {
-                    if ( os != null )
-                        os.close();
+                    if ( !complete )
+                        file.delete();
                 }
                 reportedPath = file.getUri().toString();
                 bytes = file.length();
@@ -206,9 +286,15 @@ public class StateExportReceiver extends BroadcastReceiver {
 
             progress.sendFinal( count );
             replier.send( "OK:" + reportedPath + "|" + bytes + "|" + humanSize( bytes ) + "|" + count + " categories" );
+        } catch ( StateZip.CancelledException e ) {
+            // The terminal reply for the ORIGINAL request; the partial file is already gone.
+            Log.i( TAG, "export cancelled" );
+            replier.send( "ERROR:cancelled" );
         } catch ( Throwable t ) {
             Log.e( TAG, "export failed", t );
             replier.send( "ERROR:" + shortReason( t ) );
+        } finally {
+            sRunning.compareAndSet( running, null );
         }
     }
 

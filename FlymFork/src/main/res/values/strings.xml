@@ -752,7 +752,7 @@
     <string name="settings_export_btn_import">Import</string>
     <string name="settings_export_choose_folder">Choose a folder first</string>
     <string name="export_completed">Export completed</string>
-    <string name="eim_desc">Export or import every setting — fonts, colours, article list, reading view, feeds — by category.</string>
+    <string name="eim_desc">Export or import everything — feeds, articles, downloaded text and images, fonts, colours, article list, reading view — by category.</string>
     <string name="eim_dir_label">Export directory (tap to choose)</string>
     <string name="eim_dir_unset">Not set — tap to choose a directory</string>
     <string name="eim_warn_nodir">No directory set yet — pick one to enable export.</string>
@@ -760,6 +760,9 @@
     <string name="eim_last">Last export: %s</string>
     <string name="eim_select_all">Select all</string>
     <string name="eim_cat_feeds">Feeds (subscriptions)</string>
+    <string name="eim_cat_articles">Articles (read, starred, labels, filters)</string>
+    <string name="eim_cat_articles_text">Downloaded article text</string>
+    <string name="eim_cat_images">Downloaded images</string>
     <string name="eim_cat_fonts">UI fonts</string>
     <string name="eim_cat_colors">Colours &amp; theme</string>
     <string name="eim_cat_list">Article list &amp; grid</string>

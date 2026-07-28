@@ -49,9 +49,13 @@ import ru.yanus171.feedexfork.parser.OPML;
  */
 public class Eximport {
 
-    // Category ids — each exported pref key is classified into exactly one (feeds are outlines).
+    // Category ids. CAT_FONTS..CAT_OTHER are pref categories — every exported pref key is
+    // classified into exactly one of them by categoryOf(). The rest are content categories, which
+    // no pref key ever maps to: feeds are outlines, and the three below are database rows and
+    // files on disk.
     public static final int CAT_FEEDS = 0, CAT_FONTS = 1, CAT_COLORS = 2,
-                            CAT_LIST = 3, CAT_READING = 4, CAT_OTHER = 5;
+                            CAT_LIST = 3, CAT_READING = 4, CAT_OTHER = 5,
+                            CAT_ARTICLES = 6, CAT_ARTICLES_TEXT = 7, CAT_IMAGES = 8;
 
     private static final int WARN_COLOR = 0xFFFF5252;
 
@@ -62,6 +66,11 @@ public class Eximport {
     public static final String EXPORT_FILE_PREFIX = "shiroikuma-handyrss_";
     public static final String EXPORT_FILE_EXT = ".zip";
     private static final String EXPORT_FILE_PREFIX_LEGACY = "shiroikuma-handyrss-export_";
+
+    // Every export writes `<final-name>.part` and renames only once the archive is complete, so a
+    // cancelled or failed run leaves the backup directory exactly as it found it — no short zip
+    // that looks like a backup, no stray part file (保存復元 CANCEL_EXPORT contract, 2026-07-28).
+    public static final String EXPORT_PART_SUFFIX = ".part";
 
     // Device-local keys that must never travel to another install. The automation switch + token
     // belong here too: a backup must never carry the credential that unlocks the export receiver.
@@ -203,12 +212,16 @@ public class Eximport {
 
         CheckBox selectAll = checkbox(ctx, ctx.getString(R.string.eim_select_all), true);
         box.addView(selectAll);
-        addCat(box, CAT_FEEDS, R.string.eim_cat_feeds);
-        addCat(box, CAT_FONTS, R.string.eim_cat_fonts);
-        addCat(box, CAT_COLORS, R.string.eim_cat_colors);
-        addCat(box, CAT_LIST, R.string.eim_cat_list);
-        addCat(box, CAT_READING, R.string.eim_cat_reading);
-        addCat(box, CAT_OTHER, R.string.eim_cat_other);
+        // Same order as StateZip.ORDER, so the panel and the automation picker read alike.
+        addCat(box, CAT_FEEDS, R.string.eim_cat_feeds, 0);
+        addCat(box, CAT_ARTICLES, R.string.eim_cat_articles, 0);
+        addCat(box, CAT_ARTICLES_TEXT, R.string.eim_cat_articles_text, 18);  // child of articles
+        addCat(box, CAT_IMAGES, R.string.eim_cat_images, 0);
+        addCat(box, CAT_FONTS, R.string.eim_cat_fonts, 0);
+        addCat(box, CAT_COLORS, R.string.eim_cat_colors, 0);
+        addCat(box, CAT_LIST, R.string.eim_cat_list, 0);
+        addCat(box, CAT_READING, R.string.eim_cat_reading, 0);
+        addCat(box, CAT_OTHER, R.string.eim_cat_other, 0);
         selectAll.setOnCheckedChangeListener((b, isChecked) -> {
             for (CheckBox cb : mChecks.values())
                 cb.setChecked(isChecked);
@@ -251,8 +264,12 @@ public class Eximport {
         refreshStatus();
     }
 
-    private void addCat(LinearLayout box, int cat, int labelRes) {
+    /** indentDp > 0 indents a sub-item under the row above it (Article full text under Articles). */
+    private void addCat(LinearLayout box, int cat, int labelRes, int indentDp) {
         CheckBox cb = checkbox(mActivity, mActivity.getString(labelRes), false);
+        cb.setChecked(StateZip.defaultOf(cat));
+        if (indentDp > 0)
+            cb.setPadding(dp(8) + dp(indentDp), dp(7), 0, dp(7));
         mChecks.put(cat, cb);
         box.addView(cb);
     }
@@ -315,17 +332,28 @@ public class Eximport {
                 if (dirDoc == null || !dirDoc.canWrite())
                     throw new Exception("export directory not writable");
                 // octet-stream keeps the exact name (a typed mime would append its own extension)
-                final DocumentFile file = dirDoc.createFile("application/octet-stream", fileName);
+                final DocumentFile file = dirDoc.createFile("application/octet-stream",
+                        fileName + EXPORT_PART_SUFFIX);
                 if (file == null)
                     throw new Exception("cannot create export file");
                 // Same core the headless automation receiver calls — one ZIP, never two callers'
-                // worth of duplicated export logic.
-                OutputStream os = MainApplication.getContext().getContentResolver().openOutputStream(file.getUri());
+                // worth of duplicated export logic. Written as .part and renamed on success, so a
+                // failure never leaves a truncated archive behind.
+                boolean complete = false;
                 try {
-                    StateZip.write(cats, os, null);
+                    OutputStream os = MainApplication.getContext().getContentResolver().openOutputStream(file.getUri());
+                    try {
+                        StateZip.write(cats, os, null);
+                    } finally {
+                        if (os != null)
+                            os.close();
+                    }
+                    if (!file.renameTo(fileName))
+                        throw new Exception("cannot rename " + fileName + EXPORT_PART_SUFFIX);
+                    complete = true;
                 } finally {
-                    if (os != null)
-                        os.close();
+                    if (!complete)
+                        file.delete();
                 }
                 activity.runOnUiThread(() -> {
                     refreshStatus();
