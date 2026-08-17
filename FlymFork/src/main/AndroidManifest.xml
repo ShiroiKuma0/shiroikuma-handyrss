@@ -18,10 +18,10 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- The state export must survive the screen going off: with the CPU dozed it stops part-way,
          with no crash and nothing in the log. targetSdk is 31, so FOREGROUND_SERVICE_DATA_SYNC is
-         not required (that one is enforced from API 34). -->
+         not required (that one is enforced from API 34). Upstream's LongOper wakelock (v1.1.6)
+         needs the same permission — one declaration serves both. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <permission
         android:name="shiroikuma.handyrss.provider.WRITE_PERMISSION"

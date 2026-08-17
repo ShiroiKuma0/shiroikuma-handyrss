@@ -394,7 +394,7 @@ public class FetcherService extends IntentService {
             // but the content provider's own cache cleanup has been commented out since upstream
             // b2383688 (2019), so without this their images and article files would sit orphaned
             // until the next delete-old run.
-            LongOper(R.string.deleting_ghost_entries, FetcherService::deleteGhost, service);
+            new LongOper(R.string.deleting_ghost_entries, FetcherService::deleteGhost, service);
             return;
         } else if (intent.hasExtra( Constants.FROM_RELOAD_ALL_TEXT )) {
             new LongOper(R.string.reloading_all_texts, () -> {

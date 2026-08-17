@@ -66,7 +66,7 @@ is nothing to do — STOP.
 | Origin remote | `origin` → `git@github.com:ShiroiKuma0/shiroikuma-handyrss.git` (SSH, push) |
 | Mirror branch | `master` — fast-forward only, never carries our changes |
 | Customization branch | `custom` — a **stack** of feature commits on top of the rebrand, rebased onto each release tag |
-| Current base (as of this skill's writing) | `upstream/master` @ `9c1c6dd4` (untagged), versionName base `1.1.5`, versionCode base `3400000` (= upstream `340` × 10000) — **not a tag**; the newest tag is still `v1.1.4` |
+| Current base (as of this skill's writing) | the `v1.1.6` tag @ `8ed995eb` (2026-08-16), versionName base `1.1.6`, versionCode base `3410000` (= upstream `341` × 10000) — the tag *is* the `upstream/master` tip, so tag and master agree |
 | Counter (external) | `$HOME/.handyrss_build_no` — outside the repo; **reset to 0 whenever the adopted base version changes** (new tag OR untagged master bump) so the first build on the new base is `+1`; on a **same-version refresh** it is left as-is and `+N` keeps growing |
 | App module | `FlymFork` |
 | Build task (delegated) | `handy-rss-build` → `:FlymFork:assembleFdroidRelease` |
@@ -239,7 +239,7 @@ the new tag (NOT from our rebased build.gradle, which still carries our `+N` lin
 git show <NEW_TAG>:FlymFork/build.gradle | grep -E 'versionName|versionCode'
 ```
 Let `NEW_VN` = upstream versionName (e.g. `1.2.0`), `NEW_VC_BASE` = upstream versionCode × 10000
-(e.g. upstream `340` → `3400000`).
+(e.g. upstream `341` → `3410000`).
 
 1. **Counter reset** so the first build of the new upstream is `+1`:
    `echo 0 > $HOME/.handyrss_build_no` (prefer explicit `0` over `rm -f` — the build step does
@@ -254,17 +254,17 @@ Let `NEW_VN` = upstream versionName (e.g. `1.2.0`), `NEW_VC_BASE` = upstream ver
 **Skip only when the base version is unchanged** — then the literals don't change, so there's nothing
 to propagate.
 
-When the base changed, the base literals `1.1.5` and `3400000` / `340` are **hard-coded in several
+When the base changed, the base literals `1.1.6` and `3410000` / `341` are **hard-coded in several
 places** that the build relies on. If you don't update them, the next build stamps the OLD base. Update
 the ACTIVE base literals
 (NOT the historical feature-commit version tags, which record what shipped and must stay):
 - **`.claude/skills/handy-rss-build/SKILL.md`** — the Versioning section, the Build "Version stamp"
-  paragraph, the gradle/`sed` base literals, and the "Update procedure" base literals (`1.1.5` →
-  `<NEW_VN>`, `3400000` → `<NEW_VC_BASE>`, `340` → upstream's new versionCode). Update its project-
+  paragraph, the gradle/`sed` base literals, and the "Update procedure" base literals (`1.1.6` →
+  `<NEW_VN>`, `3410000` → `<NEW_VC_BASE>`, `341` → upstream's new versionCode). Update its project-
   identity table's "latest upstream release" too.
-- **`CLAUDE.md`** — the at-a-glance Versioning line (`1.1.5+N` / `3400000+N`) and the State-checkpoint
+- **`CLAUDE.md`** — the at-a-glance Versioning line (`1.1.6+N` / `3410000+N`) and the State-checkpoint
   block (HEAD, last-built version, counter).
-- Do a final `grep -rn '1\.1\.5\|3400000\|\b340\b'` over both docs to catch stragglers; eyeball each —
+- Do a final `grep -rn '1\.1\.6\|3410000\|\b341\b'` over both docs to catch stragglers; eyeball each —
   keep historical mentions, change active base literals.
 
 (These doc edits are bookkeeping; they may be committed with the rebased stack or in a follow-up commit,
