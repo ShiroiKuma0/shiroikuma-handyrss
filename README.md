@@ -5,7 +5,7 @@ A personal, rebranded Android RSS reader — a fork of
 [Flym](https://github.com/FredJul/Flym)). It installs **side-by-side** with the official app
 (`shiroikuma.handyrss`), with its own icon and name, fully signed for self-install.
 
-**Latest release:** [`1.1.6+003`](../../releases/latest) · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
+**Latest release:** [`1.1.6+006`](../../releases/latest) · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
 
 ## What this fork adds on top of Handy News Reader
 
@@ -31,12 +31,19 @@ A personal, rebranded Android RSS reader — a fork of
   export shown live) and a panel of category checkboxes behind round pill buttons. Every export is
   written to a `.part` file and renamed only once it is whole, so an interrupted backup never leaves
   a half-written archive that looks like a real one.
-- **Headless automation backup** — a token-gated intent lets a companion automation app trigger the
+- **Headless automation backup** — an intent lets a companion automation app trigger the
   same export with no UI, pick the categories, choose the destination folder, and read back the
   written path and size. It reports live progress in real counts — naming the category it is on,
   the files and articles done, and the bytes written — never goes quiet for long enough to look
-  dead, and can be **cancelled from outside** mid-export, cleanly and without a trace. Off by
-  default, behind a 24-byte token that never travels inside a backup.
+  dead, and can be **cancelled from outside** mid-export, cleanly and without a trace. **On by
+  default**, with an optional 24-byte token you can switch on if you want callers to prove
+  themselves; neither the switch nor the token ever travels inside a backup.
+- **Back up the app itself, data and all** — a companion app can also ask for the whole archive
+  down a file descriptor it opens, and hand it back on a wiped phone, so the app can be restored
+  with its feeds, articles, images and settings rather than reinstalled empty. The caller is
+  identified by the system and checked three ways — exact package name, a uid cross-check, and a
+  pinned signing certificate — because it is the caller that supplies the destination. Restoring
+  is only ever available through that identified channel, never over a broadcast.
 - **Exports that finish** — the work runs in a foreground service holding a wakelock, not inside a
   broadcast receiver, so a long backup survives the screen going off instead of being killed
   part-way with nothing written and nobody told.
