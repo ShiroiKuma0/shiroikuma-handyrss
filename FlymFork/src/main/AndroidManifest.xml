@@ -27,6 +27,18 @@
         android:name="shiroikuma.handyrss.provider.WRITE_PERMISSION"
         android:protectionLevel="signature" />
     <queries>
+        <!-- 保存復元: BOTH callers, and naming them is load-bearing twice over.
+             1. Our reply and progress broadcasts setPackage() back at whoever asked. Without the
+                package named here that setPackage FAILS SILENTLY on Android 11+ — the export runs,
+                writes correctly, and is never heard of. 自由作業盤 drives the §1 batch and is the
+                one that has actually been calling us; 応用管理 drives the §2a data door.
+             2. AutomationCallers reads the caller's signing certificate with getPackageInfo(), and
+                getPackagesForUid() is filtered the same way — an invisible package makes a
+                legitimate call fail as "caller signature unreadable" rather than merely losing its
+                reply. Interacting with us grants visibility implicitly, but relying on that leaves
+                the identity check depending on a grant we do not control. -->
+        <package android:name="shiroikuma.jiyusagyoban" />
+        <package android:name="shiroikuma.oyokanri" />
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:mimeType="image/*" />
@@ -87,6 +99,36 @@
             android:name=".service.StateExportService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
+
+        <!-- 保存復元 v2 — the data door. Exported with NO android:permission, and this time for a
+             real reason: a custom permission would have to be `normal` (any app may hold it) or
+             `signature` (impossible — every app in this family has its own keystore). Neither buys
+             anything AutomationCallers' exact-name + uid + pinned-certificate check does not.
+             `import` lives ONLY here and never gets a broadcast action: an import overwrites this
+             app's data, and StateExportReceiver is exported with no permission, so an import there
+             would let any app on the phone wipe any sister app. -->
+        <provider
+            android:name=".automation.AutomationProvider"
+            android:authorities="${applicationId}.automation"
+            android:exported="true" />
+
+        <!-- Where a data-door export/import runs. foregroundServiceType is `dataSync`, not the
+             contract's `specialUse`: that value is API 34 and this module builds against
+             compileSdk 31, where aapt2 rejects it. dataSync is the accurate type anyway, and at
+             targetSdk 31 no FOREGROUND_SERVICE_* subtype permission is required (those are
+             enforced from API 34). -->
+        <service
+            android:name=".automation.AutomationDataService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- Capability discovery, readable WITHOUT waking this app — 白い熊 freezes aggressively and
+             a frozen app cannot be asked anything, so 応用管理 reads these with
+             MATCH_UNINSTALLED_PACKAGES | MATCH_DISABLED_COMPONENTS across every installed package.
+             An app without them is simply not offered for data backup or restore. -->
+        <meta-data android:name="shiroikuma.automation.contract"   android:value="2" />
+        <meta-data android:name="shiroikuma.automation.format"     android:value="1" />
+        <meta-data android:name="shiroikuma.automation.min_format" android:value="1" />
 
         <provider
             android:name=".provider.FeedDataContentProvider"

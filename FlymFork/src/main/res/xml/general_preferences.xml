@@ -208,13 +208,25 @@
             android:title="@string/settings_export_section"
             android:summary="@string/eim_desc"/>
 
+        <!-- 保存復元 v2: default ON. Keep this defaultValue in lockstep with
+             AutomationAuth.isEnabled()'s own default — the two disagreeing is the exact bug that
+             made the delete-old purge charger-only while its checkbox showed unticked. -->
         <CheckBoxPreference
             android:layout="@layout/preference_indented"
             android:key="automation_enabled"
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:title="@string/automation_enabled_title"
             android:summary="@string/automation_enabled_summary"/>
 
+        <CheckBoxPreference
+            android:layout="@layout/preference_indented"
+            android:key="automation_require_token"
+            android:defaultValue="false"
+            android:title="@string/automation_require_token_title"
+            android:summary="@string/automation_require_token_summary"/>
+
+        <!-- Shown only while the row above is ON (GeneralPrefsFragment): a 48-character secret
+             sitting under an off switch invites 白い熊 to paste it somewhere it will do nothing. -->
         <ru.yanus171.feedexfork.view.AutomationTokenPreference
             android:layout="@layout/preference_automation_token"
             android:key="automation_token_row"

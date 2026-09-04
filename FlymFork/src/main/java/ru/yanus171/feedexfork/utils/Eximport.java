@@ -77,7 +77,7 @@ public class Eximport {
     private static final Set<String> EXPORT_EXCLUDE = new HashSet<>(Arrays.asList(
             OPML.EXPORT_DIR, OPML.EXPORT_DIR_SETTINGS, OPML.EXPORT_DIR_FEEDS, OPML.EXPORT_DIR_BACKUP,
             OPML.EXPORT_LAST_SETTINGS, OPML.EXPORT_LAST_FEEDS, "data_folder",
-            AutomationAuth.PREF_ENABLED, AutomationAuth.PREF_TOKEN ));
+            AutomationAuth.PREF_ENABLED, AutomationAuth.PREF_REQUIRE_TOKEN, AutomationAuth.PREF_TOKEN ));
 
     private static final Set<String> COLOR_KEYS = new HashSet<>(Arrays.asList(
             "theme", "customColors", "lighttheme", "textColor", "toolBarColor", "feedListColor",

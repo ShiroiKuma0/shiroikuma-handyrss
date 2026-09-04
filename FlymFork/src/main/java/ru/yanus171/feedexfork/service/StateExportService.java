@@ -184,7 +184,7 @@ public class StateExportService extends Service {
      * the wording. Offered as a notification, never a background activity start (which the system
      * would block anyway), and it never blocks the export.
      */
-    static void warnIfBatteryOptimised(Context context) {
+    public static void warnIfBatteryOptimised(Context context) {
         try {
             if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.M )
                 return;
@@ -344,7 +344,7 @@ public class StateExportService extends Service {
     }
 
     /** `4.6 MB`, `1.20 GB` — the caller cannot stat the file, so we compute the display form too. */
-    static String humanSize(long bytes) {
+    public static String humanSize(long bytes) {
         if ( bytes >= 1024L * 1024L * 1024L )
             return String.format( Locale.US, "%.2f GB", bytes / (double) ( 1024L * 1024L * 1024L ) );
         if ( bytes >= 1024L * 1024L )
@@ -361,27 +361,46 @@ public class StateExportService extends Service {
 
     // ---- reply + progress ----------------------------------------------------------------------
 
-    /** Exactly one terminal reply per request — an async success and a sync error cannot both fire. */
-    static class Replier {
+    /**
+     * Exactly one terminal reply per request — an async success and a sync error cannot both fire.
+     *
+     * Public and shared with the automation data door (AutomationDataService), which correlates on
+     * `job_id` rather than `reply_id`: one implementation of the EMUI-proven fresh-broadcast reply,
+     * not two that drift apart.
+     */
+    public static class Replier {
         private final Context mContext;
-        private final String mAction, mPackage, mId;
+        private final String mAction, mPackage, mId, mIdExtra;
         private final AtomicBoolean mSent = new AtomicBoolean( false );
 
-        Replier(Context context, String action, String pkg, String id) {
-            mContext = context; mAction = action; mPackage = pkg; mId = id;
+        public Replier(Context context, String action, String pkg, String id) {
+            this( context, action, pkg, id, "reply_id" );
         }
 
-        void send(String result) {
+        public Replier(Context context, String action, String pkg, String id, String idExtra) {
+            mContext = context; mAction = action; mPackage = pkg; mId = id; mIdExtra = idExtra;
+        }
+
+        public void send(String result) {
             if ( !mSent.compareAndSet( false, true ) ) {
                 Log.w( TAG, "duplicate reply suppressed: " + result );
                 return;
             }
             Log.i( TAG, mId + " -> " + result );
-            mContext.sendBroadcast( new Intent( mAction )
+            // A caller with no reply address (the data door's reply_action/reply_package are both
+            // optional) still gets its one-reply guard flipped, so nothing fires later either.
+            if ( TextUtils.isEmpty( mAction ) || TextUtils.isEmpty( mPackage ) )
+                return;
+            final Intent reply = new Intent( mAction )
                     .setPackage( mPackage )
                     .addFlags( Intent.FLAG_INCLUDE_STOPPED_PACKAGES )
                     .putExtra( "reply_id", mId )
-                    .putExtra( "result", result ) );
+                    .putExtra( "result", result );
+            // The data door correlates on job_id; every §1 caller reads reply_id. Carrying the same
+            // id under both names costs one extra and spares each side a special case.
+            if ( !"reply_id".equals( mIdExtra ) )
+                reply.putExtra( mIdExtra, mId );
+            mContext.sendBroadcast( reply );
         }
     }
 
@@ -392,9 +411,9 @@ public class StateExportService extends Service {
      * `item` is what the panel highlights by; `current`/`total` stay the honest 1-based position of
      * the category being written, paired with the label in `text`.
      */
-    private static class ProgressSender implements StateZip.Progress {
+    public static class ProgressSender implements StateZip.Progress {
         private final Context mContext;
-        private final String mAction, mPackage, mId;
+        private final String mAction, mPackage, mId, mIdExtra;
         private volatile long mLastSentAt = 0;
         private volatile long mBytes = -1, mBytesTotal = -1;
         private volatile boolean mBeating = false;
@@ -403,8 +422,12 @@ public class StateExportService extends Service {
         private volatile String mItem = "", mUnit = "", mText = "";
         private volatile long mCurrent = 0, mTotal = 0;
 
-        ProgressSender(Context context, String action, String pkg, String id) {
-            mContext = context; mAction = action; mPackage = pkg; mId = id;
+        public ProgressSender(Context context, String action, String pkg, String id) {
+            this( context, action, pkg, id, "reply_id" );
+        }
+
+        public ProgressSender(Context context, String action, String pkg, String id, String idExtra) {
+            mContext = context; mAction = action; mPackage = pkg; mId = id; mIdExtra = idExtra;
         }
 
         /**
@@ -413,7 +436,7 @@ public class StateExportService extends Service {
          * copied, a slow cursor — are exactly the ways nothing calls it. So a watchdog repeats the
          * last line whenever the channel has been silent, and the caller keeps hearing a pulse.
          */
-        void startHeartbeat() {
+        public void startHeartbeat() {
             if ( TextUtils.isEmpty( mAction ) || mBeating )
                 return;
             mBeating = true;
@@ -432,7 +455,7 @@ public class StateExportService extends Service {
             t.start();
         }
 
-        void stopHeartbeat() { mBeating = false; }
+        public void stopHeartbeat() { mBeating = false; }
 
         @Override
         public void on(String item, long current, long total, String unit, String text) {
@@ -448,7 +471,7 @@ public class StateExportService extends Service {
             mBytesTotal = total;
         }
 
-        void sendFinal(long total) {
+        public void sendFinal(long total) {
             final String unit = mContext.getString( R.string.automation_unit_categories );
             // Nothing is being written any more — an empty item moves no highlight.
             send( "", total, total, unit, unit + " " + total + "/" + total );
@@ -466,6 +489,8 @@ public class StateExportService extends Service {
                     .putExtra( "current", current )
                     .putExtra( "total", total )
                     .putExtra( "unit", unit );
+            if ( !"reply_id".equals( mIdExtra ) )
+                intent.putExtra( mIdExtra, mId );
             if ( !TextUtils.isEmpty( item ) )
                 intent.putExtra( "item", item );
             if ( mBytes >= 0 )

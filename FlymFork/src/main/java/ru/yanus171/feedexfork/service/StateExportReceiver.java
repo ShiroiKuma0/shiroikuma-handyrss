@@ -20,8 +20,11 @@ import ru.yanus171.feedexfork.utils.StateZip;
  * token-gated intent at every sister app, each exports itself headlessly and replies with the
  * written path and size, and 自由作業盤 collects the replies into one summary.
  *
- * Three actions, all exported and all gated by the automation switch + token (never by a manifest
- * permission — the caller cannot hold one):
+ * Three actions, all exported and gated by AutomationAuth.refuse() — the automation switch, plus
+ * the token only when 「Use authorization token?」 is on (never by a manifest permission: the caller
+ * cannot hold one). In v2 this receiver is deliberately the UNAUTHENTICATED half of the surface —
+ * it only ever writes where it was told to and reports what it did. Everything that moves data
+ * through a caller-supplied descriptor lives behind AutomationProvider, which knows who is calling.
  *
  *   shiroikuma.handyrss.action.LIST_CATEGORIES  -> OK: + one `id<TAB>label<TAB>parent<TAB>on|off` line per category
  *   shiroikuma.handyrss.action.EXPORT_STATE     -> writes ONE zip, replies OK:path|bytes|human|n categories
@@ -70,7 +73,7 @@ public class StateExportReceiver extends BroadcastReceiver {
         // nothing at all, so it is handled ahead of the reply-address guard below. Still gated by
         // the same switch + token, and a silent no-op when nothing is running.
         if ( ACTION_CANCEL_EXPORT.equals( action ) ) {
-            if ( AutomationAuth.isEnabled() && AutomationAuth.check( token ) )
+            if ( AutomationAuth.refuse( token ) == null )
                 startService( context, new Intent( context, StateExportService.class )
                         .setAction( StateExportService.ACTION_CANCEL )
                         .putExtra( StateExportService.EXTRA_REPLY_ID, replyId ) );
@@ -86,12 +89,11 @@ public class StateExportReceiver extends BroadcastReceiver {
         final StateExportService.Replier replier =
                 new StateExportService.Replier( context, replyAction, replyPackage, replyId );
 
-        if ( !AutomationAuth.isEnabled() ) {
-            replier.send( "ERROR:automation disabled" );
-            return;
-        }
-        if ( !AutomationAuth.check( token ) ) {
-            replier.send( "ERROR:bad token" );
+        // One function, both checks: written out here they drift apart from the provider's copy,
+        // and a token sent to an app that does not require one must be IGNORED, never refused.
+        final String refusal = AutomationAuth.refuse( token );
+        if ( refusal != null ) {
+            replier.send( refusal );
             return;
         }
 

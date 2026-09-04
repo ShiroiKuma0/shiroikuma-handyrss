@@ -102,6 +102,7 @@ public final class Constants {
 
   public static final MatrixCursor EMPTY_CURSOR = new MatrixCursor(new String[]{BaseColumns._ID});
 
+  public static final int NOTIFICATION_ID_AUTOMATION_DATA = -7;
   public static final int NOTIFICATION_ID_EXPORT_BATTERY = -6;
   public static final int NOTIFICATION_ID_EXPORT_SERVICE = -5;
   public static final int NOTIFICATION_ID_READING_SERVICE = -4;

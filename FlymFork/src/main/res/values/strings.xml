@@ -778,7 +778,9 @@
     <string name="eim_restart_later">Later</string>
     <string name="eim_importing">Importing…</string>
     <string name="automation_enabled_title">Automation export</string>
-    <string name="automation_enabled_summary">Let a sister-app task trigger this app\'s export through a token-gated intent. Off by default.</string>
+    <string name="automation_enabled_summary">Let a sister app trigger this app\'s export, and back its data up. On by default — turn it off to close this app off entirely.</string>
+    <string name="automation_require_token_title">Use authorization token?</string>
+    <string name="automation_require_token_summary">Off: any sister app may drive the automation. On: a caller must also present the token below. Either way the data door checks the caller\'s identity and signature.</string>
     <string name="automation_token_title">Automation token</string>
     <string name="automation_token_copied">Token copied to the clipboard.</string>
     <string name="automation_token_regenerate">Regenerate</string>
@@ -788,6 +790,8 @@
     <string name="automation_unit_entries" translatable="false">記事</string>
     <string name="automation_export_title">Exporting backup</string>
     <string name="automation_battery_title">Let the backup finish in the background</string>
+    <string name="automation_data_export_title">Backing up app data</string>
+    <string name="automation_data_import_title">Restoring app data</string>
     <string name="automation_battery_text">Tap to exempt 白い熊 Handy RSS from battery optimisation. On Huawei also set アプリ起動管理 → 手動管理 with バックグラウンドで実行 ON — no app can set that for itself.</string>
     <string name="settings_color_background">Article background</string>
     <string name="settings_color_quote_bg">Quote background</string>

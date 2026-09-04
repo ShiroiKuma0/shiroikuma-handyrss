@@ -63,6 +63,7 @@ import ru.yanus171.feedexfork.R;
 import ru.yanus171.feedexfork.activity.BaseActivity;
 import ru.yanus171.feedexfork.activity.GeneralPrefsActivity;
 import ru.yanus171.feedexfork.service.AutoWorker;
+import ru.yanus171.feedexfork.utils.AutomationAuth;
 import ru.yanus171.feedexfork.utils.Brightness;
 import ru.yanus171.feedexfork.utils.Eximport;
 import ru.yanus171.feedexfork.utils.FileUtils;
@@ -143,6 +144,47 @@ public class GeneralPrefsFragment extends PreferenceFragment implements  Prefere
                 Eximport.show( getActivity() );
                 return true;
             } );
+
+        SetupAutomationTokenRow();
+    }
+
+    // -------------------------------------------------------------------------
+    // 保存復元 v2: the token row is shown only while 「Use authorization token?」 is on — a
+    // 48-character secret sitting under an off switch invites 白い熊 to paste it somewhere it will
+    // do nothing.
+    //
+    // The legacy android.preference framework has no setVisible(), so the row is removed from and
+    // re-added to its screen. Its inflation order is captured FIRST: PreferenceGroup.addPreference
+    // only assigns an order when the preference still carries DEFAULT_ORDER, so restoring the saved
+    // one puts the row back under the two switches instead of at the bottom of the whole screen.
+    private Preference mTokenRow = null;
+    private int mTokenRowOrder = 0;
+
+    private void SetupAutomationTokenRow() {
+        mTokenRow = findPreference( AutomationAuth.PREF_TOKEN_ROW );
+        if ( mTokenRow == null )
+            return;
+        mTokenRowOrder = mTokenRow.getOrder();
+        ShowAutomationTokenRow( AutomationAuth.isTokenRequired() );
+
+        final Preference require = findPreference( AutomationAuth.PREF_REQUIRE_TOKEN );
+        if ( require != null )
+            // The listener runs BEFORE the value is persisted, so act on newValue, not the pref.
+            require.setOnPreferenceChangeListener( (pref, newValue) -> {
+                ShowAutomationTokenRow( Boolean.TRUE.equals( newValue ) );
+                return true;
+            } );
+    }
+
+    private void ShowAutomationTokenRow(boolean show) {
+        final PreferenceScreen screen = (PreferenceScreen) findPreference( "prefs_ui_screen" );
+        if ( screen == null || mTokenRow == null )
+            return;
+        if ( show ) {
+            mTokenRow.setOrder( mTokenRowOrder );
+            screen.addPreference( mTokenRow );   // a no-op when it is already there
+        } else
+            screen.removePreference( mTokenRow );
     }
 
     // -------------------------------------------------------------------------
