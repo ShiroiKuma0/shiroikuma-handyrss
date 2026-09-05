@@ -9,6 +9,33 @@ Each fork release names the upstream release it is built on. The build counter i
 
 ---
 
+## 白い熊 Handy RSS 1.1.6+007 — 2026-09-05
+
+Built on upstream **`v1.1.6`** (versionCode 341) — same upstream base as `1.1.6+006`, so everything
+here is fork work.
+
+A small, sharp follow-up to the `1.1.6+006` automation release.
+
+### A failed backup row now offers the repair — but only when the repair works
+- When a backup is triggered while this app is cold, Android can refuse the foreground-service start
+  outright. That failure was already caught and reported rather than crashing; what is new is that
+  it now reports **which kind** of refusal it was, using a key the backup app matches to put a
+  「電池最適化を除外」 button directly on the failed row — the same treatment a missing All-Files-Access
+  grant already gets.
+- **The key is emitted only when the button can actually fix the fault**: the refusal must be the
+  platform's foreground-start refusal *and* this app must not already hold the battery-optimisation
+  exemption. If the exemption is already granted and the start was still refused, the cause is
+  something the button cannot touch — on this phone most likely アプリ起動管理 set to 自動管理, which
+  no app can change for itself. Every other start failure keeps a descriptive line and earns no
+  button.
+- The reasoning is worth stating because the tempting implementation is the wrong one: a blanket
+  key on any start failure produces a button that appears often and repairs nothing, pressed by the
+  one person who cannot route around the fault.
+- The battery-optimisation notification this app already raised is unchanged and still shown — it is
+  the part that actually gets the exemption granted.
+
+---
+
 ## 白い熊 Handy RSS 1.1.6+006 — 2026-09-04
 
 Built on upstream **`v1.1.6`** (versionCode 341) — the same upstream base as `1.1.6+003`, so
