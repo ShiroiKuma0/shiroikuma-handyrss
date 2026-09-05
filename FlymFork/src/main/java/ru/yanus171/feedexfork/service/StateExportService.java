@@ -343,6 +343,39 @@ public class StateExportService extends Service {
         return true;
     }
 
+    /**
+     * The ERROR: line for a foreground-service start that would not start.
+     *
+     * `ERROR:no-foreground-start` is a RESERVED KEY: 保存中核 matches it exactly and puts a
+     * 「電池最適化を除外」 button on the failed row, the way `ERROR:no-storage-access` earns a
+     * 「全ファイルアクセスを許可」 one. So it must be emitted ONLY when that button actually repairs
+     * the fault, and never as a blanket answer to "the start failed".
+     *
+     * Two conditions, and the second is the one that is easy to miss. It must be the platform's
+     * foreground-start refusal — a missing FOREGROUND_SERVICE permission or some other
+     * IllegalStateException is not exemption-fixable — AND we must not already hold the exemption.
+     * If we are exempt and the start was still refused, the cause is something the button cannot
+     * touch: on this phone the likeliest one is アプリ起動管理 set to 自動管理, which no app can
+     * change for itself. A button that appears and cannot work is worse than none, because it is
+     * pressed by the one person who cannot route around the fault.
+     *
+     * The refusal is matched by class NAME rather than instanceof: the class is API 31 and this
+     * module's minSdk is 14, so loading it to compare against would fail on an older device.
+     */
+    static String startFailureReason(Context context, Throwable t) {
+        if ( "android.app.ForegroundServiceStartNotAllowedException".equals( t.getClass().getName() )
+                && !isBatteryExempt( context ) )
+            return "ERROR:no-foreground-start";
+        return "ERROR:cannot start export service: " + t.getClass().getSimpleName();
+    }
+
+    private static boolean isBatteryExempt(Context context) {
+        if ( Build.VERSION.SDK_INT < Build.VERSION_CODES.M )
+            return true;    // no exemption to grant below M, so the button could not help either
+        final PowerManager pm = (PowerManager) context.getSystemService( Context.POWER_SERVICE );
+        return pm != null && pm.isIgnoringBatteryOptimizations( context.getPackageName() );
+    }
+
     /** `4.6 MB`, `1.20 GB` — the caller cannot stat the file, so we compute the display form too. */
     public static String humanSize(long bytes) {
         if ( bytes >= 1024L * 1024L * 1024L )

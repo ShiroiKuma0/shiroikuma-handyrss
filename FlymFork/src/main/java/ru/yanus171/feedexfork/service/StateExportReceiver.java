@@ -158,7 +158,10 @@ public class StateExportReceiver extends BroadcastReceiver {
             // rather than only from inside a service that never got to run.
             Log.e( TAG, "cannot start export service", t );
             StateExportService.warnIfBatteryOptimised( context );
-            replier.send( "ERROR:cannot start export service: " + t.getClass().getSimpleName() );
+            // The reserved ERROR:no-foreground-start key when — and only when — the battery
+            // exemption would actually repair it; a descriptive line otherwise. See
+            // StateExportService.startFailureReason.
+            replier.send( StateExportService.startFailureReason( context, t ) );
         }
     }
 
