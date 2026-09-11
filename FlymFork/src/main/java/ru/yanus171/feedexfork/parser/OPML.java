@@ -495,19 +495,23 @@ public class OPML {
         writer.write( furl );
         writer.write( OUTLINE_FEED_EXTRA );
         writer.write( furl );
+        // The per-feed settings ride on BOTH shapes. A restore creates the feeds from the plain
+        // feeds.opml, and until 2026-09-11 that outline carried none of them, so every restored
+        // feed came up with "Show full article" / "Auto images load" off. Thunderbird ignores
+        // attributes it does not know, so the plain file stays importable there.
+        writer.write(OUTLINE_RETRIEVE_FULLTEXT);
+        writer.write(GetBoolText(cursor, 4));
+        WriteBoolValue(writer, cursor, SHOW_TEXT_IN_ENTRY_LIST, 5);
+        WriteBoolValue(writer, cursor, IS_AUTO_REFRESH, 6);
+        // NULL is "on" at every runtime read of this flag (a feed whose edit form was never
+        // saved), and a plain GetBoolText wrote it out as false.
+        WriteBoolValue(writer, cursor, IS_IMAGE_AUTO_LOAD, 7, true);
+        WriteEncodedText(writer, cursor, OPTIONS, 8);
+        WriteLongValue(writer, cursor, FETCH_MODE, 12);
         if ( isBackup ) {
-            writer.write(OUTLINE_RETRIEVE_FULLTEXT);
-            writer.write(GetBoolText(cursor, 4));
-            WriteBoolValue(writer, cursor, SHOW_TEXT_IN_ENTRY_LIST, 5);
-            WriteBoolValue(writer, cursor, IS_AUTO_REFRESH, 6);
-            WriteBoolValue(writer, cursor, IS_IMAGE_AUTO_LOAD, 7);
-            WriteEncodedText(writer, cursor, OPTIONS, 8);
             WriteLongValue(writer, cursor, LAST_UPDATE, 9);
             WriteLongValue(writer, cursor, REAL_LAST_UPDATE, 10);
             WriteLongValue(writer, cursor, PRIORITY, 11);
-            WriteLongValue(writer, cursor, FETCH_MODE, 12);
-        }
-        if ( isBackup ) {
             writer.write(CLOSING_TEMP);
             ExportFilters(writer, feedID);
             final boolean saveAbstract = !TRUE.equals(GetBoolText(cursor, 4));
@@ -617,8 +621,12 @@ public class OPML {
     }
 
     private static void WriteBoolValue(Writer writer, Cursor cur, String fieldName, int col) throws IOException {
+        WriteBoolValue(writer, cur, fieldName, col, false);
+    }
+    // nullMeansTrue: a flag the runtime reads as "on" while unset, so the file says what the app did.
+    private static void WriteBoolValue(Writer writer, Cursor cur, String fieldName, int col, boolean nullMeansTrue) throws IOException {
         writer.write(String.format( ATTR_VALUE, fieldName) );
-        writer.write(GetBoolText( cur, col));
+        writer.write(nullMeansTrue && cur.isNull(col) ? TRUE : GetBoolText( cur, col));
     }
     private static void WriteLongValue(Writer writer, Cursor cursor, String fieldName, int col) throws IOException {
         writer.write(String.format(ATTR_VALUE, fieldName));
@@ -740,6 +748,52 @@ public class OPML {
             else
                 values.putNull( fieldName );
         }
+        // Only what the outline actually says: absent -> untouched, present-but-empty -> NULL.
+        private void putIfPresent( ContentValues values, String fieldName, Attributes attributes, String attrName ) {
+            final String s = GetText( attributes, attrName);
+            if ( s == null )
+                return;
+            if ( s.isEmpty() )
+                values.putNull( fieldName );
+            else
+                values.put(fieldName, s );
+        }
+        // Absent or empty -> untouched (a merge that only ever adds).
+        private void putIfSet( ContentValues values, String fieldName, Attributes attributes, String attrName ) {
+            final String s = GetText( attributes, attrName);
+            if ( s != null && !s.isEmpty() )
+                values.put(fieldName, s );
+        }
+        private void putBoolIfPresent( ContentValues values, String fieldName, Attributes attributes, String attrName ) {
+            if ( GetText( attributes, attrName ) != null )
+                values.put(fieldName, GetBool( attributes, attrName ));
+        }
+        private Long findEntry( ContentResolver cr, String feedId, String link ) {
+            if ( link == null || link.isEmpty() )
+                return null;
+            try ( Cursor cur = cr.query( ENTRIES_FOR_FEED_CONTENT_URI( feedId ), EntryColumns.PROJECTION_ID,
+                    LINK + Constants.DB_ARG, new String[]{link}, null ) ) {
+                return cur != null && cur.moveToFirst() ? cur.getLong( 0 ) : null;
+            }
+        }
+        private boolean filterExists( ContentResolver cr, String feedId, String text, Integer applyType ) {
+            if ( text == null )
+                return false;
+            try ( Cursor cur = cr.query( FilterColumns.FILTERS_FOR_FEED_CONTENT_URI( feedId ), new String[]{FilterColumns._ID},
+                    FilterColumns.FILTER_TEXT + Constants.DB_ARG + Constants.DB_AND + FilterColumns.APPLY_TYPE + Constants.DB_ARG,
+                    new String[]{text, String.valueOf( applyType )}, null ) ) {
+                return cur != null && cur.moveToFirst();
+            }
+        }
+        // By name, straight from the table — LabelVoc loads on its own thread and may still be empty here.
+        private Long findLabel( ContentResolver cr, String name ) {
+            if ( name == null || name.isEmpty() )
+                return null;
+            try ( Cursor cur = cr.query( LabelColumns.CONTENT_URI, new String[]{LabelColumns._ID},
+                    LabelColumns.NAME + Constants.DB_ARG, new String[]{name}, null ) ) {
+                return cur != null && cur.moveToFirst() ? cur.getLong( 0 ) : null;
+            }
+        }
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) {
             ContentResolver cr = getContext().getContentResolver();
@@ -782,31 +836,41 @@ public class OPML {
                         mFeedId = null;
                         return;
                     }
+                    // The feed's own settings, only as far as the outline states them. An
+                    // attribute-less outline (Thunderbird's own export, a feeds.opml from before
+                    // 2026-09-11) leaves a flag NULL — the app's own default, which for
+                    // is_image_auto_load means ON — instead of forcing every flag off.
                     ContentValues values = new ContentValues();
-
-                    values.put(URL, url);
-                    values.put(NAME, title != null && title.length() > 0 ? title : null);
-                    if (mGroupId != null) {
-                        values.put(GROUP_ID, mGroupId);
-                    }
-
-                    values.put(RETRIEVE_FULLTEXT, GetBool( attributes, ATTRIBUTE_RETRIEVE_FULLTEXT));
-                    values.put(SHOW_TEXT_IN_ENTRY_LIST, GetBool( attributes, SHOW_TEXT_IN_ENTRY_LIST));
-                    values.put(IS_AUTO_REFRESH, GetBool( attributes, IS_AUTO_REFRESH));
-                    values.put(IS_IMAGE_AUTO_LOAD, GetBool( attributes, IS_IMAGE_AUTO_LOAD));
-                    putString( values, OPTIONS, attributes, OPTIONS);
-                    putString( values, LAST_UPDATE, attributes, LAST_UPDATE);
-                    putString( values, REAL_LAST_UPDATE, attributes, REAL_LAST_UPDATE);
-                    putString( values, PRIORITY, attributes, PRIORITY);
-                    putString( values, FETCH_MODE, attributes, FETCH_MODE);
+                    putBoolIfPresent( values, RETRIEVE_FULLTEXT, attributes, ATTRIBUTE_RETRIEVE_FULLTEXT);
+                    putBoolIfPresent( values, SHOW_TEXT_IN_ENTRY_LIST, attributes, SHOW_TEXT_IN_ENTRY_LIST);
+                    putBoolIfPresent( values, IS_AUTO_REFRESH, attributes, IS_AUTO_REFRESH);
+                    putBoolIfPresent( values, IS_IMAGE_AUTO_LOAD, attributes, IS_IMAGE_AUTO_LOAD);
+                    putIfPresent( values, OPTIONS, attributes, OPTIONS);
+                    putIfPresent( values, FETCH_MODE, attributes, FETCH_MODE);
 
                     if ( String.valueOf( FetcherService.FETCHMODE_EXERNAL_LINK ).equals( attributes.getValue( FETCH_MODE ) ) )
                         mFeedId = FetcherService.GetExtrenalLinkFeedID();
                     else {
-                        Cursor cursor = cr.query(CONTENT_URI, null, URL + Constants.DB_ARG,
+                        Cursor cursor = cr.query(CONTENT_URI, new String[]{_ID}, URL + Constants.DB_ARG,
                                 new String[]{url}, null);
-                        mFeedId = null;
-                        if (!cursor.moveToFirst()) {
+                        if (cursor.moveToFirst()) {
+                            // Already here — the feeds.opml of this same archive just created it,
+                            // or this is a re-import. This used to skip the feed outright with
+                            // mFeedId null, which dropped its settings AND its filters and entries:
+                            // after feeds.opml, the whole articles.backup was a no-op. Merge instead.
+                            // (Not the priority: the provider's feed update reshuffles on it.)
+                            mFeedId = cursor.getString(0);
+                            if ( values.size() > 0 )
+                                cr.update(CONTENT_URI(mFeedId), values, null, null);
+                        } else {
+                            values.put(URL, url);
+                            values.put(NAME, title != null && title.length() > 0 ? title : null);
+                            if (mGroupId != null) {
+                                values.put(GROUP_ID, mGroupId);
+                            }
+                            putString( values, LAST_UPDATE, attributes, LAST_UPDATE);
+                            putString( values, REAL_LAST_UPDATE, attributes, REAL_LAST_UPDATE);
+                            putString( values, PRIORITY, attributes, PRIORITY);
                             mFeedId = cr.insert(CONTENT_URI, values).getLastPathSegment();
                         }
                         cursor.close();
@@ -833,16 +897,40 @@ public class OPML {
                     values.put(FilterColumns.IS_REMOVE_TEXT, TRUE.equals(attributes.getValue("", ATTRIBUTE_IS_REMOVE_TEXT)));
                     values.put(FilterColumns.LABEL_ID_LIST, attributes.getValue("", LABEL_ID_LIST));
 
-                    cr.insert(FilterColumns.FILTERS_FOR_FEED_CONTENT_URI(mFeedId), values);
+                    if ( !filterExists( cr, mFeedId, values.getAsString(FilterColumns.FILTER_TEXT), values.getAsInteger(FilterColumns.APPLY_TYPE) ) )
+                        cr.insert(FilterColumns.FILTERS_FOR_FEED_CONTENT_URI(mFeedId), values);
                 }
             } else if (TAG_ENTRY.equals(localName) && mFeedEntered && mFeedId != null) {
+                final String link = GetText( attributes, LINK );
+                Long id = findEntry( cr, mFeedId, link );
                 ContentValues values = new ContentValues();
+                if ( id != null ) {
+                    // Fetched here already (a restore onto a phone that has refreshed since the
+                    // backup was taken): keep the fetched content, take the reading state the
+                    // backup adds — read / starred / scroll / zoom / the saved full text. A union,
+                    // never a reset: nothing read or starred on this phone is undone by an older file.
+                    if ( GetBool( attributes, IS_READ ) )            values.put(IS_READ, true);
+                    if ( GetBool( attributes, IS_FAVORITE ) )        values.put(IS_FAVORITE, true);
+                    if ( GetBool( attributes, IS_WAS_AUTO_UNSTAR ) ) values.put(IS_WAS_AUTO_UNSTAR, true);
+                    if ( GetBool( attributes, IS_WITH_TABLES ) )     values.put(IS_WITH_TABLES, true);
+                    if ( GetBool( attributes, IS_SCROLL_ZOOM ) )     values.put(IS_SCROLL_ZOOM, true);
+                    putIfSet( values, READ_DATE, attributes, READ_DATE );
+                    putIfSet( values, SCROLL_POS, attributes, SCROLL_POS );
+                    putIfSet( values, IS_LANDSCAPE, attributes, IS_LANDSCAPE );
+                    putIfSet( values, ZOOM, attributes, ZOOM );
+                    if ( attributes.getIndex( MOBILIZED_HTML ) >= 0 )
+                        FileUtils.INSTANCE.saveMobilizedHTML(link, attributes.getValue(MOBILIZED_HTML), values);
+                    if ( values.size() > 0 )
+                        cr.update(EntryColumns.CONTENT_URI(id), values, null, null);
+                    if ( attributes.getIndex(_ID) != -1 )
+                        mEntryFileIDToIDVoc.put(Long.valueOf(GetText(attributes, _ID)), id);
+                    return;
+                }
                 values.put(IS_NEW, GetBool(attributes, IS_NEW));
                 values.put(IS_READ, GetBool(attributes, IS_READ));
                 values.put(IS_FAVORITE, GetBool(attributes, IS_FAVORITE));
                 putString( values, ABSTRACT, attributes, ABSTRACT);
                 putString( values, LINK, attributes, LINK);
-                final String link = GetText( attributes, LINK );
                 putString( values, FETCH_DATE, attributes, FETCH_DATE);
                 putString( values, READ_DATE, attributes, READ_DATE);
                 putString( values, DATE, attributes, DATE);
@@ -861,11 +949,15 @@ public class OPML {
                 if ( attributes.getIndex( MOBILIZED_HTML ) >= 0 )
                     FileUtils.INSTANCE.saveMobilizedHTML(link, attributes.getValue(MOBILIZED_HTML), values);
 
-                final Long id = Long.valueOf(cr.insert(EntryColumns.ENTRIES_FOR_FEED_CONTENT_URI(mFeedId ), values).getLastPathSegment());
+                id = Long.valueOf(cr.insert(EntryColumns.ENTRIES_FOR_FEED_CONTENT_URI(mFeedId ), values).getLastPathSegment());
                 if ( attributes.getIndex(_ID) != -1 )
                     mEntryFileIDToIDVoc.put(Long.valueOf(GetText(attributes, _ID)), id);
             } else if (TAG_LABEL.equals(localName)) {
                 if (!sImportFeeds)  // labels belong to the feeds world
+                    return;
+                // A label of the same name is the same label (re-import): attach to it, don't clone it.
+                mLabelID = findLabel( cr, GetText( attributes, LabelColumns.NAME ) );
+                if ( mLabelID != null )
                     return;
                 mLabelOrder++;
                 ContentValues values = new ContentValues();
@@ -878,10 +970,13 @@ public class OPML {
                 if ( mLabelID != null && name != null )
                     LabelVoc.INSTANCE.addLabel( name, mLabelID, values.getAsString(LabelColumns.COLOR) );
             } else if (TAG_LABEL_ENTRY.equals(localName) && mLabelID != null ) {
+                final Long entryId = mEntryFileIDToIDVoc.get(Long.parseLong(GetText(attributes, EntryLabelColumns.ENTRY_ID)));
+                if ( entryId == null )
+                    return;   // the entry never made it in; a null entry_id row is only garbage
                 ContentValues values = new ContentValues();
-                values.put(EntryLabelColumns.ENTRY_ID, mEntryFileIDToIDVoc.get(Long.parseLong(GetText(attributes, EntryLabelColumns.ENTRY_ID))));
+                values.put(EntryLabelColumns.ENTRY_ID, entryId);
                 values.put(EntryLabelColumns.LABEL_ID, mLabelID);
-                cr.insert(EntryLabelColumns.CONTENT_URI, values);
+                cr.insert(EntryLabelColumns.CONTENT_URI, values);   // UNIQUE(label, entry) absorbs a repeat
             } else if (TAG_PREF.equals(localName)) {
                 final String className = attributes.getValue( ATTR_PREF_CLASSNAME );
                 final String value = attributes.getValue( ATTR_PREF_VALUE);
