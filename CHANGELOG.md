@@ -9,6 +9,58 @@ Each fork release names the upstream release it is built on. The build counter i
 
 ---
 
+## 白い熊 Handy RSS 1.1.6+008 — 2026-09-11
+
+Built on upstream **`v1.1.6`** (versionCode 341) — same upstream base as `1.1.6+007`, so everything
+here is fork work.
+
+A restore onto a new phone came up with feeds that refreshed but showed **no thumbnails**, and every
+feed's own settings — 「Show full article」, 「Auto images load」 — sitting at their zero default.
+This release fixes the two causes, both in the OPML export/import.
+
+### Why a restored feed lost its settings — and its articles
+- The backup ZIP holds two OPML documents: `feeds.opml` (Thunderbird-native — URL, title, group,
+  nothing more) and `articles.backup` (the same feeds **with** their settings, filters and entries),
+  written in that order. Import replays the archive in file order, so `feeds.opml` created every
+  feed with every flag explicitly **off**, and `articles.backup` then found each feed already present
+  and **skipped it wholesale** — settings, filters and entries alike. After `feeds.opml`, the whole
+  `articles.backup` was a no-op. That is stock Handy News Reader's importer behaviour; the fork's
+  two-document archive was what made it bite on every restore.
+- A feed whose edit form was never saved keeps 「Auto images load」 as NULL, which every runtime read
+  treats as **on** — but the backup wrote that NULL out as `false`.
+
+### Export: the settings ride on both documents
+- The per-feed settings (retrieve full text, show text in list, auto-refresh, image auto-load,
+  options, fetch mode) are now written into **`feeds.opml` as well**, so even a Feeds-only restore
+  carries them. Thunderbird ignores attributes it does not know; the file imports there exactly as
+  before.
+- A NULL 「Auto images load」 is written as `true` — the file now says what the app does.
+- Last-update stamps and priority stay in `articles.backup` only.
+
+### Import: merge into what is already there
+- A feed that already exists is **merged, not skipped**: the settings the outline states are
+  applied by update, and its filters and entries go in. Absent attributes leave the column alone,
+  so an attribute-less OPML (Thunderbird's own export, an older `feeds.opml`) never zeroes a
+  setting. Priority is deliberately left out of the merge — the provider's feed update reshuffles
+  the whole list on it.
+- **Filters** are deduplicated by text + scope, **entries** by link, **labels** by name, so a
+  re-import never doubles anything.
+- An entry the phone has already fetched keeps its content and gains the backup's **read / starred /
+  scroll / zoom / saved full text** as a **union** — nothing read or starred on the phone since is
+  undone by an older file.
+- On a fresh insert an absent flag is left NULL — the app's own default, which for 「Auto images
+  load」 means on — instead of being forced off.
+- Label-to-article rows whose article never made it in are no longer inserted with an empty
+  article reference.
+
+### Restoring an existing backup
+- A ZIP taken **before** this release restores every feed whose settings had been saved explicitly
+  (their flags were written as `true`), plus the articles and filters that were being dropped; only
+  feeds whose 「Auto images load」 had never been saved still need that box ticked by hand. A fresh
+  export from `1.1.6+008` carries everything.
+
+---
+
 ## 白い熊 Handy RSS 1.1.6+007 — 2026-09-05
 
 Built on upstream **`v1.1.6`** (versionCode 341) — same upstream base as `1.1.6+006`, so everything

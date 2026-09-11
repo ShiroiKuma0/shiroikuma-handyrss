@@ -5,7 +5,7 @@ A personal, rebranded Android RSS reader — a fork of
 [Flym](https://github.com/FredJul/Flym)). It installs **side-by-side** with the official app
 (`shiroikuma.handyrss`), with its own icon and name, fully signed for self-install.
 
-**Latest release:** [`1.1.6+007`](../../releases/latest) · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
+**Latest release:** [`1.1.6+008`](../../releases/latest) · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
 
 ## What this fork adds on top of Handy News Reader
 
@@ -27,6 +27,12 @@ A personal, rebranded Android RSS reader — a fork of
   font files**, and the four settings groups. Stock's own backup carries none of the last three, and
   restores font settings that point at fonts it never saved. Import restores only the categories you
   tick, and still reads every older plain-OPML backup.
+- **A restore that lands complete** — importing a backup into an app that already has some of its
+  feeds (a fresh install that just created them, a phone that has refreshed since) **merges** instead
+  of skipping: every feed takes its own settings back — Show full article, Auto images load, text in
+  list, auto-refresh, options — and its filters and articles follow, deduplicated, with read and
+  starred state joined as a union that never undoes anything read on the phone. Stock skips any feed
+  it already has, silently dropping its settings and every article under it.
 - **Export / Import by category** — the UI screen's first section: one shared export folder (last
   export shown live) and a panel of category checkboxes behind round pill buttons. Every export is
   written to a `.part` file and renamed only once it is whole, so an interrupted backup never leaves
