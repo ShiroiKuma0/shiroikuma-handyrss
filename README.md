@@ -5,7 +5,7 @@ A personal, rebranded Android RSS reader — a fork of
 [Flym](https://github.com/FredJul/Flym)). It installs **side-by-side** with the official app
 (`shiroikuma.handyrss`), with its own icon and name, fully signed for self-install.
 
-**Latest release:** [`1.1.6+008`](../../releases/latest) · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
+**Latest release:** [`1.1.6+010`](../../releases/latest) · arm64 (universal) · Android 4.0+ · F-Droid flavor (no GMS).
 
 ## What this fork adds on top of Handy News Reader
 
@@ -13,6 +13,11 @@ A personal, rebranded Android RSS reader — a fork of
   so it coexists with the official Handy News Reader and never collides on updates.
 - **Grid & card article layout** — switch between classic list rows and an image-top card grid with
   uniform card heights; tune columns, title-line count, and image height live from the top bar.
+- **The list stays where you left it** — open an article from the middle of the grid with 「Show read
+  articles」 off and it leaves the list on the way back; the articles above it do not move a pixel.
+  Stock restores only the row, flush to the top of the screen, throwing away the part-scrolled
+  offset — most of a card height with image-top cards — and gives up entirely when the article you
+  read was the one at the top of the screen, leaving the page wherever the list widget lands it.
 - **Fully configurable per-surface fonts** — independent font family, weight, and size for the article
   title, the in-list text, the feed/category drawer, and the reading view's body & headings — using
   bundled fonts or your own font files.

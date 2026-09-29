@@ -9,6 +9,55 @@ Each fork release names the upstream release it is built on. The build counter i
 
 ---
 
+## 白い熊 Handy RSS 1.1.6+010 — 2026-09-29
+
+Built on upstream **`v1.1.6`** (versionCode 341) — same upstream base as `1.1.6+008`, so everything
+here is fork work.
+
+### The article list keeps its place when a read article drops out
+
+Opening an article from the middle of the grid and pressing Back moved the page. With 「Show read
+articles」 off the article leaves the cursor on the way back, and the list returned somewhere other
+than where it had been — which makes it hard to find where you had got to.
+
+The anchoring machinery was already in `EntriesListFragment`, and it had three faults:
+
+- **The saved offset was never read.** `onScroll` records both the id of the row at the top of the
+  screen and that row's pixel offset, but the restore called `setSelection()`, which snaps the row
+  flush to the top of the viewport. With the grid's image-top cards that throws the page by most of
+  a card height on every single return.
+- **Reading the top row gave up entirely.** When the article you opened was the one at the top of
+  the screen, it is gone from the shortened cursor, the id lookup returned `-1`, and the restore did
+  nothing at all — leaving the list widget's own bookkeeping to put the page wherever it liked.
+- **A stale anchor at the top of the list.** The save was guarded by `firstVisibleItem > 0`, so
+  sitting at the very top left the anchor holding an id from earlier in the session, and returning
+  from the first article restored to that old row.
+
+Now the visible ids are recorded top row first, and the anchor is saved at position 0 as well. The
+restore walks that row of ids until one survives the cursor change — the first is the old anchor and
+carries its pixel offset, a fallback sat lower down the screen and goes flush to the top.
+**The articles above the one that vanished do not move.** The ones below it close up by one card,
+which is simply what removing an item from a grid means.
+
+### Why this does not use `setSelectionFromTop`
+
+Worth recording, because it is the obvious call and it is a trap here. `fragment_entry_list.xml`
+declares a **`GridView`**, and row layout is that same `GridView` with `setNumColumns(1)` — so both
+layout modes are a GridView, never a ListView. `GridView` does not override `setSelectionFromTop`,
+so it falls through to `AbsListView`'s, which in touch mode records only `mResurrectToPosition` and
+leaves `mSelectedPosition` at `INVALID_POSITION`. `GridView.layoutChildren` then hands that straight
+to `fillSpecific()`:
+
+- with 4 columns, `-1 - (-1 % 4)` resolves to row **0** — the list jumps to the top of the feed;
+- with 1 column it resolves to **-1** — `getView(-1)` throws `IllegalStateException: couldn't move
+  cursor to position -1`, and the app crashes on Back.
+
+So the position is set with `setSelection()`, the primitive `GridView` actually implements, and the
+pixel offset follows with `scrollListBy`, posted — `setSelection()` only *requests* the layout that
+the offset depends on.
+
+---
+
 ## 白い熊 Handy RSS 1.1.6+008 — 2026-09-11
 
 Built on upstream **`v1.1.6`** (versionCode 341) — same upstream base as `1.1.6+007`, so everything
