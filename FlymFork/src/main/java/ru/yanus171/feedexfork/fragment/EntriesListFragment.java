@@ -182,6 +182,9 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
     private boolean mNeedSetSelection = false;
     private long mLastVisibleTopEntryID = 0;
     private int mLastListViewTopOffset = 0;
+    // The ids that were on screen, top row first. RestoreListScrollPosition walks it when the
+    // anchor row itself is the article that was just read and has dropped out of the cursor.
+    private final ArrayList<Long> mLastVisibleEntryIDList = new ArrayList<>();
     private Menu mMenu = null;
     private TextView mTextViewFilterLabels = null;
     private FeedFilters mFilters = null;
@@ -355,7 +358,10 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
                         }
                     }
                 }
-                if ( firstVisibleItem > 0 ) {
+                {
+                    // No `firstVisibleItem > 0` guard: sitting at the top of the list used to
+                    // leave the anchor holding whatever it held before, so returning from the
+                    // first article restored to a stale row.
                     mLastVisibleTopEntryID = mEntriesCursorAdapter.getItemId(firstVisibleItem);
                     View v = mListView.getChildAt(0);
                     mLastListViewTopOffset = (v == null) ? 0 : (v.getTop() - mListView.getPaddingTop());
@@ -365,6 +371,8 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
                     for ( int pos = firstVisibleItem; pos < firstVisibleItem + visibleItemCount; pos++ )
                         list.add( mEntriesCursorAdapter.getItemId( pos ) );
                     FetcherService.setEntryIDActiveList( list );
+                    mLastVisibleEntryIDList.clear();
+                    mLastVisibleEntryIDList.addAll( list );
                 }
                 Status().HideByScroll();
 
@@ -1058,12 +1066,63 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
         return where;
     }
 
+    /**
+     * Put the list back exactly where it was after the cursor changes under it.
+     *
+     * Two faults, both visible on every return from an article with "show read" off. The offset
+     * saved beside the anchor in onScroll was never read: setSelection() snaps the anchor flush
+     * to the top of the viewport, which with the grid's image-top cards throws the page by most
+     * of a card height. And when the anchor row was itself the article just read, it is gone
+     * from the shortened cursor, GetPosByID returned -1 and the restore did nothing at all,
+     * leaving AbsListView's own bookkeeping to land wherever it liked.
+     *
+     * So: keep the pixel offset, and fall back down the row of ids that were on screen until one
+     * survives. The articles above the one that vanished then do not move at all.
+     */
     private void RestoreListScrollPosition() {
-        if ( mLastVisibleTopEntryID != -1 ) {
-            int pos = mEntriesCursorAdapter.GetPosByID(mLastVisibleTopEntryID);
-            if ( pos != -1 )
-                mListView.setSelection(pos);
+        if ( mEntriesCursorAdapter == null || mListView == null )
+            return;
+        for ( int i = 0; i < mLastVisibleEntryIDList.size(); i++ ) {
+            final int pos = mEntriesCursorAdapter.GetPosByID( mLastVisibleEntryIDList.get( i ) );
+            if ( pos == -1 )
+                continue;
+            // Only the row that was actually at the top carries the offset; a fallback row sat
+            // lower down the screen, so it goes flush to the top instead.
+            SetSelectionFromTop( pos, i == 0 ? mLastListViewTopOffset : 0 );
+            return;
         }
+        // Nothing that was on screen survived, or we have not scrolled yet this session and the
+        // only anchor is the one restored from prefs in onCreate.
+        if ( mLastVisibleTopEntryID != -1 ) {
+            final int pos = mEntriesCursorAdapter.GetPosByID( mLastVisibleTopEntryID );
+            if ( pos != -1 )
+                SetSelectionFromTop( pos, mLastListViewTopOffset );
+        }
+    }
+
+    /**
+     * Restore a list position, pixel offset and all.
+     *
+     * Deliberately NOT setSelectionFromTop. This view is a GridView in BOTH layout modes — row
+     * layout is the same GridView with setNumColumns(1) — and GridView never overrides
+     * setSelectionFromTop, so it falls through to AbsListView's, which in touch mode records only
+     * mResurrectToPosition and leaves mSelectedPosition at INVALID_POSITION. GridView.layoutChildren
+     * then hands that straight to fillSpecific(): with 4 columns it resolves to row 0, so the list
+     * jumps to the very top of the feed; with 1 column it resolves to -1 and getView(-1) throws
+     * "couldn't move cursor to position -1". 1.1.6+009 did exactly both.
+     *
+     * setSelection() is the primitive GridView actually implements. The pixel offset then goes on
+     * with scrollListBy, posted because setSelection only *requests* a layout — the offset cannot
+     * be applied until that layout has run.
+     */
+    private void SetSelectionFromTop( final int pos, final int offset ) {
+        mListView.setSelection( pos );
+        if ( offset == 0 || Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT )
+            return;
+        mListView.post( () -> {
+            if ( mListView != null )
+                mListView.scrollListBy( -offset );
+        } );
     }
 
     private final OnSharedPreferenceChangeListener mPrefListener = (sharedPreferences, key) -> {
