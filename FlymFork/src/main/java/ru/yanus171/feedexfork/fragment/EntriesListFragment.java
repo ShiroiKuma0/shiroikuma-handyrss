@@ -185,6 +185,8 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
     // The ids that were on screen, top row first. RestoreListScrollPosition walks it when the
     // anchor row itself is the article that was just read and has dropped out of the cursor.
     private final ArrayList<Long> mLastVisibleEntryIDList = new ArrayList<>();
+    // The pixel top of each of those rows, same order, relative to the list padding.
+    private final ArrayList<Integer> mLastVisibleEntryTopList = new ArrayList<>();
     private Menu mMenu = null;
     private TextView mTextViewFilterLabels = null;
     private FeedFilters mFilters = null;
@@ -373,6 +375,11 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
                     FetcherService.setEntryIDActiveList( list );
                     mLastVisibleEntryIDList.clear();
                     mLastVisibleEntryIDList.addAll( list );
+                    mLastVisibleEntryTopList.clear();
+                    for ( int i = 0; i < list.size(); i++ ) {
+                        final View child = mListView.getChildAt( i );
+                        mLastVisibleEntryTopList.add( child == null ? 0 : child.getTop() - mListView.getPaddingTop() );
+                    }
                 }
                 Status().HideByScroll();
 
@@ -1069,15 +1076,10 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
     /**
      * Put the list back exactly where it was after the cursor changes under it.
      *
-     * Two faults, both visible on every return from an article with "show read" off. The offset
-     * saved beside the anchor in onScroll was never read: setSelection() snaps the anchor flush
-     * to the top of the viewport, which with the grid's image-top cards throws the page by most
-     * of a card height. And when the anchor row was itself the article just read, it is gone
-     * from the shortened cursor, GetPosByID returned -1 and the restore did nothing at all,
-     * leaving AbsListView's own bookkeeping to land wherever it liked.
-     *
-     * So: keep the pixel offset, and fall back down the row of ids that were on screen until one
-     * survives. The articles above the one that vanished then do not move at all.
+     * Walk the ids that were on screen, top first, until one survives the cursor change — the
+     * article just read may have been the anchor itself and dropped out with "show read" off —
+     * and put that row back at the pixel top it had. The articles above the one that vanished
+     * then do not move at all.
      */
     private void RestoreListScrollPosition() {
         if ( mEntriesCursorAdapter == null || mListView == null )
@@ -1086,13 +1088,11 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
             final int pos = mEntriesCursorAdapter.GetPosByID( mLastVisibleEntryIDList.get( i ) );
             if ( pos == -1 )
                 continue;
-            // Only the row that was actually at the top carries the offset; a fallback row sat
-            // lower down the screen, so it goes flush to the top instead.
-            SetSelectionFromTop( pos, i == 0 ? mLastListViewTopOffset : 0 );
+            SetSelectionFromTop( pos, i < mLastVisibleEntryTopList.size() ? mLastVisibleEntryTopList.get( i ) : 0 );
             return;
         }
         // Nothing that was on screen survived, or we have not scrolled yet this session and the
-        // only anchor is the one restored from prefs in onCreate.
+        // only anchor is the one restored from prefs in onStart.
         if ( mLastVisibleTopEntryID != -1 ) {
             final int pos = mEntriesCursorAdapter.GetPosByID( mLastVisibleTopEntryID );
             if ( pos != -1 )
@@ -1111,18 +1111,33 @@ public class EntriesListFragment extends /*SwipeRefreshList*/Fragment implements
      * jumps to the very top of the feed; with 1 column it resolves to -1 and getView(-1) throws
      * "couldn't move cursor to position -1". 1.1.6+009 did exactly both.
      *
-     * setSelection() is the primitive GridView actually implements. The pixel offset then goes on
-     * with scrollListBy, posted because setSelection only *requests* a layout — the offset cannot
-     * be applied until that layout has run.
+     * Nor may the offset be applied blindly after setSelection. changeCursor() makes the view
+     * remember its old first position and that row's pixel top, and the next layout's
+     * handleDataChanged() swaps our LAYOUT_SET_SELECTION for that LAYOUT_SYNC — so when the
+     * anchor kept its position the page is already back exactly, and 1.1.6+010's posted
+     * scrollListBy(-offset) moved it a second time, lifting a part-hidden top row clean off the
+     * screen. Instead, once the layout has run, measure where the row actually is and scroll by
+     * the difference only; if the sync left it off screen, setSelection it and measure again.
      */
     private void SetSelectionFromTop( final int pos, final int offset ) {
         mListView.setSelection( pos );
-        if ( offset == 0 || Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT )
+        mListView.post( () -> AlignRowTop( pos, offset, true ) );
+    }
+
+    private void AlignRowTop( final int pos, final int offset, final boolean retry ) {
+        if ( mListView == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT )
             return;
-        mListView.post( () -> {
-            if ( mListView != null )
-                mListView.scrollListBy( -offset );
-        } );
+        final View v = mListView.getChildAt( pos - mListView.getFirstVisiblePosition() );
+        if ( v == null ) {
+            if ( retry ) {
+                mListView.setSelection( pos );
+                mListView.post( () -> AlignRowTop( pos, offset, false ) );
+            }
+            return;
+        }
+        final int delta = v.getTop() - mListView.getPaddingTop() - offset;
+        if ( delta != 0 )
+            mListView.scrollListBy( delta );
     }
 
     private final OnSharedPreferenceChangeListener mPrefListener = (sharedPreferences, key) -> {
