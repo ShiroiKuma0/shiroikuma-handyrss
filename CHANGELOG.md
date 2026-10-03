@@ -9,6 +9,40 @@ Each fork release names the upstream release it is built on. The build counter i
 
 ---
 
+## 白い熊 Handy RSS 1.1.6+011 — 2026-10-03
+
+Built on upstream **`v1.1.6`** (versionCode 341) — same upstream base as `1.1.6+010`, so everything
+here is fork work.
+
+### The grid's top row no longer slides off the screen on Back
+
+`1.1.6+010` fixed the list jumping elsewhere on return, but left one case wrong. Scroll so that the
+article you are about to read sits in the **top row** of the grid, open one that is **not the first
+card of that row**, press Back — and that row came back lifted just above the top edge of the screen,
+so you had to scroll down a little to see where you were.
+
+The page was being put back **twice**:
+
+- **The list widget already restores it.** Swapping in the shortened cursor fires the adapter's
+  change observer, and `AbsListView` remembers its first position together with that row's pixel
+  top. On the next layout, `handleDataChanged()` replaces the selection we had just asked for with
+  that remembered position and offset. When the article you read sits after the first card of its
+  row, the first card keeps its position — so this alone puts the page back exactly.
+- **Then the fork applied the offset again.** `1.1.6+010` followed `setSelection()` with a posted
+  `scrollListBy(-offset)`, assuming the row had been snapped flush to the top. It had not, so the
+  page moved a second time by however much of the top row was hidden above the screen — usually
+  most of a card, which is why the row ended up just out of sight.
+
+Now the offset is a **correction, not a blind scroll**. Once the layout has run, the restore measures
+where the anchor card actually is and scrolls only by the difference — nothing at all when the list
+already got it right. If the anchor ended up off screen, it is selected and measured once more.
+
+The scroll listener also records the **pixel top of every visible card**, not just the top row's. If
+the article you read was the first card of its row, the next card takes its place and goes back to
+that card's own old height instead of being pushed flush to the top of the screen.
+
+---
+
 ## 白い熊 Handy RSS 1.1.6+010 — 2026-09-29
 
 Built on upstream **`v1.1.6`** (versionCode 341) — same upstream base as `1.1.6+008`, so everything
