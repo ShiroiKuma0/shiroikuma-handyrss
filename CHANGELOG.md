@@ -9,6 +9,27 @@ Each fork release names the upstream release it is built on. The build counter i
 
 ---
 
+## 白い熊 Handy RSS 1.1.6+012 — 2026-10-17
+
+Built on upstream **`v1.1.6`** (versionCode 341) — same upstream base as `1.1.6+011`, so everything
+here is fork work.
+
+### A horizontal swipe in the reading view changes the article at once
+
+Swiping left or right on an article whose content was **wider than the screen** — a wide table, an
+image or embed with a fixed width — first panned the article sideways, exposing up to about one and a
+half screens of empty space on the right, and only then jumped to the next article.
+
+The reading view is a `ViewPager` with one `WebView` per article, and the pager hands a horizontal
+drag to any child that can still scroll horizontally before it pages itself. Our article `WebView`
+(`WebViewExtended`) now reports that it **cannot scroll horizontally**, so the swipe goes straight to
+the pager, and any horizontal offset the page picks up anyway (a fling, a layout change) is snapped
+back to the left edge.
+
+Trade-off: content wider than the screen can no longer be panned sideways; its overflow is clipped.
+
+---
+
 ## 白い熊 Handy RSS 1.1.6+011 — 2026-10-03
 
 Built on upstream **`v1.1.6`** (versionCode 341) — same upstream base as `1.1.6+010`, so everything
