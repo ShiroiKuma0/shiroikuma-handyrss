@@ -520,8 +520,20 @@ public class WebViewExtended extends WebView implements Handler.Callback {
             scrollTo( 0, mEntryView.GetScrollY() );
     }
 
+    // A horizontal swipe belongs to the entry ViewPager (next/previous article). The pager
+    // lets a child that can still scroll horizontally consume the drag first, so content
+    // wider than the screen used to pan sideways into empty space before the page changed.
+    @Override
+    public boolean canScrollHorizontally(int direction) {
+        return false;
+    }
+
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+        if ( l != 0 ) {
+            scrollTo( 0, t );
+            return;
+        }
         Status().HideByScroll();
         if ( mEntryView.mEntryFragment != null )
             mEntryView.mEntryFragment.UpdateHeader();
